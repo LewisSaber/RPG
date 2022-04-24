@@ -88,7 +88,10 @@ function random(r){
   }
 
 function switchmode(){
-   
+    if(isMapModeOn)
+    {
+    maps[mapY][mapX] = generatedMap; savemap()
+}
     isMapModeOn = !isMapModeOn
     localStorage.setItem("RPGeditmode", JSON.stringify(isMapModeOn));
     window.location.reload();

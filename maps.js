@@ -237,6 +237,7 @@ function loadmap() {
 
 function OpenMapGui()
 {
+  maps[mapY][mapX] = generatedMap; savemap();
   window.removeEventListener("mousedown", onMapModeClick);
 e.map.style.display = "none"
 e.mapsGui.style.display = "block"

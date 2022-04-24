@@ -35,7 +35,7 @@ z-index: 100;
     border: 0;
   position: absolute;
   image-rendering: crisp-edges;
-  image-rendering: pixelated;
+  image-rendering: pixelated; 
   background-size: cover;
 
  z-index: 20;

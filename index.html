@@ -8,7 +8,7 @@
   </head>
   <body id="body">
 <div id="map"></div>
-
+<div id="hotbar"></div>
 <div id="editmode">
 <div id="mapsGui"></div>
 <div id="blocksSelector"><button id="fill3x3" class="blockselector" onclick="turnButton(this.id,0)"></button>
@@ -19,6 +19,7 @@
        <button id="randomfill" onclick="randomfill(this)">100%</button>
        <button id="saveMap" onclick="maps[mapY][mapX] = generatedMap; savemap()">Save</button>
        <button id="openMaps" onclick="OpenMapGui()">M</button>
+
 </div>
 <button id="switchmode" onclick="switchmode()">Switch</button>
 

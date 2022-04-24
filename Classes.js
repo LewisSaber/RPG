@@ -8,6 +8,15 @@ class player {
     this.x = 50;
     this.y = 20;
     this.speed = 300;
+    this.inventorySlots = 36;
+    this.inventory = {}
+    for(let i = 0; i < this.inventorySlots; i++)
+    {
+      this.inventory["slot" + i] = {}
+      this.inventory["slot" + i]["item"] = "empty"
+      this.inventory["slot" + i].size = 0
+    }
+    
 
     e.player.style.left = this.x + "vh";
     e.player.style.top = this.y + "vh";

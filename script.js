@@ -102,4 +102,22 @@ function loadMode(){
     if(isMapModeOn == null)
     isMapModeOn = 1
 }
+function buildHotbar(){
+    e.hotbar.innerText = ""
+for(let i = 0 ; i < 9;i++){
+
+   let tag = document.createElement("div")
+    tag.setAttribute("class","guiSlot")
+
+    e["slot" + i + "handler"]
+   let amount = document.createElement("div")
+   amount.setAttribute("class","itemamount")
+   e["slot" + i + "amount"] = amount
+   if(steve.inventory["slot" + i].item != "empty")
+   tag.appendChild(amount)
+  e.hotbar.appendChild(tag)
+}
+}
+//unction openInventory()
+
 

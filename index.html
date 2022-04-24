@@ -16,10 +16,11 @@
        <button id="fillHorizontalLine" class="blockselector" onclick="turnButton(this.id,2)"></button>
        </div>
        <button id="floormode" onclick="floormode = +!floormode;  this.style.backgroundColor = floormode ? 'green' : 'red'  ">F</button>
+       <button id="randomfill" onclick="randomfill(this)">100%</button>
        <button id="saveMap" onclick="maps[mapY][mapX] = generatedMap; savemap()">Save</button>
        <button id="openMaps" onclick="OpenMapGui()">M</button>
 </div>
-
+<button id="switchmode" onclick="switchmode()">Switch</button>
 
 
     <script>window.addEventListener("error", handleError, true);

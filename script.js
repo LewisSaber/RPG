@@ -1,16 +1,17 @@
 let currentmap
 let loading = 0
-let isMapModeOn = 1
+let isMapModeOn 
 function LOADING(){
    loadIDS()
    loadmap()
    mapX = 0
    mapY = 0
+   loadMode()
 
-   currentmap = maps[mapY][mapX]
+  
    if(!isMapModeOn)
    {
-   generateMap( currentmap)
+   generateMap()
    
     steve = new player()
     window.addEventListener("keydown",downButtonHandler)
@@ -81,5 +82,21 @@ function upButtonHandler(evt){
  
     
 }
+function random(r){
+    r = Math.round(r)
+      return Math.floor(Math.random()*r) == 0
+  }
 
+function switchmode(){
+   
+    isMapModeOn = !isMapModeOn
+    localStorage.setItem("RPGeditmode", JSON.stringify(isMapModeOn));
+    window.location.reload();
+}
+
+function loadMode(){
+    isMapModeOn = JSON.parse(localStorage.getItem("RPGeditmode"));
+    if(isMapModeOn == null)
+    isMapModeOn = 1
+}
 

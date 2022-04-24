@@ -5,7 +5,8 @@
     background-size: cover;
     position: absolute;
     margin: 0%;
-
+opacity: 1;
+z-index: 100;
 }
 
 .block
@@ -22,10 +23,15 @@
  
   
 }
+.block:hover {
+    border: solid 2px purple;
+    box-sizing: border-box;
+ }
 .blockfloor
 {
     width: 5vh;
     height: 5vh;
+    border: 0;
   position: absolute;
   
   background-size: cover;
@@ -33,6 +39,10 @@
  z-index: 20;
     opacity: 0.6;
 }
+.blockfloor:hover {
+    border: solid 2px purple;
+    box-sizing: border-box;
+ }
 .air
 {
     opacity: 0;
@@ -69,14 +79,18 @@ background-image: url("img/stone.png");
 {
     margin: 0;
     padding: 0;
-    width: 10vh;
-    height: 10vh;
+    width: 5vh;
+    height: 5vh;
     display: block;
     float: left;
   background-size: cover;
 }
 #map{
     position: absolute;
+    background-color: black;
+   left: 3px;
+   top: 1px;
+    z-index: 0;
 }
 .air 
 {
@@ -85,16 +99,22 @@ background-image: url("img/stone.png");
 #fill3x3{
     background-image: url(img/3x3.png);
     background-color: red;
+    width: 10vh;
+    height: 10vh;
  
 }
 #fillHorizontalLine{
     background-image: url(img/horizontalLine.png);
     background-color: red;
+    width: 10vh;
+    height: 10vh;
    
 }
 #fillVericalLine{
     background-image: url(img/verticalLine.png);
     background-color: red;
+    width: 10vh;
+    height: 10vh;
   
 }
 .cactus{
@@ -115,6 +135,29 @@ background-image: url("img/stone.png");
     float: left;
     font-size: 5vh;
     background-color: red;
+}
+#randomfill
+{
+    margin: 0;
+    padding: 0;
+    width: 10vh;
+    height: 10vh;
+    display: block;
+    float: left;
+    font-size: 4vh;
+    background-color: green;
+
+}
+#switchmode{
+    margin: 0;
+    padding: 0;
+    width: 20vh;
+    height: 10vh;
+    position: absolute;
+    right: 3vh;
+   bottom: 3vh;
+    font-size: 4vh;
+    
 }
 #saveMap{
     margin: 0;
@@ -155,4 +198,41 @@ background-image: url("img/stone.png");
     display: block;
     float: left;
     font-size: 4vh;
+}
+
+.glass
+{
+    background-image: url(img/glass.png);
+}
+.tnt{
+    background-image: url(img/tnt_side.png);
+}
+.ironOre{
+    background-image: url(img/iron_ore.png);
+}
+.coalOre{
+    background-image: url(img/coal_ore.png);
+}
+.redstoneOre{
+    background-image: url(img/redstone_ore.png);
+}
+.diamondOre{
+    background-image: url(img/diamond_ore.png);
+}
+.grass{
+    background-image: url(img/grass_top.png);
+
+}
+.leavesoak{
+    background-image: url(img/leaves_oak.png);
+}
+.stoneslab{
+    background-image: url(img/stone_slab_top.png);
+}
+.greenwool{
+    background-image: url(img/wool_colored_green.png);
+}
+.grassPlant{
+    background-image: url(img/double_plant_grass_top.png);
+    box-shadow: none;
 }

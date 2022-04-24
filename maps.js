@@ -1,8 +1,8 @@
 let maps = [[]]
-  
-
+let selectorblocks = ["air", "stone", "sponge", "snow", "cactus", "obsidian","glass","tnt","ironOre","coalOre","diamondOre","redstoneOre","grass","stoneslab","leavesoak","greenwool","grassPlant"];
+let allowedblocks = ["air","grassPlant"]
 let mapW = 30;
-let mapH = 18;
+let mapH = 16;
 
 function generateEmptyMap() {
   let gm = [];
@@ -10,14 +10,14 @@ function generateEmptyMap() {
     gm[i] = new Array();
     for (let j = 0; j < mapW; j++) {
       gm[i][j] = new Array();
-      gm[i][j].push("0");
-      gm[i][j].push("0");
+      gm[i][j].push("air");
+      gm[i][j].push("air");
     }
   }
   return gm;
 }
 
-let selectorblocks = ["air", "stone", "sponge", "snow", "cactus", "obsidian"];
+
 let selectedBlock = "stone";
 function loadSelectedBlocks() {
   selectorblocks.forEach((x) => {
@@ -33,13 +33,14 @@ function loadSelectedBlocks() {
 let maphtml = [];
 function generateMap() {
   let map = maps[mapY][mapX]
+  currentmap =  maps[mapY][mapX]
   e.map.innerText = "";
   for (let y = 0; y < mapH; y++) {
-    //  maphtml[y] = new Array()
+  
     for (let x = 0; x < mapW; x++) {
-      //  maphtml[y][x] = new Array()
+ 
       for (let l = 0; l < 2; l++) {
-        if (map[y][x][l] != "0") {
+        if (map[y][x][l] != "air") {
           let tag = document.createElement("div");
           if (l == 0) tag.classList.add("block", map[y][x][l]);
           else tag.classList.add("blockfloor", map[y][x][l]);
@@ -75,19 +76,21 @@ function generateDebugMap() {
   return generateEmptyMap();
 }
 function editmap() {
+  window.removeEventListener("mousedown", onMapModeClick);
+  window.addEventListener("mousedown", onMapModeClick);
   e.map.style.display ="block"
 e.mapsGui.style.display =  "none"
 if(maps[mapY] == undefined)
 maps[mapY]  = new Array()
 
   if (maps[mapY][mapX] == undefined){ generatedMap =  generateDebugMap();
-    console.log(generatedMap)
+   
     maps[mapY][mapX] = generatedMap
    // generateMap()
   }
   else {
 let map = maps[mapY][mapX]
-    e.map.innertext = "";
+    e.map.innerText = "";
     for (let y = 0; y < mapH; y++) {
       maphtml[y] = new Array();
       for (let x = 0; x < mapW; x++) {
@@ -97,7 +100,7 @@ let map = maps[mapY][mapX]
           if (l == 0)
             tag.classList.add(
               "block",
-              map[y][x][l] == "0" ? "air" : map[y][x][l]
+              map[y][x][l]
             );
           else tag.classList.add("blockfloor", map[y][x][l]);
 
@@ -108,7 +111,7 @@ let map = maps[mapY][mapX]
         }
       }
     }
-    console.log(map)
+    
     generatedMap  = map
   }
  
@@ -141,6 +144,21 @@ function mapMode() {
 let oldclicks = [-1, -1];
 let features = [0, 0, 0];
 let floormode = 0;
+let randomfillamount = 100
+function randomfill(button)
+{
+  if(randomfillamount == 100){
+randomfillamount = window.prompt("Enter %")
+button.style.backgroundColor = "green"
+
+  }else
+  {
+    button.style.backgroundColor = "red"
+    randomfillamount = 100
+  }
+  button.innerText = randomfillamount + "%"
+
+}
 
 function onMapModeClick(evt) {
   let clickX = (evt.x / percent / 5) >> 0;
@@ -155,9 +173,9 @@ function onMapModeClick(evt) {
         fillHorizontalLine(clickY);
       } else {
         generatedMap[clickY][clickX][floormode] = selectedBlock;
-        if (floormode)
-          maphtml[clickY][clickX][1].classList = "blockfloor " + selectedBlock;
-        else maphtml[clickY][clickX][0].classList = "block " + selectedBlock;
+        
+          maphtml[clickY][clickX][floormode].classList = (floormode == 0 ? "block " : "blockfloor ") + selectedBlock;
+       
       }
     }
   oldclicks = [clickY, clickX];
@@ -168,7 +186,7 @@ function fill3x3(clickY, clickX) {
   for (let y = 0; y < 3; y++) {
     if (generatedMap[clickY + y] != undefined)
       for (let x = 0; x < 3; x++) {
-        if (generatedMap[clickY + y][clickX + x] != undefined) {
+        if (generatedMap[clickY + y][clickX + x] != undefined && random(100/randomfillamount)) {
           generatedMap[clickY + y][clickX + x][floormode] = selectedBlock;
           maphtml[clickY + y][clickX + x][floormode].classList =(floormode == 0 ? "block " : "blockfloor ") + selectedBlock;
         }
@@ -178,14 +196,20 @@ function fill3x3(clickY, clickX) {
 
 function fillVericalLine(clickX) {
   for (let y = 0; y < mapH; y++) {
+    if(random(100/randomfillamount))
+    {
     generatedMap[y][clickX][floormode] = selectedBlock;
     maphtml[y][clickX][floormode].classList = (floormode == 0 ? "block " : "blockfloor ") + selectedBlock;
+    }
   }
 }
 function fillHorizontalLine(clickY) {
   for (let x = 0; x < mapW; x++) {
+    if(random(100/randomfillamount))
+    {
     generatedMap[clickY][x][floormode] = selectedBlock;
     maphtml[clickY][x][floormode].classList =(floormode == 0 ? "block " : "blockfloor ") + selectedBlock;
+    }
   }
 }
 
@@ -213,13 +237,14 @@ function loadmap() {
 
 function OpenMapGui()
 {
+  window.removeEventListener("mousedown", onMapModeClick);
 e.map.style.display = "none"
 e.mapsGui.style.display = "block"
 e.mapsGui.innerText = ""
 for(let y = 0; y <= maps.length;y++){
 let div  = document.createElement("div")
 div.setAttribute("class","mapGuiRow")
-let length = y==maps.length ? maps[y-1].length : maps[y].length
+let length = y==maps.length ? maps[y-1].length -1 : maps[y].length
 for(let x = 0; x <= length;x++){
 let tag = document.createElement("button")
 tag.setAttribute("class","mapGuiButton")
@@ -228,7 +253,14 @@ tag.setAttribute("onclick","mapX = " +x+" ; mapY = "+y+"; editmap()")
 div.appendChild(tag)
 }
 e.mapsGui.appendChild(div)
-
-
 }
+}
+function resetmaps(){
+  maps = [[]]
+  savemap()
+}
+function goToNextMap(){
+  generateMap()
+  steve.spawn()
+  
 }

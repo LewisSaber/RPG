@@ -1,0 +1,158 @@
+#player{
+    width:5vh;
+    height: 5vh;
+    background-image: url(img/player.jfif);
+    background-size: cover;
+    position: absolute;
+    margin: 0%;
+
+}
+
+.block
+{
+    width: 5vh;
+    height: 5vh;
+  position: absolute;
+  
+  background-size: cover;
+
+  opacity: 1;
+  z-index: 30;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+ 
+  
+}
+.blockfloor
+{
+    width: 5vh;
+    height: 5vh;
+  position: absolute;
+  
+  background-size: cover;
+
+ z-index: 20;
+    opacity: 0.6;
+}
+.air
+{
+    opacity: 0;
+}
+
+.stone{
+background-image: url("img/stone.png");
+
+}
+.sponge{
+    background-image: url("img/sponge.png"); 
+}
+.snow{
+    background-image: url("img/snow.png");
+}
+#blocksSelector{
+    width: 30vh;
+    padding: 0;
+    height: 60vh;
+    display: block;
+    float: right;
+  border: solid red 1px;
+
+}
+#editmode{
+    width: 41vh;
+    padding: 0;
+    height: 60vh;
+    display: none;
+    float: right;
+  border: solid red 1px;
+}
+.blockselector
+{
+    margin: 0;
+    padding: 0;
+    width: 10vh;
+    height: 10vh;
+    display: block;
+    float: left;
+  background-size: cover;
+}
+#map{
+    position: absolute;
+}
+.air 
+{
+    background-color: aqua;
+}
+#fill3x3{
+    background-image: url(img/3x3.png);
+    background-color: red;
+ 
+}
+#fillHorizontalLine{
+    background-image: url(img/horizontalLine.png);
+    background-color: red;
+   
+}
+#fillVericalLine{
+    background-image: url(img/verticalLine.png);
+    background-color: red;
+  
+}
+.cactus{
+    background-image: url(img/cactus_top.png);
+}
+.obsidian
+{
+    background-image: url(img/obsidian.png);
+ 
+}
+#floormode
+{
+    margin: 0;
+    padding: 0;
+    width: 10vh;
+    height: 10vh;
+    display: block;
+    float: left;
+    font-size: 5vh;
+    background-color: red;
+}
+#saveMap{
+    margin: 0;
+    padding: 0;
+    width: 10vh;
+    height: 10vh;
+    display: block;
+    float: left;
+    font-size: 4vh;
+}
+#mapsGui{
+    width: 120vh;
+    height: 50vh;
+    position: absolute;
+    top: 5vh;
+    left: 5vh;
+    display: none;
+    background-color: gray;
+}
+.mapGuiButton{
+    width: 5vh;
+    height: 5vh;
+    margin: 0.5vh;
+    float: left;
+    display: inline;
+}
+.mapGuiRow{
+    width: 100%;
+    height: 6vh;
+    
+}
+#openMaps
+{
+    margin: 0;
+    padding: 0;
+    width: 10vh;
+    height: 10vh;
+    display: block;
+    float: left;
+    font-size: 4vh;
+}

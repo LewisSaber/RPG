@@ -45,9 +45,8 @@ z-index: 100;
     border: solid 2px purple;
     box-sizing: border-box;
  }
-.air
-{
-    opacity: 0;
+.air{
+    box-shadow: none;
 }
 
 .stone{
@@ -97,10 +96,7 @@ background-image: url("img/stone.png");
    top: 1px;
     z-index: 0;
 }
-.air 
-{
-    background-color: aqua;
-}
+
 #fill3x3{
     background-image: url(img/3x3.png);
     background-color: red;

@@ -86,6 +86,9 @@ background-image: url("img/stone.png");
     display: block;
     float: left;
   background-size: cover;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated; 
+  background-color: gray;
 }
 #map{
     position: absolute;

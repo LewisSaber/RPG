@@ -129,7 +129,16 @@ function exportMap(map = generatedMap) {
   }
   mapx = mapx.slice(0, -1);
   mapx += "]";
-  return mapx;
+
+  navigator.clipboard.writeText(JSON.stringify(mapx)).then(
+    function () {
+      alert("Copied to clipboard!")
+    },
+    function () {
+      alert("Error copying to clipboard, try again...")
+    }
+  )
+ 
 }
 //[r][c] - R-rows; C-columns
 let percent = window.innerHeight / 100;

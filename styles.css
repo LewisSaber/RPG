@@ -160,6 +160,7 @@ background-image: url("img/stone.png");
     font-size: 4vh;
     
 }
+#exportMap,
 #saveMap{
     margin: 0;
     padding: 0;
@@ -169,6 +170,7 @@ background-image: url("img/stone.png");
     float: left;
     font-size: 4vh;
 }
+
 #mapsGui{
     width: 120vh;
     height: 50vh;
@@ -225,7 +227,7 @@ background-image: url("img/stone.png");
     background-size: cover;
     image-rendering: crisp-edges;
     image-rendering: pixelated; 
-    
+
 
 }
 .itemamount{

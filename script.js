@@ -133,6 +133,7 @@ function loadMode(){
     isMapModeOn = 1
 }
 function buildHotbar(){
+    e.hotbar.style.display = "block"
     e.hotbar.innerText = ""
 for(let i = 0 ; i < 9;i++){
 

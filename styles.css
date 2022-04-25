@@ -208,7 +208,7 @@ background-image: url("img/stone.png");
     border-radius: 1vh;
     left: 20vh;
     background-color: rgb(167, 167, 167);
-
+    display: none;
     height: 8vh;
     padding: 1vh;
     width: 76vh;

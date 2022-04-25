@@ -205,9 +205,13 @@ background-image: url("img/stone.png");
     bottom: 1vh;
     border-radius: 1vh;
     left: 20vh;
-    background-color: lightgrey;
+    background-color: rgb(167, 167, 167);
+
     height: 8vh;
     padding: 1vh;
+    width: 76vh;
+    z-index: 999;
+    border: inset 1.5vh gray;
 
 }
 .guiSlot{
@@ -217,7 +221,34 @@ background-image: url("img/stone.png");
     margin: 0.5vh;
     height: 7vh;
     border: inset 0.2vh gray;
+    position: relative;
+    background-size: cover;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated; 
+    
 
+}
+.itemamount{
+    position: absolute;
+    bottom: 0.2vh;
+    right: 0.2vh;
+    font-size: 3vh;
+    font-weight: 500;
+    font-family: Arial, Helvetica, sans-serif;
+}
+#inventory{
+    top: 18vh;
+    width: 76vh;
+    height: 24vh;
+    background-color: rgb(167, 167, 167);
+    display: none;
+    position: absolute;
+    left: 20vh;
+    padding: 1vh;
+    z-index: 1000;
+   
+    border: inset 1.5vh gray;
+    border-bottom: inset 1vh gray;
 }
 
 

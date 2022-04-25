@@ -1,7 +1,7 @@
 let maps = [[]]
 let selectorblocks = ["air", "stone", "sponge", "snow", "cactus", "obsidian","glass","tnt","ironOre","coalOre","diamondOre","redstoneOre","grass","stoneslab","leavesoak","greenwool","grassPlant"];
 let allowedblocks = ["air","grassPlant"]
-let mapW = 30;
+let mapW = 24;
 let mapH = 16;
 
 function generateEmptyMap() {

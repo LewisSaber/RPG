@@ -12,9 +12,8 @@ class player {
     this.inventory = {}
     for(let i = 0; i < this.inventorySlots; i++)
     {
-      this.inventory["slot" + i] = {}
-      this.inventory["slot" + i]["item"] = "empty"
-      this.inventory["slot" + i].size = 0
+      this.inventory["slot" + i] = new classes.empty()
+  
     }
     
 
@@ -113,59 +112,89 @@ class player {
     e.player.style.left = this.x + "vh";
   
   }
-}
+  searchForItemInInventory(item)
+  {
+    let itemSlots = []
+    for(let i = this.inventorySlots -1; i >= 0;i--)
+    {
+      
+      if(this.inventory["slot"+i].name == item.name) itemSlots.push(i)
+      
+    }
+    return itemSlots
+  }
+  searchForFirstEmpty(){
+    for(let i = this.inventorySlots -1; i >= 0;i--)
+    {
+      if(this.inventory["slot"+i].name == "empty") return i
+    }
+  }
 
-/*  if (oldcoords[0] > this.y) {
-        if (this.x % 5 == 0) {
-          if (currentmap[(this.y / 5) >> 0][this.x / 5][0] !="air")
-            this.y = oldcoords[0];
-        } else {
-          if (
-            currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0] !="air" ||
-            currentmap[(this.y / 5) >> 0][(this.x / 5 + 1) >> 0][0] !="air"
-          )
-            this.y = oldcoords[0];
-        }
-      } else {
-        if (this.x % 5 == 0) {
-          if (currentmap[((this.y - 0.2) / 5 + 1) >> 0][this.x / 5][0] !="air")
-            this.y = oldcoords[0];
-        } else if (
-          currentmap[((this.y - 0.2) / 5 + 1) >> 0][(this.x / 5) >> 0][0] !="air" ||
-          currentmap[((this.y - 0.2) / 5 + 1) >> 0][(this.x / 5 + 1) >> 0][0] !="air"
-        )
-          this.y = oldcoords[0];
+
+  addToInventory(item){
+
+    let itemslots = this.searchForItemInInventory(item)
+    if(itemslots != undefined)
+    for(let i = 0; i < itemslots.length;i++){
+      if(item.amount <=this.inventory["slot"+itemslots[i]].maxStackSize -this.inventory["slot"+itemslots[i]].amount ){
+        this.inventory["slot"+itemslots[i]].amount += item.amount
+        item.amount = 0;
+        i = 10000;
       }
-      if (keys[1] != keys[3]) {
-        if (keys[1]) this.x -= 0.2;
-        if (keys[3]) this.x += 0.2;
-      }
-      this.x = +this.x.toFixed(1);
-      //////
-      if (oldcoords[1] > this.x) {
-        if (this.y % 5 == 0) {
-          if (currentmap[this.y / 5][(this.x / 5) >> 0][0] !="air")
-            this.x = oldcoords[1];
-        } else {
-          if (
-            currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0] !="air" ||
-            currentmap[(this.y / 5 + 1) >> 0][(this.x / 5) >> 0][0] !="air"
-          )
-            this.x = oldcoords[1];
-        }
-      } else {
-        if (this.y % 5 == 0) {
-          if (!allowedblocks.includes( currentmap[this.y / 5][((this.x - 0.2) / 5 + 1) >> 0][0]))
-            this.x = oldcoords[1];
-        } else if (
-          currentmap[(this.y / 5) >> 0][((this.x - 0.2) / 5 + 1) >> 0][0] !="air" ||
-          currentmap[(this.y / 5 + 1) >> 0][((this.x - 0.2) / 5 + 1) >> 0][0] !="air"
-        )
-          this.x = oldcoords[1];
+      else{
+        item.amount -= this.inventory["slot"+itemslots[i]].maxStackSize - this.inventory["slot"+itemslots[i]].amount
+        this.inventory["slot"+itemslots[i]].amount =  this.inventory["slot"+itemslots[i]].maxStackSize
       }
 
-      e.player.style.top = this.y + "vh";
-      e.player.style.left = this.x + "vh";
 
     }
-  }*/
+    if(item.amount > 0){
+      let nextempty = this.searchForFirstEmpty()
+      this.inventory["slot"+nextempty] = item
+
+    }
+
+    
+  }
+  
+}
+
+
+  let classes = {}
+  classes.empty = class{
+   constructor()
+   {
+     this.name = "empty"
+     this.localizedname = "empty"
+     this.amount = 0
+     this.maxStackSize = 64
+   }
+  }
+  classes.block = class extends classes.empty{
+    constructor(){
+      super()
+      this.hardness = 20
+      this.tool = "none"
+    }
+  }
+  
+    classes.stone = class extends classes.block{
+      constructor() {
+        super()
+        this.name = "stone"
+        this.localizedname = "Stone"
+        this.amount = 1
+        this.tool = "pickaxe"
+      }
+    }
+  classes.ironOre = class extends classes.stone{
+    constructor(){
+     super()
+     this.name = "ironOre"
+     this.localizedname = "Iron Ore"
+     this.amount = 5
+    }
+  }
+  
+  
+  

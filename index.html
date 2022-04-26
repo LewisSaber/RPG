@@ -7,20 +7,23 @@
     <title>RPG</title>
   </head>
   <body id="body">
+    <div id="cursor"></div>
+    <div id="progressbar"><div id="progressbarInside"></div></div>
 <div id="map"></div>
 <div id="hotbar"></div>
 <div id="inventory"></div>
 <div id="editmode">
 <div id="mapsGui"></div>
+
 <div id="blocksSelector"><button id="fill3x3" class="blockselector" onclick="turnButton(this.id,0)"></button>
    <button id="fillVericalLine" class="blockselector" onclick="turnButton(this.id,1)"></button>
        <button id="fillHorizontalLine" class="blockselector" onclick="turnButton(this.id,2)"></button>
        </div>
        <button id="floormode" onclick="floormode = +!floormode;  this.style.backgroundColor = floormode ? 'green' : 'red'  ">F</button>
        <button id="randomfill" onclick="randomfill(this)">100%</button>
-       <button id="saveMap" onclick="maps[mapY][mapX] = generatedMap; savemap()">Save</button>
+       <button id="saveMap" onclick="maps[mapY][mapX] = currentmap; savemap()">Save</button>
        <button id="openMaps" onclick="OpenMapGui()">M</button>
-       <button id="exportMap" onclick="exportMap()">E</button>
+       <button id="exportMap" onclick="exportMap()" >E</button>
 </div>
 <button id="switchmode" onclick="switchmode()">Switch</button>
 

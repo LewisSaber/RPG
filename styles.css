@@ -92,8 +92,8 @@ background-image: url("img/stone.png");
 #map{
     position: absolute;
     background-color: black;
-   left: 3px;
-   top: 1px;
+   left: 0.3vh;
+   top: 0.1vh;
     z-index: 0;
 }
 
@@ -252,8 +252,36 @@ background-image: url("img/stone.png");
     border: inset 1.5vh gray;
     border-bottom: inset 1vh gray;
 }
+#cursor{
+    width: 5vh;
+    height: 5vh;
+  position: absolute;
+  
+  background-size: cover;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+  opacity: 1;
+  z-index: 1300;
+ 
+}
+#progressbar{
+    width: 100vh;
+    border: solid 0.2vh black;
+    height: 2vh;
+    top: 81vh;
+    left: 0.3vh;
+    position: absolute;
+}
+#progressbarInside{
+    width: 0%;
+    height: 100%;
+    background-color: green;
 
 
+}
+.testItem{
+    background-image: url(img/sister.jpg);
+}
 
 
 
@@ -297,4 +325,16 @@ background-image: url("img/stone.png");
 .grassPlant{
     background-image: url(img/double_plant_grass_top.png);
     box-shadow: none;
+}
+.bedrock{
+    background-image: url(img/bedrock.png)
+}
+.woodenpickaxe{
+    background-image: url(img/wood_pickaxe.png);
+}
+.cobblestone{
+    background-image: url(img/cobblestone.png);
+}
+.ruslanshovel{
+    background-image: url(img/wood_shovel.png);
 }

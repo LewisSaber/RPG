@@ -1,5 +1,5 @@
 let maps = [[]]
-let selectorblocks = ["air", "stone", "sponge", "snow", "cactus", "obsidian","glass","tnt","ironOre","coalOre","diamondOre","redstoneOre","grass","stoneslab","leavesoak","greenwool","grassPlant"];
+let selectorblocks = ["air", "stone", "sponge", "snow", "cactus", "obsidian","glass","tnt","ironOre","coalOre","diamondOre","redstoneOre","grass","stoneslab","leavesoak","greenwool","grassPlant","bedrock"];
 let allowedblocks = ["air","grassPlant"]
 let mapW = 24;
 let mapH = 16;
@@ -36,9 +36,9 @@ function generateMap() {
   currentmap =  maps[mapY][mapX]
   e.map.innerText = "";
   for (let y = 0; y < mapH; y++) {
-  
+    maphtml[y] = new Array();
     for (let x = 0; x < mapW; x++) {
- 
+      maphtml[y][x] = new Array();
       for (let l = 0; l < 2; l++) {
         if (map[y][x][l] != "air") {
           let tag = document.createElement("div");
@@ -47,7 +47,7 @@ function generateMap() {
 
           tag.style.top = y * 5 + "vh";
           tag.style.left = x * 5 + "vh";
-          // maphtml[y][x][l] = tag
+           maphtml[y][x][l] = tag
           e.map.appendChild(tag);
         }
       }
@@ -83,9 +83,9 @@ e.mapsGui.style.display =  "none"
 if(maps[mapY] == undefined)
 maps[mapY]  = new Array()
 
-  if (maps[mapY][mapX] == undefined){ generatedMap =  generateDebugMap();
+  if (maps[mapY][mapX] == undefined){ currentmap =  generateDebugMap();
    
-    maps[mapY][mapX] = generatedMap
+    maps[mapY][mapX] = currentmap
    // generateMap()
   }
   else {
@@ -112,12 +112,12 @@ let map = maps[mapY][mapX]
       }
     }
     
-    generatedMap  = map
+    currentmap  = map
   }
  
   
 }
-function exportMap(map = generatedMap) {
+function exportMap(map = currentmap) {
   let mapx = "[";
   for (let y = 0; y < mapH; y++) {
     mapx += "[";
@@ -142,7 +142,7 @@ function exportMap(map = generatedMap) {
 }
 //[r][c] - R-rows; C-columns
 let percent = window.innerHeight / 100;
-let generatedMap = [];
+
 function mapMode() {
   e.editmode.style.display = "block";
   loadSelectedBlocks();
@@ -181,7 +181,7 @@ function onMapModeClick(evt) {
       } else if (features[2]) {
         fillHorizontalLine(clickY);
       } else {
-        generatedMap[clickY][clickX][floormode] = selectedBlock;
+        currentmap[clickY][clickX][floormode] = selectedBlock;
         
           maphtml[clickY][clickX][floormode].classList = (floormode == 0 ? "block " : "blockfloor ") + selectedBlock;
        
@@ -193,10 +193,10 @@ function fill3x3(clickY, clickX) {
   clickY--;
   clickX--;
   for (let y = 0; y < 3; y++) {
-    if (generatedMap[clickY + y] != undefined)
+    if (currentmap[clickY + y] != undefined)
       for (let x = 0; x < 3; x++) {
-        if (generatedMap[clickY + y][clickX + x] != undefined && random(100/randomfillamount)) {
-          generatedMap[clickY + y][clickX + x][floormode] = selectedBlock;
+        if (currentmap[clickY + y][clickX + x] != undefined && random(100/randomfillamount)) {
+          currentmap[clickY + y][clickX + x][floormode] = selectedBlock;
           maphtml[clickY + y][clickX + x][floormode].classList =(floormode == 0 ? "block " : "blockfloor ") + selectedBlock;
         }
       }
@@ -207,7 +207,7 @@ function fillVericalLine(clickX) {
   for (let y = 0; y < mapH; y++) {
     if(random(100/randomfillamount))
     {
-    generatedMap[y][clickX][floormode] = selectedBlock;
+    currentmap[y][clickX][floormode] = selectedBlock;
     maphtml[y][clickX][floormode].classList = (floormode == 0 ? "block " : "blockfloor ") + selectedBlock;
     }
   }
@@ -216,7 +216,7 @@ function fillHorizontalLine(clickY) {
   for (let x = 0; x < mapW; x++) {
     if(random(100/randomfillamount))
     {
-    generatedMap[clickY][x][floormode] = selectedBlock;
+    currentmap[clickY][x][floormode] = selectedBlock;
     maphtml[clickY][x][floormode].classList =(floormode == 0 ? "block " : "blockfloor ") + selectedBlock;
     }
   }
@@ -233,6 +233,7 @@ function turnButton(id, loc) {
   } else features = [0, 0, 0];
 }
 function savemap() {
+  maps[mapY][mapX] = currentmap;
   localStorage.setItem("RPGmaps", JSON.stringify(maps));
 }
 function loadmap() {
@@ -246,7 +247,7 @@ function loadmap() {
 
 function OpenMapGui()
 {
-  maps[mapY][mapX] = generatedMap; savemap();
+   savemap();
   window.removeEventListener("mousedown", onMapModeClick);
 e.map.style.display = "none"
 e.mapsGui.style.display = "block"
@@ -270,6 +271,7 @@ function resetmaps(){
   savemap()
 }
 function goToNextMap(){
+  
   generateMap()
   steve.spawn()
   

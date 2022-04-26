@@ -304,7 +304,23 @@ function putInCursorFull(slot,codeslot,codeamount){
 return slot
 }
 function putInCursorHalf(slot,codeslot,codeamount){
+  let amount = Math.ceil(slot.amount / 2);
+  itemInCursor = Object.assign(
+    Object.create(Object.getPrototypeOf(slot)),
+    slot
+  );
 
+  itemInCursor.amount = amount;
+
+  e.cursor.classList.add(itemInCursor.name);
+  if (slot.amount - amount == 0) {
+    slot = new classes.empty();
+    
+  } else {
+    slot.amount -= amount;
+  }
+  putItemInslot(slot, codeslot, codeamount);
+  return slot
 }
 
 function removeItemFromSlot(codeslot, codeamount) {
@@ -315,29 +331,12 @@ function RclickOnSlot(i, type = "inventory") {
   if (itemInCursor == "none") {
     switch (type) {
       case "inventory":
-        let amount = Math.ceil(steve.inventory[i].amount / 2);
-        itemInCursor = Object.assign(
-          Object.create(Object.getPrototypeOf(steve.inventory[i])),
-          steve.inventory[i]
-        );
-
-        itemInCursor.amount = amount;
-
-        e.cursor.classList.add(itemInCursor.name);
-        if (steve.inventory[i].amount - amount == 0) {
-          steve.inventory[i] = new classes.empty();
-          removeItemFromSlot(
-            e.inventory["slot" + i],
-            e.inventory["slot" + i + "amount"]
-          );
-        } else {
-          steve.inventory[i].amount -= amount;
-          putItemInslot(
-            steve.inventory[i],
-            e.inventory["slot" + i],
-            e.inventory["slot" + i + "amount"]
-          );
-        }
+  
+steve.inventory[i] = putInCursorHalf(
+  steve.inventory[i],
+  e.inventory["slot" + i],
+  e.inventory["slot" + i + "amount"]
+);
 
         break;
     }
@@ -360,19 +359,7 @@ function LclickOnslot(i, type = "inventory") {
     switch (type) {
       case "inventory":
         steve.inventory[i] = putInCursorFull(steve.inventory[i], e.inventory["slot" + i],e.inventory["slot" + i + "amount"])
-       /* if (steve.inventory[i].name != "empty") {
-          itemInCursor = Object.assign(
-            Object.create(Object.getPrototypeOf(steve.inventory[i])),
-            steve.inventory[i]
-          );
-          e.cursor.classList.add(itemInCursor.name);
-          steve.inventory[i] = new classes.empty();
-          putItemInslot(
-            steve.inventory[i],
-            e.inventory["slot" + i],
-            e.inventory["slot" + i + "amount"]
-          );
-        }*/
+      
         break;
     }
   } else {

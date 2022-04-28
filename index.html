@@ -1,19 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
   <head >
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
     <title>RPG</title>
   </head>
-  <body id="body">
-    <div id="cursor"></div>
+  <body id="body" >
+    <div id="behindeveryone" >f
     <div id="progressbar"><div id="progressbarInside"></div></div>
 <div id="map"></div>
+
+<div id="tooltip" ></div>
 <div id="hotbar"></div>
-<div id="inventory"></div>
+<span id="guihandler" > f<div id="gui" ><div id="nei">
+  <button id="neileft" onclick="ShowRecipe(CurrentRecipeI-1)">&lt;</button>
+<div id="neiText"></div><button id="neiright" onclick="ShowRecipe(CurrentRecipeI+1)"> &gt;</button>
+</div><div id="craftingtable"><div id="craftingarrow"></div></div><div id="inventory"></div>
+<div id="backpacks"></div>
+<div id="armorgui"></div>
+<div id = "machines"></div><div id="furnace" >
+ <div id="furnaceInput" class="guiSlot empty"><div id="furnaceInputamount" class="itemamount"></div></div>
+ <div id="furnaceFuel"  class="guiSlot empty"><div id="furnaceFuelamount" class="itemamount"></div></div>
+ <div id="furnaceOutput" class="guiSlot empty"><div id="furnaceOutputamount" class="itemamount"></div></div>
+ <div id="furnacearrow" ></div>
+
+  </div>
+<div id="anvil" onclick="steve.machines[thismachinei].applyname()">
+  <div id="anvilinput" class="guiSlot empty"><div id="anvilInputamount" class="itemamount"></div></div>
+  <input type="text" id="anviltext" placeholder="Rename Item">
+  <div id="anviloutput" class="guiSlot empty"><div id="anvilOutputamount" class="itemamount"></div></div>
+</div>
+<div id="backpack"></div>
+
+</div>
+</div></span>
+  
 <div id="editmode">
-<div id="mapsGui"></div>
+<div id="mapsGui" ></div>
 
 <div id="blocksSelector"><button id="fill3x3" class="blockselector" onclick="turnButton(this.id,0)"></button>
    <button id="fillVericalLine" class="blockselector" onclick="turnButton(this.id,1)"></button>
@@ -28,7 +52,7 @@
 <button id="switchmode" onclick="switchmode()">Switch</button>
 
 
-
+    </div>
     <script>window.addEventListener("error", handleError, true);
 
         function handleError(evt) {
@@ -42,7 +66,9 @@
     </script>
 
     <script src="ElemCreator.js"></script>
+    <script src="BasicClasses.js"></script>
     <script src="Classes.js"></script>
+    <script src="Crafting.js"></script>
     <script src="maps.js"></script>
     <script src="script.js"></script>
 

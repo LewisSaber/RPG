@@ -1,6 +1,6 @@
 let maps = [[]]
-let selectorblocks = ["air", "stone", "sponge", "snow", "cactus", "obsidian","glass","tnt","ironOre","coalOre","diamondOre","redstoneOre","grass","stoneslab","leavesoak","greenwool","grassPlant","bedrock"];
-let allowedblocks = ["air","grassPlant"]
+let selectorblocks = ["air", "stone", "sponge", "snow", "cactus", "obsidian","glass","tnt","ironore","coalOre","diamondOre","redstoneOre","grass","stoneslab","leavesoak","greenwool","grassPlant","bedrock","oaklog","treeoak"];
+let allowedblocks = ["air","grassPlant","treeoak","empty"]
 let mapW = 24;
 let mapH = 16;
 
@@ -18,12 +18,12 @@ function generateEmptyMap() {
 }
 
 
-let selectedBlock = "stone";
+let selectedBlock = new classes.empty()
 function loadSelectedBlocks() {
   selectorblocks.forEach((x) => {
     let tag = document.createElement("button");
 
-    tag.classList.add("blockselector", x);
+    tag.classList.add("blockselector", x != "treeoak" ? x : x + "small");
 
     tag.setAttribute("onclick", "selectedBlock='" + x + "'");
     e.blocksSelector.appendChild(tag);
@@ -44,7 +44,7 @@ function generateMap() {
           let tag = document.createElement("div");
           if (l == 0) tag.classList.add("block", map[y][x][l]);
           else tag.classList.add("blockfloor", map[y][x][l]);
-
+            tag.setAttribute("onmousedown","breakblock(this)")
           tag.style.top = y * 5 + "vh";
           tag.style.left = x * 5 + "vh";
            maphtml[y][x][l] = tag

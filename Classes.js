@@ -641,7 +641,7 @@ classes.backpack = class extends classes.empty{
     this.type = "backpack"
     this.maxStackSize = 1
     this.inventory = {}
-    this.inventorySlots = 2
+    this.inventorySlots = 36
     this.buildinventory()
     
   }

@@ -998,6 +998,10 @@ function openMachineGui(machine, id) {
     let iter = 0;
     if (machine.type == "backpack") {
       lastmachine = "backpack";
+      e.backpackname.innerText =  (steve.backpacks[id].Rname == ""
+      ? (blocknames[steve.backpacks[id].name] ||
+          steve.backpacks[id].name[0].toUpperCase() + steve.backpacks[id].name.substring(1))
+      :  steve.backpacks[id].Rname)
       e.backpack.style.display = "block";
       thismachinei = -3 -id;
       for (const key in machine.inventory) {

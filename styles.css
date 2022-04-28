@@ -305,6 +305,25 @@
   height: 40vh;
   
 }
+#backpackname{
+  width: 100%;
+  display: block;
+  margin-top: 0.5vh;
+  margin-left:1.4vh;
+  margin-bottom: 2vh;
+  font-size: 3vh;
+  height: 2vh;
+}
+
+#backpack{
+  position: relative;
+  display: none;
+  margin-top: 1vh;
+  margin-left:1vh;
+  float: left;
+  width: 90%;
+  height: 40vh;
+}
 #furnacearrow{
   background-image: url(img/guiarrowoff.png);
   width: 8vh;
@@ -356,7 +375,14 @@
   height: 70vh;
   margin-right: 2vh;
   margin-left: 2vh;
-  margin-top: 5vh;
+  margin-top: 1.3vh;
+}
+#backpacks0{
+  width: 100%;
+  text-align: center;
+  font-size: 2.2vh;
+  margin: 0;
+  margin-bottom: 0.4vh;
 }
 
 

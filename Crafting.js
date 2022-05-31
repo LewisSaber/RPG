@@ -1,91 +1,104 @@
 let shapelessrecipes = {};
 let shapedrecipes = {};
 let furnacerecipes = {};
-function addShapelessRecipe(input, output, amount = 1, inputamount = []) {
+let glitchrecipes = {};
+/**
+ * "empty"
+ */
+const empty = "empty"
+
+function addShapelessRecipe(input, output, amount = 1, inputamount = [],tag = {}) {
   for (let i = input.length; i < 9; i++) {
-    input.push("empty");
+    input.push(empty);
   }
   for (let i = inputamount.length; i < 9; i++) {
     inputamount.push(1);
   }
-  shapelessrecipes[input.sort()] = [output, amount, inputamount];
+  shapelessrecipes[input.sort()] = [output, amount, inputamount,tag];
 }
-function addShapedRecipe(input, output, amount = 1, inputamount = []) {
+function addShapedRecipe(input, output, amount = 1, inputamount = [],tag = {}) {
   for (let i = input.length; i < 9; i++) {
-    input.push("empty");
+    input.push(empty);
   }
   for (let i = inputamount.length; i < 9; i++) {
     inputamount.push(1);
   }
-  shapedrecipes[input] = [output, amount, inputamount];
+  shapedrecipes[input] = [output, amount, inputamount,tag];
 }
-function AddFurnaceRecipe(input, output, time, amount = 1, inputamount = 1) {
+function addFurnaceRecipe(input, output, time, amount = 1, inputamount = 1) {
   furnacerecipes[input] = [output, inputamount, amount, time];
+}
+function addGlitchRecipe(input,inputamount = 160,amount = 1){
+  glitchrecipes[input] = ["glitched" +input, inputamount, amount];
 }
 
 function loadrecipes() {
-  addShapelessRecipe(["oaklog"], "oakplank", 4);
+  addShapelessRecipe(["logoak"], "planksoak", 4);
   addShapedRecipe(
-    ["empty", "oakplank", "empty", "empty", "oakplank"],
+    [empty, "planksoak", empty, empty, "planksoak"],
     "stick",
     4
   );
   addShapedRecipe(
     [
-      "oakplank",
-      "oakplank",
-      "oakplank",
-      "empty",
+      "planksoak",
+      "planksoak",
+      "planksoak",
+      empty,
       "stick",
-      "empty",
-      "empty",
+      empty,
+      empty,
       "stick",
     ],
-    "woodenpickaxe"
+    "woodpickaxe"
   );
   //addShapedRecipe(["cobblestone","cobblestone","cobblestone","cobblestone","cobblestone"],"bedrock",3,[64,64,64,64,64])
   addShapedRecipe(
     [
-      "oakplank",
-      "oakplank",
-      "empty",
-      "oakplank",
+      "planksoak",
+      "planksoak",
+      empty,
+      "planksoak",
       "stick",
-      "empty",
-      "empty",
+      empty,
+      empty,
       "stick",
     ],
-    "woodenaxe"
+    "woodaxe"
   );
+  addShapedRecipe(["cobblestone"],'enchantingpaste',1,[1],{enchants : {
+    sharpness : 5
+  }})
+  addShapedRecipe(["netherrack"],'enchantingpaste',1,[1],{enchants : {
+    efficiency : 5
+  }})
   addShapedRecipe(
     ['cobblestone', 'cobblestone', 'empty', 'cobblestone', 'stick', 'empty', 'empty', 'stick', 'empty'],"stoneaxe"
   )
-  addShapedRecipe(['cobblestone', 'cobblestone', 'cobblestone', 'empty', 'stick', 'empty', 'empty', 'stick', 'empty'],"stonepickaxe")
+
   addShapedRecipe(['ironblock', 'ironblock', 'ironblock', 'empty', 'ironingot', 'empty', 'ironingot', 'ironingot', 'ironingot'],"anvil")
-  addShapedRecipe(
-    [
-      "cobblestone",
-      "cobblestone",
-      "cobblestone",
-      "cobblestone",
-      "empty",
-      "cobblestone",
-      "cobblestone",
-      "cobblestone",
-      "cobblestone",
-    ],
-    "furnace",
-    1,
-    [16, 16, 16, 16, 1, 16, 16, 16, 16]
-  );
+ 
+  addShapedRecipe(["paper","paper",empty,"paper","leather"],"book")
   addShapelessRecipe(["ironingot","ironingot","ironingot","ironingot","ironingot","ironingot","ironingot","ironingot","ironingot"],"ironblock")
-  AddFurnaceRecipe("cobblestone", "stone", 160, 1);
-  AddFurnaceRecipe("ironore", "ironingot", 160, 1);
+  addFurnaceRecipe("cobblestone", "stone", 160, 1);
+  addFurnaceRecipe("ironore", "ironingot", 160, 1);
+  addFurnaceRecipe("rottenflesh","leather",320,1,4)
+  addShapedRecipe(["leather","leather","leather","leather","ironingot","leather","leather","leather","leather"],"smallbackpack",1,[2,2,2,2,4,2,2,2,2])
+  addShapedRecipe(["ironblock","leather"],"forward",1,[64,64])
+  addFurnaceRecipe("beef","steak",100)
+  addFurnaceRecipe("rawchicken","cookedchicken",80)
+  addShapedRecipe([empty,"planksoak",empty,empty,"planksoak",empty,empty,"stick",empty],"woodsword")
+  addShapedRecipe([empty,"cobblestone",empty,empty,"cobblestone",empty,empty,"stick",empty],"stonesword",1,[].set(0,9),{stats : { maxhealth: 20}})
+  addFurnaceRecipe("sand","glass",100)
+  addGlitchRecipe("cobblestone")
+  addGlitchRecipe("rottenflesh")
+ 
 }
+
 let craftingTableItems = [];
 craftingTableItems.set(new classes.empty(), 9);
 let craftingArray = [];
-craftingArray.set("empty", 9);
+craftingArray.set(empty, 9);
 let craftingAmounts = [];
 craftingAmounts.set(0, 9);
 let recipeAmounts = [];
@@ -111,13 +124,13 @@ function searchCraftingRecipe() {
     return shapelessrecipes[sortedarray];
   }
 
-  return ["empty", 0, [0, 0, 0, 0, 0, 0, 0, 0, 0]];
+  return [empty, 0, [0, 0, 0, 0, 0, 0, 0, 0, 0]];
 }
 function setCraftingTableOutput() {
   let recipe = searchCraftingRecipe();
   recipeAmounts = recipe[2];
   craftingTableResult = new classes[recipe[0]](recipe[1]);
-
+  craftingTableResult.addTag(recipe[3])
   putItemInslot(
     craftingTableResult,
     e.craftingtable["slot9"],
@@ -127,13 +140,13 @@ function setCraftingTableOutput() {
 function doRecipe(input) {
   for (let i = 0; i < input.length; i++) {
     input[i].amount =
-      input[i].name == "empty"
+      input[i].name == empty
         ? input[i].amount
         : input[i].amount - recipeAmounts[i];
     craftingAmounts[i] = input[i].amount;
     if (input[i].amount == 0) {
       input[i] = new classes.empty();
-      craftingArray[i] = "empty";
+      craftingArray[i] = empty;
     }
   }
 
@@ -141,8 +154,8 @@ function doRecipe(input) {
 }
 function doCraftingRecipe() {
   if (!isNeiOpen)
-    if (craftingTableResult.name != "empty") {
-      if (AddItemInCursor(craftingTableResult)) {
+    if (craftingTableResult.name != empty) {
+      if (AddItemToCursor(craftingTableResult)) {
         craftingTableItems = doRecipe(craftingTableItems);
         craftingTableItems.forEach((x, i) => {
           putItemInslot(
@@ -193,6 +206,28 @@ function findUsageRecipes() {
       RecipeGueue.push(furnace);
     }
   }
+  for (const key in glitchrecipes) {
+    if (key == itemintooltip ) {
+      RecipeSpecial.push("Super Compactor 3000 ");
+      let glitch = new classes.glitchcompactor(1);
+      let iter = 1
+      let amount = glitchrecipes[key][1]
+      while(amount > 0){
+        const batch = amount >=64 ? 64 :  amount
+      
+        amount -= batch
+        glitch.inventory["input" + iter] = new classes[key](batch)
+        iter++
+        
+      }
+      
+      glitch.inventory.output = new classes[glitchrecipes[key][0]](
+        glitchrecipes[key][2]
+      );
+      RecipeGueue.push(glitch);
+    }
+  }
+
 }
 function findCraftingRecipes() {
   RecipeGueue = [];
@@ -221,6 +256,27 @@ function findCraftingRecipes() {
       RecipeGueue.push(furnace);
     }
   }
+  for (const key in glitchrecipes) {
+    if (glitchrecipes[key][0] == itemintooltip) {
+      RecipeSpecial.push("Super Compactor 3000 ");
+      let glitch = new classes.glitchcompactor(1);
+      let iter = 1
+      let amount = glitchrecipes[key][1]
+      while(amount > 0){
+        const batch = amount >=64 ? 64 :  amount
+       
+        amount -= batch
+        glitch.inventory["input" + iter] = new classes[key](batch)
+        iter++
+        
+      }
+      
+      glitch.inventory.output = new classes[glitchrecipes[key][0]](
+        glitchrecipes[key][2]
+      );
+      RecipeGueue.push(glitch);
+    }
+  }
 }
 CurrentRecipeI = 0;
 function ShowCraftingRecipe(n) {
@@ -244,6 +300,7 @@ function ShowCraftingRecipe(n) {
   e.craftingtable["slot" + 9 + "amount"].innerText =
     RecipeGueue[n][1][1] > 1 ? RecipeGueue[n][1][1] : "";
   craftingTableResult = new classes[RecipeGueue[n][1][0]]();
+  craftingTableResult.addTag(RecipeGueue[n][1][3])
 }
 function ShowRecipe(n) {
   if (n >= RecipeGueue.length) n = 0;
@@ -251,8 +308,20 @@ function ShowRecipe(n) {
   e.neiText.innerHTML =
     n + 1 + "/" + RecipeGueue.length + "<br>" + RecipeSpecial[n];
   if (RecipeGueue[n].name != undefined) {
+
     openMachineGui(RecipeGueue[n], n);
   } else ShowCraftingRecipe(n);
 
   CurrentRecipeI = n;
 }
+const numnames = ["K","M","B","T"]
+Number.prototype.formate = function(OM = 3,Rounding = 2){
+  if(this > 10**OM){
+    let OOM = Math.log10(this)/3-1>>0
+
+    return (this/1000**(OOM+1)).toFixed(Rounding) + numnames[OOM]
+  }
+  else
+  return this
+}
+

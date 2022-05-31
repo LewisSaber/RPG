@@ -7,35 +7,67 @@
     <title>RPG</title>
   </head>
   <body id="body" >
-    <div id="behindeveryone" >f
-    <div id="progressbar"><div id="progressbarInside"></div></div>
+   
+    <div id="progressbar"><p id="progressbartext"><div id="progressbarInside"></div></p></div>
 <div id="map"></div>
-
 <div id="tooltip" ></div>
 <div id="hotbar"></div>
+<div id="healthbar"><div id="healthbarinside"></div><div id="healthbartext"></div></div>
 <span id="guihandler" > f<div id="gui" ><div id="nei">
   <button id="neileft" onclick="ShowRecipe(CurrentRecipeI-1)">&lt;</button>
-<div id="neiText"></div><button id="neiright" onclick="ShowRecipe(CurrentRecipeI+1)"> &gt;</button>
-</div><div id="craftingtable"><div id="craftingarrow"></div></div><div id="inventory"></div>
-<div id="backpacks"> <p id="backpacks0">Backpacks</p></div>
+  <div id="neiText"></div><button id="neiright" onclick="ShowRecipe(CurrentRecipeI+1)"> &gt;</button>
+</div>
+<div id="craftingtable"><div id="craftingarrow"></div></div>
+<div id="inventory"></div>
+<div class="player " id="playerStats"  onmouseenter="makeSteveToolTip()" onmouseleave =
+"if(istooltip) e.tooltip.style.display ='none'"></div>
+<div id="coins"><div id="coinspicture"></div><p id="coinstext"></p></div>
+<div id="backpacks"> <p id="backpacks0">Backpacks</p><input id="backpackSeach" onfocus="removeKeysEvent();formBackPackContains()" onblur="addKeysEvent()" oninput="highLightBackPacks()" oncontextmenu="wipeInput(this); backpackContains.set('',backPacksInGui);   highLightBackPacks(); return false"></div>
 <div id="armorgui"></div>
+<div id="skills" style="display: none;"></div>
+<div id="collections" style="display: none;"><h1 style="text-align: center;">Collections</h1></div>
 <div id = "machines"></div><div id="furnace" >
  <div id="furnaceInput" class="guiSlot empty"><div id="furnaceInputamount" class="itemamount"></div></div>
  <div id="furnaceFuel"  class="guiSlot empty"><div id="furnaceFuelamount" class="itemamount"></div></div>
  <div id="furnaceOutput" class="guiSlot empty"><div id="furnaceOutputamount" class="itemamount"></div></div>
  <div id="furnacearrow" ></div>
+ 
 
   </div>
-<div id="anvil" onclick="steve.machines[thismachinei].applyname()">
+<div id="supercompactor"></div>
+<div id="glitchcompactor"><div id="glitchcompactorinputs"></div></div>
+<div id="enchantingbook"><button id="enchantingbookbutton" onclick="steve.machines[thismachinei].doRecipeInternal()">Apply</button></div>
+
+<div id="anvil">
   <div id="anvilinput" class="guiSlot empty"><div id="anvilInputamount" class="itemamount"></div></div>
-  <input type="text" id="anviltext" placeholder="Rename Item">
+  <input type="text" id="anviltext" placeholder="Rename Item" oninput="steve.machines[thismachinei].applyname()" onfocus="removeKeysEvent()" onblur="addKeysEvent()">
   <div id="anviloutput" class="guiSlot empty"><div id="anvilOutputamount" class="itemamount"></div></div>
 </div>
-<div id="backpack"><div id="backpackname">fff</div>
-
+<div id="guibuttons">
+  <button id="collectionsbutton" onclick="openNoInventoryGui('collections')" onmouseenter="MakeTextToolTip(CollectionsDesc)" onmouseleave =
+  "if(istooltip) e.tooltip.style.display ='none'"></button>
+<button id="skillsbutton" onclick="openNoInventoryGui('skills')" onmouseenter="MakeTextToolTip(SkillsDesc)" onmouseleave =
+"if(istooltip) e.tooltip.style.display ='none'"></button>
+<button id="accessorybagbutton" onclick="openMachineGui(steve.accessorybag)" onmouseenter="MakeTextToolTip(AccesoryBagDesc)" onmouseleave =
+"if(istooltip) e.tooltip.style.display ='none'"></button>
 </div>
+<div id="accessorybag"><p>       Accessories</p></div>
+<div id="backpack"><div id="backpackname">fff</div></div>
+<div id="villagergui"></div>
+<div id="trashcan" class="guiSlot" onclick="deleteItemInCursor()" onmouseenter="MakeTextToolTip(color('Trashcan','green') + br + color('WARNING','red') + ', removed items can`t be restored')" onmouseleave =
+"if(istooltip) e.tooltip.style.display ='none'"></div>
 </div></span>
-  
+<button id="settingsButton" onclick="OpenSettingsMenu()" onmouseenter="MakeTextToolTip('Settings')" onmouseleave =
+"if(istooltip) e.tooltip.style.display ='none'"></button>
+<div id="settings">
+  <div id="accountselect" class="settingsblock">Change Account<br><select id="accounts" onchange="changeAccount(this.value)"></select></div>
+  <div id="accountdelete" class="settingsblock">Delete Account<br><select id="accountsToDelete" onchange="deleteAccount(this)"></select></div>
+
+  <button onclick="changeNick()" class="settingsblock">Change Your Nickname</button>
+  <button class="settingsblock" onclick="changeSkin()" onmouseenter="MakeTextToolTip('Type Default To Get Normal Skin')" onmouseleave =
+  "if(istooltip) e.tooltip.style.display ='none'">Change Skin</button>
+  <a href="https://discord.gg/8sSTpAZ7NH" target="_blank" id="discord"></a>
+</div>
 <div id="editmode">
 <div id="mapsGui" ></div>
 
@@ -45,17 +77,27 @@
        </div>
        <button id="floormode" onclick="floormode = +!floormode;  this.style.backgroundColor = floormode ? 'green' : 'red'  ">F</button>
        <button id="randomfill" onclick="randomfill(this)">100%</button>
-       <button id="saveMap" onclick="maps[mapY][mapX] = currentmap; savemap()">Save</button>
+       <!-- <form  method="post" action="mapsaver.php">
+        <input type="submit" name="saveMap" id="saveMap"
+                value="Save"/>
+          
+    </form > -->
+    <select  id="biomes" onchange="setBiome()">   
+    </select>
+       <button id="selectLocation" onclick="setLocation()" onmouseenter="currentmap.location == null ? '' :MakeTextToolTip(currentmap.location)" onmouseleave =
+       "if(istooltip) e.tooltip.style.display ='none'">L</button>
+       <button id="saveMap" onclick='
+        saveMapToCloud()'>Save</button>
        <button id="openMaps" onclick="OpenMapGui()">M</button>
-       <button id="exportMap" onclick="exportMap()" >E</button>
+       <!-- <button id="exportMap" onclick="exportMap()" >E</button> -->
 </div>
 <button id="switchmode" onclick="switchmode()">Switch</button>
+<div id="Location"></div>
 
-
-    </div>
-    <script>window.addEventListener("error", handleError, true);
+    <!-- <script>window.addEventListener("error", handleError, true);
 
         function handleError(evt) {
+          if(Session.nick != "admin")
             if (evt.message) { // Chrome sometimes provides this
               alert("Lewis fucked something \nPlease Use F12 to open console \nand send error in discord LewisSaber#7231");
             } else {
@@ -63,14 +105,21 @@
             }
         }
     
-    </script>
-
+    </script> -->
+   
+    <script src="howler.js-2.2.3/howler.js-2.2.3/src/howler.core.js"></script>
     <script src="ElemCreator.js"></script>
+    <script src="Skills&Collections.js"></script>
     <script src="BasicClasses.js"></script>
+    <script src="playerClass.js"></script>
     <script src="Classes.js"></script>
     <script src="Crafting.js"></script>
     <script src="maps.js"></script>
+    <script src="villagerTrades.js"></script>
     <script src="script.js"></script>
+   
 
-    <script>LOADING()</script>
+
+    <script>loadmap()</script>
+  
   </body>

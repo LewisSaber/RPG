@@ -80,6 +80,12 @@ float: none;
 }
 
 .block {
+  user-drag: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
   width: 5vh;
   height: 5vh;
   position: absolute;

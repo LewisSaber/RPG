@@ -71,6 +71,8 @@ function generateMap() {
             else tag.className = "blockfloor " +  map[y][x][l]
               tag.setAttribute("onmousedown","breakblock(this)")
               tag.setAttribute("oncontextmenu","steve.itemInHand.useAbility(); return false")
+              tag.setAttribute("onmouseleave","stopBreakingOnMouseLeave()")
+              tag.setAttribute("onmouseenter","startBreakingOnMouseEnter(this)")
             tag.style.top = y * 5 + "vh";
             tag.style.left = x * 5 + "vh";
              maphtml[y][x][l] = tag

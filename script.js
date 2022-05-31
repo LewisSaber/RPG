@@ -977,16 +977,9 @@ function saveInventory() {
   localStorage.setItem("RPGinventory", JSON.stringify(steve.inventory))
 }
 
-let progressbarwidth = 0
 
-function moveProgressBar(length) {
-  progressbarwidth = progressbarwidth >= 100 ? 0 : progressbarwidth + 1
-
-  e.progressbarInside.style.width = progressbarwidth + "%"
-  if (progressbarwidth >= 1) setTimeout(moveProgressBar, length, length)
-}
 function blockreplacement(mapLayoutY, mapLayoutX, y, x, replacement, layer) {
-  mapLayout[mapLayoutY][mapLayoutX][y][x][layer] = replacement
+  MAP.mapLayout[mapLayoutY][mapLayoutX][y][x][layer] = replacement
   if (mapX == mapLayoutX && mapY == mapY) {
     maphtml[y][x][layer].classList =
       (layer ? "blockfloor " : "block ") + replacement
@@ -1228,26 +1221,24 @@ function breakblock(block) {
           currentmap[clickY][clickX][0] == "air" ? 1 : 0
         ]
       ]()
-
+      currentblock["maxhardness"] = currentblock.block.hardness
       currentblock["x"] = clickX
       currentblock["y"] = clickY
-      currentblock["layer"] = currentmap[clickY][clickX][0] == "air" ? 1 : 0
+      currentblock["layer"] = currentmap[clickY][clickX][0] == "air" 
+      ? 1 : 0
+     
       if (currentblock.block.isBreakable && steve.isInRange(currentblock)) {
         if (
           currentblock.block.tier <= steve.stats.tooltier &&
           (!currentblock.block.restrictTool ||
-            steve.stats.tool.includes(currentblock.block.tool))
+            steve.stats.tool.match1word(currentblock.block.tool))
         ) {
           if (breaktimer == 0) {
             if (steve.getMiningSpeed() >= currentblock.block.hardness) {
-              // breaktimer = setInterval(function () {
-              // steve.breakblock(currentblock)
-              //}, 10)
+             
               steve.breakblock(currentblock)
             } else {
-              moveProgressBar(
-                (currentblock.block.hardness / steve.getMiningSpeed()) >> 0
-              )
+              
               e.progressbar.style.display = "block"
               e.progressbarInside.style.backgroundColor = "green"
               e.progressbartext.innerText = ""
@@ -2148,4 +2139,10 @@ function isBlockBetween(target1, target2) {
     center1.y += vectorspeed[1]
   }
   return false
+}
+function stopBreakingOnMouseLeave(){
+  steve.stopBreakingBlock()
+}
+function startBreakingOnMouseEnter(element){
+  if(keys[5] == 1) breakblock(element)
 }

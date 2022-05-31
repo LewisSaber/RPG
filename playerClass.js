@@ -457,29 +457,35 @@ class player {
       ((this.stats.range + 1) * 5) ** 2
     )
   }
-
+  stopBreakingBlock(cblock){
+    clearInterval(breaktimer)
+    breaktimer = 0
+    e.progressbar.style.display = "none"
+      e.progressbarInside.style.width = "100%"
+      selectedBlock = new classes[selectedBlock.name]()
+  }
   breakblock(cblock) {
     if (keys[5] == 0) {
+      this.stopBreakingBlock(cblock)
       console.log("stop breaking")
-      clearInterval(breaktimer)
-      breaktimer = 0
-      progressbarwidth = -1
+      
+      
 
-      e.progressbar.style.display = "none"
-      selectedBlock = new classes[selectedBlock.name]()
+      
     } else {
       if (
         cblock.block.tool == "none" ||
-        steve.stats.tool.includes(cblock.block.tool)
+        steve.stats.tool.match1word(cblock.block.tool)
       ) {
         cblock.block.hardness -= this.getMiningSpeed()
       } else {
         cblock.block.hardness -= 100
       }
       console.log("hardenss: " + cblock.block.hardness)
-
+      e.progressbarInside.style.width =cblock.block.hardness / cblock.maxhardness * 100 + "%"
       if (cblock.block.hardness <= 0) {
         e.progressbar.style.display = "none"
+        e.progressbarInside.style.width = "100%"
         console.log("block broken")
         clearInterval(breaktimer)
         breaktimer = 0

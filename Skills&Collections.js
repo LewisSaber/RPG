@@ -43,7 +43,7 @@ const RomanNumbers = [
   "XXX",
   "XXXI",
 ]
-const collections = ["cobblestone","logoak","rottenflesh","sugarcane","cactus","coal","ironingot"]
+const collections = ["cobblestone","logoak","rottenflesh","sugarcane","cactus","coal","ironingot","leather"]
 const CollectionRewards = {
   cobblestone : [,"Stone Pickaxe Recipe","Furnace Recipe"],
   rottenflesh: [,"Undead Sword Recipe",,"Zombie Hat Recipe"],
@@ -52,6 +52,7 @@ const CollectionRewards = {
   cactus: [,,"Green Dye Recipe"],
   coal: [,,,"Smelting Touch Enchanting Paste"],
   ironingot:[,,,"Glitch Compactor 3000 Recipe"],
+  leather:[,,"Small BackPack Recipe"]
 
 }
 const CollectionRewardsCode = {
@@ -65,6 +66,7 @@ const CollectionRewardsCode = {
   cactus:[,,' addFurnaceRecipe("cactus","dyegreen",60)'],
   coal:[,,, 'addShapedRecipe(["coal","paper","coal","paper","ironblock","paper","coal","paper","coal"],"enchantingpaste",1,[].set(16,9).put(4,4),{enchants : {smeltingtouch:1}})'],
   ironingot:[,,'addShapedRecipe(["ironingot","dyegreen","ironingot","dyegreen",empty,"dyegreen","ironingot","dyegreen","ironingot"],"greenbox",1,[].set(4,9).put(1,4)); addShapedRecipe(["redstone","ironblock","redstone","redstoneblock","greenbox","redstoneblock","redstone","ironblock","redstone"],"glitchcompactor")'],
+  leather:[,,'addShapedRecipe(["leather","leather","leather","leather","ironingot","leather","leather","leather","leather"],"smallbackpack",1,[2,2,2,2,4,2,2,2,2])']
 }
 
 

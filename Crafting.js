@@ -83,7 +83,7 @@ function loadrecipes() {
   addFurnaceRecipe("cobblestone", "stone", 160, 1);
   addFurnaceRecipe("ironore", "ironingot", 160, 1);
   addFurnaceRecipe("rottenflesh","leather",320,1,4)
-  
+  addShapedRecipe(["leather","ironingot",empty,"ironingot",empty,"ironingot", "string","ironingot","leather"],"shears")
   addShapedRecipe(["ironblock","leather"],"forward",1,[64,64])
   addFurnaceRecipe("beef","steak",100)
   addFurnaceRecipe("rawchicken","cookedchicken",80)

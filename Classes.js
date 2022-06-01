@@ -256,6 +256,19 @@ classes.furnace = class extends classes.machine {
     console.log("Recipe stopped");
   }
 };
+classes.shears = class extends classes.tool {
+  constructor(amount = 0) {
+    super(amount);
+    this.name = "shears";
+    this.rarity = 1
+    this.stats = {
+      tooltier: 1,
+      tool: "shears",
+      miningspeed: "500",
+    };
+  }
+};
+
 classes.stonepickaxe = class extends classes.tool {
   constructor(amount = 0) {
     super(amount);
@@ -269,6 +282,8 @@ classes.stonepickaxe = class extends classes.tool {
     };
   }
 };
+
+
 
 classes.ironingot = class extends classes.item {
   constructor(amount = 0) {
@@ -434,9 +449,13 @@ classes.cow = class extends classes.mob {
   }
   generateDrop() {
     let drops = [];
+    const amount = Math.floor(randomAmount(2,100)* steve.getCombatFortune())
     drops.push(
-      new classes["leather"](Math.floor(((Math.random() * 2)+1)*steve.getCombatFortune()))
+      new classes['leather'](amount)
     );
+    addCollectionItem('leather',amount)
+    addSkillXP('combat',this.xp)
+   
     drops.push(
       new classes["beef"](Math.floor(((Math.random() * 1)+1)*steve.getCombatFortune()))
     );
@@ -1372,5 +1391,14 @@ classes.villager = class extends classes.mob{
     return drops;
   }
 }
+classes.steeleaf = class extends classes.item{
+constructor(amount = 0){
+ super(amount)
+ this.name = 'steeleaf'
+ this.rarity = 1
+ this.description = br+"Use Shears on tree to Obitain"
+ 
+}
 
+}
 

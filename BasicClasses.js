@@ -86,8 +86,8 @@ classes.tree = class extends classes.block {
   }
   generateDrop() {
     let drops = []
-    if (steve.stats.tool.includes("shears")) {
-      // drops.push(new classes["cobblestone"](Math.floor(steve.getMiningFortune())));
+    if (steve.stats.tool.match1word("shears")) {
+      drops.push(new classes["steeleaf"]( 2 * steve.getForagingFortune()))
     } else if (steve.itemInHand.name == "efficientaxe")
       drops.push(
         new classes["planks" + this.name.slice(4)](
@@ -267,6 +267,7 @@ classes.consumable = class extends classes.empty {
   constructor(amount = 0) {
     super(amount)
     this.name = "consumable"
+    this.type = "food"
     this.addedstats = {}
     this.effectLength = 0
   }
@@ -364,6 +365,7 @@ classes.mob = class {
   }
   die() {
     playMobHowl(this.name,"death",0)
+    steve.kills++
     dumbtoinventory(this.generateDrop())
     e["mob" + this.id].style.opacity = 1
     this.stats.health = this.stats.maxhealth

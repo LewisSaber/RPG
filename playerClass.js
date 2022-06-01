@@ -47,6 +47,8 @@ class player {
       Object.create(Object.getPrototypeOf(this.stats)),
       this.stats
     )
+    this.kills = 0
+    this.age = 0
     this.coins = 1000
     this.foodstats = {}
     this.itemInHand = new classes.empty()
@@ -68,6 +70,10 @@ class player {
     this.loadInventory()
     setInterval(this.reduceFoodSecond.bind(this), 1000)
     setInterval(this.naturalRegeneration.bind(this), 1000)
+    setInterval(this.addAge.bind(this), 1000)
+  }
+  addAge(){
+    this.age++
   }
   createPlayer() {
     let tag = document.createElement("p")

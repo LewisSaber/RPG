@@ -54,6 +54,8 @@ const raritynames = [
   "Bloody",
 ]
 const Names = {
+  furnace: "Stone Furnace",
+  steeleaf: "Very Sharp Leaf",
   combatfortune:"Combat Fortune",
   farmingfortune: "Farming Fortune",
   accessorybagslots: "Accessory Bag Slots",
@@ -159,6 +161,8 @@ const armornames = [
   "boots",
 ]
 const toload = [
+  "age",
+  "kills",
   "collectionitems",
   "skillxp",
   "coins",
@@ -202,7 +206,9 @@ String.prototype.give = function(amount = 1){
 String.prototype.color = function (Color){
   return color(this,Color)
 }
-
+Number.prototype.color = function (Color){
+  return color(this,Color)
+}
 function buildHotbar() {
   e.hotbar.style.display = "block"
   e.hotbar.innerText = ""
@@ -443,16 +449,17 @@ function buildSkills() {
   }
 }
 function buildCollections() {
-  collections.forEach((x) => {
+  for(const key in collections){
     const holder = document.createElement("div")
-    holder.className = x + " guiSlot"
-    holder.setAttribute("onmouseenter", "makeCollectionToolTip('" + x + "')")
+    holder.className = key + " guiSlot"
+    holder.setAttribute("onmouseenter", "makeCollectionToolTip('" + key + "')")
     holder.setAttribute(
       "onmouseleave",
       "if(istooltip) e.tooltip.style.display ='none'"
     )
     e.collections.appendChild(holder)
-  })
+  }
+  
 }
 function buildGlitchedCompactor() {
   for (let i = 0; i < 6; i++) {

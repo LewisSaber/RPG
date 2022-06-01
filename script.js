@@ -1119,15 +1119,15 @@ function makeCollectionToolTip(item) {
       color("Rewards: ", "yellow") +
       br
     const ca = getCollectionAmounts(item)
-    CollectionRewards[item].forEach((x, i) => {
-      if (x != "") {
-        e.tooltip.innerHTML +=
-          (steve.collectionlevels[item] < i
-            ? color(ca[i].formate(3, 1) + ": ", "lightgray") +
-              color(x, "lightblue")
-            : color(ca[i].formate(3, 1) + ": " + x, "lime")) + br
-      }
-    })
+  
+    for(const key in collections[item]){
+      e.tooltip.innerHTML += (steve.collectionlevels[item] < key
+        ? color(ca[key].formate(3, 1) + ": ", "lightgray") +
+          color(collections[item][key].message, "lightblue")
+        : color(ca[key].formate(3, 1) + ": " + collections[item][key].message, "lime")) + br
+    
+    }
+   
   }
 }
 let br = "<br>"
@@ -1154,7 +1154,8 @@ function makeSteveToolTip() {
     e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
     e.tooltip.style.display = "block"
     e.tooltip.innerHTML =
-      steve.nick + br + br + br + makestats(steve, "") + br + br
+      steve.nick + br + br + br + makestats(steve, "") +  br + "Total kills: " + steve.kills.color("red") + br+
+      "Playtime: " + playerAgeString() + br
   }
 }
 
@@ -2145,4 +2146,21 @@ function stopBreakingOnMouseLeave(){
 }
 function startBreakingOnMouseEnter(element){
   if(keys[5] == 1) breakblock(element)
+}
+function playerAgeString(){
+  let age = steve.age
+  let date = {
+    days: steve.age/86400 >> 0,
+    hours: steve.age/3600 >> 0,
+    minutes: steve.age/60 >> 0 ,
+    seconds: steve.age
+  }
+  date.seconds -= date.minutes*60
+  date.minutes -= date.hours * 60
+  date.hours -= date.days * 24
+  return (date.days > 0? date.days.color("#069c03") + " Days " : "") +
+  (date.hours > 0 || date.days > 0  ? date.hours.color("#069c03") + " Hours " : "") + 
+  (date.days > 0 ? "" : date.minutes.color("#069c03") + " Minutes ") + 
+  (date.hours > 0 || date.days > 0 ? "" : date.seconds.color("#069c03") + " Seconds")
+
 }

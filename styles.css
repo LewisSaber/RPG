@@ -66,17 +66,22 @@ float: none;
 
 
 .settingsblock{
-  display: block;
+  display: table-cell;
   float: left;
   font-size: 2vh;
   margin: 1.5vh;
   width: 25vh;
-  height: 9vh;
+  height: 8vh;
   border: inset #5e5e5e 0.4vh;
   text-align: center;
   border-radius: 2vh;
   font-family: Minecraftia;
+  vertical-align: middle;
 
+}
+
+.button:hover{
+ background-color: #8f8d8d;
 }
 
 .block {
@@ -1351,4 +1356,41 @@ background-size: 100%;
   background-size: 100%,100%;
   background-repeat: no-repeat;
   border-radius: 2vh;
+}
+/* The slider itself */
+.slider {
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 80%; /* Full-width */
+  height: 2vh; /* Specified height */
+  background: #ffffff; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+}
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #04AA6D; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #04AA6D; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+#volumeP{
+  margin: 0;
+  margin-top: 0.4vh;
 }

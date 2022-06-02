@@ -317,6 +317,7 @@ classes.anvil = class extends classes.machine {
       Object.create(Object.getPrototypeOf(this.inventory.input)),
       this.inventory.input
     );
+    this.applyname()
     putItemInslot(
       this.inventory.output,
       e[this.name]["slot" + 1],

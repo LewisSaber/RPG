@@ -391,6 +391,19 @@ function PutInSlotFull(slot, codeslot, codeamount) {
       slot.amount = slot.maxStackSize
     }
   }
+  else{
+    let temp = Object.assign(
+                  Object.create(Object.getPrototypeOf(itemInCursor)),
+                  itemInCursor
+                )
+    itemInCursor = Object.assign(
+                  Object.create(Object.getPrototypeOf(slot)),
+                  slot
+                )
+    slot = temp
+    e.tooltip.className = itemInCursor.name + " block"
+    
+  }
   if (codeamount != undefined) putItemInslot(slot, codeslot, codeamount)
   else putItemInslot(slot, codeslot, codeamount)
   return slot
@@ -497,7 +510,7 @@ function removeItemFromSlot(codeslot, codeamount) {
   codeamount.innerText = ""
 }
 function RclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
-  playClickSound()
+ // playClickSound()
   if (!isNeiOpen) {
     if (itemInCursor == "none") {
       switch (type) {
@@ -582,8 +595,9 @@ function RclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
 }
 
 let itemInCursor = "none"
+
 function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
-  playClickSound()
+ // playClickSound()
   if (!isNeiOpen) {
     if (itemInCursor == "none") {
       switch (type) {
@@ -977,7 +991,6 @@ function saveInventory() {
   localStorage.setItem("RPGinventory", JSON.stringify(steve.inventory))
 }
 
-
 function blockreplacement(mapLayoutY, mapLayoutX, y, x, replacement, layer) {
   MAP.mapLayout[mapLayoutY][mapLayoutX][y][x][layer] = replacement
   if (mapX == mapLayoutX && mapY == mapY) {
@@ -1119,15 +1132,17 @@ function makeCollectionToolTip(item) {
       color("Rewards: ", "yellow") +
       br
     const ca = getCollectionAmounts(item)
-  
-    for(const key in collections[item]){
-      e.tooltip.innerHTML += (steve.collectionlevels[item] < key
-        ? color(ca[key].formate(3, 1) + ": ", "lightgray") +
-          color(collections[item][key].message, "lightblue")
-        : color(ca[key].formate(3, 1) + ": " + collections[item][key].message, "lime")) + br
-    
+
+    for (const key in collections[item]) {
+      e.tooltip.innerHTML +=
+        (steve.collectionlevels[item] < key
+          ? color(ca[key].formate(3, 1) + ": ", "lightgray") +
+            color(collections[item][key].message, "lightblue")
+          : color(
+              ca[key].formate(3, 1) + ": " + collections[item][key].message,
+              "lime"
+            )) + br
     }
-   
   }
 }
 let br = "<br>"
@@ -1154,8 +1169,18 @@ function makeSteveToolTip() {
     e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
     e.tooltip.style.display = "block"
     e.tooltip.innerHTML =
-      steve.nick + br + br + br + makestats(steve, "") +  br + "Total kills: " + steve.kills.color("red") + br+
-      "Playtime: " + playerAgeString() + br
+      steve.nick +
+      br +
+      br +
+      br +
+      makestats(steve, "") +
+      br +
+      "Total kills: " +
+      steve.kills.color("red") +
+      br +
+      "Playtime: " +
+      playerAgeString() +
+      br
   }
 }
 
@@ -1225,9 +1250,8 @@ function breakblock(block) {
       currentblock["maxhardness"] = currentblock.block.hardness
       currentblock["x"] = clickX
       currentblock["y"] = clickY
-      currentblock["layer"] = currentmap[clickY][clickX][0] == "air" 
-      ? 1 : 0
-     
+      currentblock["layer"] = currentmap[clickY][clickX][0] == "air" ? 1 : 0
+
       if (currentblock.block.isBreakable && steve.isInRange(currentblock)) {
         if (
           currentblock.block.tier <= steve.stats.tooltier &&
@@ -1236,10 +1260,8 @@ function breakblock(block) {
         ) {
           if (breaktimer == 0) {
             if (steve.getMiningSpeed() >= currentblock.block.hardness) {
-             
               steve.breakblock(currentblock)
             } else {
-              
               e.progressbar.style.display = "block"
               e.progressbarInside.style.backgroundColor = "green"
               e.progressbartext.innerText = ""
@@ -1892,23 +1914,32 @@ function givepaste(enchant, lvl = 5) {
 let nick
 let session = {
   nick: "",
-  settings: {},
+  settings: {
+    volume: "50",
+  },
 }
+
 function loadObject(Original, LoadOne) {
   for (const key in LoadOne) {
-    if (typeof LoadOne[key] == "object")
+    if (typeof LoadOne[key] == "object") {
       Original[key] = loadObject(Original[key], LoadOne[key])
-    else Original[key] = LoadOne[key]
+    } else {
+      Original[key] = LoadOne[key]
+    }
   }
+  
   return Original
 }
 
 function loadSession() {
   const cSession = JSON.parse(localStorage.getItem("RPGsessiondata"))
   if (cSession == null) {
-    session.nick = prompt("Enter Your Nick") || "default"
+    cSession.nick = prompt("Enter Your Nick") || "default"
   }
-  session = loadObject(session, cSession)
+
+  loadObject(session, cSession)
+  e.musicRange.value = session.settings.volume
+  setVolume(session.settings.volume)
 }
 
 function saveSession() {
@@ -2053,7 +2084,7 @@ function playClickSound() {
     src: ["./sounds/random/click.ogg"],
   }).play()
 }
- 
+
 // //Experiment Area
 // function createRandom(length,val = 100){
 // let A = []
@@ -2141,26 +2172,36 @@ function isBlockBetween(target1, target2) {
   }
   return false
 }
-function stopBreakingOnMouseLeave(){
+function stopBreakingOnMouseLeave() {
   steve.stopBreakingBlock()
 }
-function startBreakingOnMouseEnter(element){
-  if(keys[5] == 1) breakblock(element)
+function startBreakingOnMouseEnter(element) {
+  if (keys[5] == 1) breakblock(element)
 }
-function playerAgeString(){
+function playerAgeString() {
   let age = steve.age
   let date = {
-    days: steve.age/86400 >> 0,
-    hours: steve.age/3600 >> 0,
-    minutes: steve.age/60 >> 0 ,
-    seconds: steve.age
+    days: (steve.age / 86400) >> 0,
+    hours: (steve.age / 3600) >> 0,
+    minutes: (steve.age / 60) >> 0,
+    seconds: steve.age,
   }
-  date.seconds -= date.minutes*60
+  date.seconds -= date.minutes * 60
   date.minutes -= date.hours * 60
   date.hours -= date.days * 24
-  return (date.days > 0? date.days.color("#069c03") + " Days " : "") +
-  (date.hours > 0 || date.days > 0  ? date.hours.color("#069c03") + " Hours " : "") + 
-  (date.days > 0 ? "" : date.minutes.color("#069c03") + " Minutes ") + 
-  (date.hours > 0 || date.days > 0 ? "" : date.seconds.color("#069c03") + " Seconds")
-
+  return (
+    (date.days > 0 ? date.days.color("#069c03") + " Days " : "") +
+    (date.hours > 0 || date.days > 0
+      ? date.hours.color("#069c03") + " Hours "
+      : "") +
+    (date.days > 0 ? "" : date.minutes.color("#069c03") + " Minutes ") +
+    (date.hours > 0 || date.days > 0
+      ? ""
+      : date.seconds.color("#069c03") + " Seconds")
+  )
+}
+function setVolume(volume) {
+  Howler.volume((volume / 100))
+  session.settings.volume = volume
+  e.volumeP.innerText = "Volume: " + volume
 }

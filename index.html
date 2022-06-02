@@ -22,7 +22,7 @@
 <div class="player " id="playerStats"  onmouseenter="makeSteveToolTip()" onmouseleave =
 "if(istooltip) e.tooltip.style.display ='none'"></div>
 <div id="coins"><div id="coinspicture"></div><p id="coinstext"></p></div>
-<div id="backpacks"> <p id="backpacks0">Backpacks</p><input id="backpackSeach" onfocus="removeKeysEvent();formBackPackContains()" onblur="addKeysEvent()" oninput="highLightBackPacks()" oncontextmenu="wipeInput(this); backpackContains.set('',backPacksInGui);   highLightBackPacks(); return false"></div>
+<div id="backpacks"> <p id="backpacks0">Backpacks</p><input id="backpackSeach" onfocus="removeKeysEvent();formBackPackContains()" onblur="addKeysEvent()" oninput="highLightBackPacks()" onclick="playClickSound()" oncontextmenu="wipeInput(this); backpackContains.set('',backPacksInGui);   highLightBackPacks(); return false"></div>
 <div id="armorgui"></div>
 <div id="skills" style="display: none;"></div>
 <div id="collections" style="display: none;"><h1 style="text-align: center;">Collections</h1></div>
@@ -40,15 +40,15 @@
 
 <div id="anvil">
   <div id="anvilinput" class="guiSlot empty"><div id="anvilInputamount" class="itemamount"></div></div>
-  <input type="text" id="anviltext" placeholder="Rename Item" oninput="steve.machines[thismachinei].applyname()" onfocus="removeKeysEvent()" onblur="addKeysEvent()">
+  <input type="text" id="anviltext" placeholder="Rename Item" oninput="steve.machines[thismachinei].applyname();"onclick="playClickSound()" onfocus="removeKeysEvent()" onblur="addKeysEvent()">
   <div id="anviloutput" class="guiSlot empty"><div id="anvilOutputamount" class="itemamount"></div></div>
 </div>
 <div id="guibuttons">
-  <button id="collectionsbutton" onclick="openNoInventoryGui('collections')" onmouseenter="MakeTextToolTip(CollectionsDesc)" onmouseleave =
+  <button id="collectionsbutton" onclick="openNoInventoryGui('collections');playClickSound()" onmouseenter="MakeTextToolTip(CollectionsDesc)" onmouseleave =
   "if(istooltip) e.tooltip.style.display ='none'"></button>
-<button id="skillsbutton" onclick="openNoInventoryGui('skills')" onmouseenter="MakeTextToolTip(SkillsDesc)" onmouseleave =
+<button id="skillsbutton" onclick="openNoInventoryGui('skills');playClickSound()" onmouseenter="MakeTextToolTip(SkillsDesc)" onmouseleave =
 "if(istooltip) e.tooltip.style.display ='none'"></button>
-<button id="accessorybagbutton" onclick="openMachineGui(steve.accessorybag)" onmouseenter="MakeTextToolTip(AccesoryBagDesc)" onmouseleave =
+<button id="accessorybagbutton" onclick="openMachineGui(steve.accessorybag);playClickSound()" onmouseenter="MakeTextToolTip(AccesoryBagDesc)" onmouseleave =
 "if(istooltip) e.tooltip.style.display ='none'"></button>
 </div>
 <div id="accessorybag"><p>       Accessories</p></div>
@@ -57,15 +57,20 @@
 <div id="trashcan" class="guiSlot" onclick="deleteItemInCursor()" onmouseenter="MakeTextToolTip(color('Trashcan','green') + br + color('WARNING','red') + ', removed items can`t be restored')" onmouseleave =
 "if(istooltip) e.tooltip.style.display ='none'"></div>
 </div></span>
-<button id="settingsButton" onclick="OpenSettingsMenu()" onmouseenter="MakeTextToolTip('Settings')" onmouseleave =
+<button id="settingsButton" onclick="OpenSettingsMenu(); playClickSound()" onmouseenter="MakeTextToolTip('Settings')" onmouseleave =
 "if(istooltip) e.tooltip.style.display ='none'"></button>
 <div id="settings">
-  <div id="accountselect" class="settingsblock">Change Account<br><select id="accounts" onchange="changeAccount(this.value)"></select></div>
-  <div id="accountdelete" class="settingsblock">Delete Account<br><select id="accountsToDelete" onchange="deleteAccount(this)"></select></div>
+  
+  <div id="accountselect" class="settingsblock">Change Account<br><select id="accounts"onclick="playClickSound()" onchange="changeAccount(this.value)"></select></div>
+  <div id="accountdelete" class="settingsblock">Delete Account<br><select onclick="playClickSound()"  id="accountsToDelete" onchange="deleteAccount(this)"></select></div>
 
-  <button onclick="changeNick()" class="settingsblock">Change Your Nickname</button>
-  <button class="settingsblock" onclick="changeSkin()" onmouseenter="MakeTextToolTip('Type Default To Get Normal Skin')" onmouseleave =
-  "if(istooltip) e.tooltip.style.display ='none'">Change Skin</button>
+  <div onclick="changeNick()" class="settingsblock button">Change Your Nickname</div>
+  <div class="settingsblock button" onclick="changeSkin()" onmouseenter="MakeTextToolTip('Type Default To Get Normal Skin')" onmouseleave =
+  "if(istooltip) e.tooltip.style.display ='none'">Change Skin</div>
+  <div class="settingsblock">
+    <p id="volumeP">Volume: 50</p>
+    <input type="range" min="0" max="100" value="50" class="slider" id="musicRange" oninput="setVolume(this.value)">
+  </div>
   <a href="https://discord.gg/8sSTpAZ7NH" target="_blank" id="discord"></a>
 </div>
 <div id="editmode">

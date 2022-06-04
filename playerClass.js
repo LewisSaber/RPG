@@ -132,9 +132,10 @@ class player {
     }
   }
   makeCollections() {
-    for (let i = 0; i < collections.length; i++) {
-      this.collectionitems[collections[i]] = 0
-      this.collectionlevels[collections[i]] = 0
+    for(const key in collections)
+    {
+      this.collectionitems[key] = 0
+      this.collectionlevels[key] = 0
     }
   }
   move() {

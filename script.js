@@ -1998,7 +1998,7 @@ let session = {
     volume: "50",
     fullStackPrice: false,
     font: "Minecraftia",
-    toolTipFontSize: 2.5,
+    toolTipFontSize: 2,
   },
   tooltipYOffset: 0,
   tooltipXOffset: 0,

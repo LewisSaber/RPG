@@ -128,6 +128,8 @@ function searchCraftingRecipe() {
 }
 function setCraftingTableOutput() {
   let recipe = searchCraftingRecipe();
+ 
+ 
   recipeAmounts = recipe[2];
   craftingTableResult = new classes[recipe[0]](recipe[1]);
   craftingTableResult.addTag(recipe[3])

@@ -6,7 +6,8 @@ const villagerTrades = {
         pricetype: "coins",
         
    
-      }
+      },
+      
     ],
 
    

@@ -39,37 +39,63 @@
 <div id="enchantingbook"><button id="enchantingbookbutton" onclick="steve.machines[thismachinei].doRecipeInternal()">Apply</button></div>
 
 <div id="anvil">
+<div id="anvilColorSelector">
+  <div id="anvilColorExample"></div>
+  <input type="range" min="0" max="255" value="0" class="slider" id="anvilred"  oninput="renamingColor.red = this.value;steve.machines[thismachinei].applycolor()">
+
+    <input type="range" min="0" max="255" value="0" class="slider" id="anvilgreen"  oninput="renamingColor.green = this.value;steve.machines[thismachinei].applycolor()">
+    <input type="range" min="0" max="255" value="0" class="slider" id="anvilblue"  oninput="renamingColor.blue = this.value;steve.machines[thismachinei].applycolor()">
+
+</div>
+
   <div id="anvilinput" class="guiSlot empty"><div id="anvilInputamount" class="itemamount"></div></div>
-  <input type="text" id="anviltext" placeholder="Rename Item" oninput="steve.machines[thismachinei].applyname();"onclick="playClickSound()" onfocus="removeKeysEvent()" onblur="addKeysEvent()">
+  <input type="text" id="anviltext" placeholder="Rename Item" oninput="steve.machines[thismachinei].applyname();"onclick="playClickSound()" onfocus="removeKeysEvent()" onblur="addKeysEvent()" oncontextmenu="wipeInput(this); steve.machines[thismachinei].applyname(); return false" >
   <div id="anviloutput" class="guiSlot empty"><div id="anvilOutputamount" class="itemamount"></div></div>
 </div>
 <div id="guibuttons">
-  <button id="collectionsbutton" onclick="openNoInventoryGui('collections');playClickSound()" onmouseenter="MakeTextToolTip(CollectionsDesc)" onmouseleave =
+  <button id="collectionsbutton" onclick="openNoInventoryGui('collections');playClickSound()" onmouseenter="makeTextToolTip(CollectionsDesc)" onmouseleave =
   "if(istooltip) e.tooltip.style.display ='none'"></button>
-<button id="skillsbutton" onclick="openNoInventoryGui('skills');playClickSound()" onmouseenter="MakeTextToolTip(SkillsDesc)" onmouseleave =
+<button id="skillsbutton" onclick="openNoInventoryGui('skills');playClickSound()" onmouseenter="makeTextToolTip(SkillsDesc)" onmouseleave =
 "if(istooltip) e.tooltip.style.display ='none'"></button>
-<button id="accessorybagbutton" onclick="openMachineGui(steve.accessorybag);playClickSound()" onmouseenter="MakeTextToolTip(AccesoryBagDesc)" onmouseleave =
+<button id="accessorybagbutton" onclick="openMachineGui(steve.accessorybag);playClickSound()" onmouseenter="makeTextToolTip(AccesoryBagDesc)" onmouseleave =
 "if(istooltip) e.tooltip.style.display ='none'"></button>
 </div>
 <div id="accessorybag"><p>       Accessories</p></div>
 <div id="backpack"><div id="backpackname">fff</div></div>
 <div id="villagergui"></div>
-<div id="trashcan" class="guiSlot" onclick="deleteItemInCursor()" onmouseenter="MakeTextToolTip(color('Trashcan','green') + br + color('WARNING','red') + ', removed items can`t be restored')" onmouseleave =
+<div id="trashcan" class="guiSlot" onclick="deleteItemInCursor()" onmouseenter="makeTextToolTip(color('Trashcan','green') + br + color('WARNING','red') + ', removed items can`t be restored')" onmouseleave =
 "if(istooltip) e.tooltip.style.display ='none'"></div>
 </div></span>
-<button id="settingsButton" onclick="OpenSettingsMenu(); playClickSound()" onmouseenter="MakeTextToolTip('Settings')" onmouseleave =
+<button id="settingsButton" onclick="OpenSettingsMenu(); playClickSound()" onmouseenter="makeTextToolTip('Settings')" onmouseleave =
 "if(istooltip) e.tooltip.style.display ='none'"></button>
+
 <div id="settings">
   
   <div id="accountselect" class="settingsblock">Change Account<br><select id="accounts"onclick="playClickSound()" onchange="changeAccount(this.value)"></select></div>
   <div id="accountdelete" class="settingsblock">Delete Account<br><select onclick="playClickSound()"  id="accountsToDelete" onchange="deleteAccount(this)"></select></div>
-
+ 
   <div onclick="changeNick()" class="settingsblock button">Change Your Nickname</div>
-  <div class="settingsblock button" onclick="changeSkin()" onmouseenter="MakeTextToolTip('Type Default To Get Normal Skin')" onmouseleave =
+  <div class="settingsblockbig">
+    Shop Settings<br>
+    <input type="checkbox" id="shopPriceCheckBox" name="shopPrice" onchange="if(this.checked) session.settings.fullStackPrice = true; else session.settings.fullStackPrice = false;  ">
+    <label for="shopPrice">Show Price Of Full Stack</label>
+    
+    
+  </div>
+  <div onclick="changeFont()" class="settingsblock button">Change Your Font<br> <a href="https://www.w3schools.com/cssref/css_websafe_fonts.asp" target="_blank">Possible Fonts</a> </div>
+  <div class="settingsblock button" onclick="changeSkin()" onmouseenter="makeTextToolTip('Type Default To Get Normal Skin')" onmouseleave =
   "if(istooltip) e.tooltip.style.display ='none'">Change Skin</div>
+ 
   <div class="settingsblock">
     <p id="volumeP">Volume: 50</p>
     <input type="range" min="0" max="100" value="50" class="slider" id="musicRange" oninput="setVolume(this.value)">
+
+  </div>
+  <div class="settingsblock">
+    <p id="fontExample">ToolTip FontSize: 25</p>
+    <input type="range" min="10" max="50" value="25" class="slider" id="fontRange" oninput="setToolTipFontSize(this.value/10)" onmouseenter="makeTextToolTip('example<br>Defense: 20')" onmouseleave =
+    "if(istooltip) e.tooltip.style.display ='none'">
+
   </div>
   <a href="https://discord.gg/8sSTpAZ7NH" target="_blank" id="discord"></a>
 </div>
@@ -82,19 +108,15 @@
        </div>
        <button id="floormode" onclick="floormode = +!floormode;  this.style.backgroundColor = floormode ? 'green' : 'red'  ">F</button>
        <button id="randomfill" onclick="randomfill(this)">100%</button>
-       <!-- <form  method="post" action="mapsaver.php">
-        <input type="submit" name="saveMap" id="saveMap"
-                value="Save"/>
-          
-    </form > -->
+      
     <select  id="biomes" onchange="setBiome()">   
     </select>
-       <button id="selectLocation" onclick="setLocation()" onmouseenter="currentmap.location == null ? '' :MakeTextToolTip(currentmap.location)" onmouseleave =
+       <button id="selectLocation" onclick="setLocation()" onmouseenter="currentmap.location == null ? '' :makeTextToolTip(currentmap.location)" onmouseleave =
        "if(istooltip) e.tooltip.style.display ='none'">L</button>
        <button id="saveMap" onclick='
         saveMapToCloud()'>Save</button>
        <button id="openMaps" onclick="OpenMapGui()">M</button>
-       <!-- <button id="exportMap" onclick="exportMap()" >E</button> -->
+     
 </div>
 <button id="switchmode" onclick="switchmode()">Switch</button>
 <div id="Location"></div>

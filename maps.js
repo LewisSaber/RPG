@@ -403,3 +403,4 @@ function putFileMapToCloud(){
   ShouldSaveOnLeave = false
   window.location.reload()
 }
+

@@ -16,6 +16,7 @@ classes.cobblestone = class extends classes.stonetype {
     super(amount);
     this.name = "cobblestone";
     this.hardness = 2000;
+    this.sellValue = 1
   }
 };
 
@@ -96,7 +97,7 @@ classes.woodpickaxe = class extends classes.tool {
     this.name = "woodpickaxe";
     this.stats = {
       tooltier: 0,
-      tool: "pick",
+      tool: "pickaxe",
       miningspeed: 100,
     };
   }
@@ -107,7 +108,7 @@ classes.ruslanshovel = class extends classes.tool {
     this.name = "ruslanshovel";
     this.stats = {
       tooltier: 10,
-      tool: "pick axe shovel",
+      tool: "pickaxe axe shovel",
       miningspeed: 10000,
       miningfortune: 600,
     };
@@ -276,7 +277,7 @@ classes.stonepickaxe = class extends classes.tool {
     this.rarity = 1
     this.stats = {
       tooltier: 1,
-      tool: "pick",
+      tool: "pickaxe",
       miningspeed: 200,
       miningfortune: 10,
     };
@@ -312,11 +313,28 @@ classes.anvil = class extends classes.machine {
     //this.nametorename = e.anviltext.value
     this.inventory.output.Rname = e.anviltext.value;
   }
+  applycolor(){
+    anvilColorExample.style.backgroundColor = renamingColor.toHex()
+    this.inventory.output.customcolor = renamingColor.toHex()
+  }
   doRecipe() {
     this.inventory.output = Object.assign(
       Object.create(Object.getPrototypeOf(this.inventory.input)),
       this.inventory.input
     );
+    if( this.inventory.input.name != "empty")
+    {
+      e.anviltext.value = this.inventory.input.Rname || getName(this.inventory.input.name)
+      e.anvilred.value = parseInt(this.inventory.input.customcolor.slice(1,3),16)
+      e.anvilgreen.value = parseInt(this.inventory.input.customcolor.slice(3,5),16)
+      e.anvilblue.value = parseInt(this.inventory.input.customcolor.slice(5,7),16)
+      renamingColor.red = parseInt(this.inventory.input.customcolor.slice(1,3),16)
+      renamingColor.green = parseInt(this.inventory.input.customcolor.slice(3,5),16)
+      renamingColor.blue = parseInt(this.inventory.input.customcolor.slice(5,7),16)
+
+      anvilColorExample.style.backgroundColor = renamingColor.toHex()
+      
+    }
     this.applyname()
     putItemInslot(
       this.inventory.output,
@@ -493,6 +511,7 @@ classes.steak = class extends classes.consumable{
       health: 50,
       strength: 5,
     }
+    this.sellValue = 5
     this.effectLength = 120
   }
 }
@@ -569,10 +588,10 @@ constructor(amount = 0){
 
 }
 
-classes.armorset = class extends classes.empty{
+classes.armor = class extends classes.empty{
 constructor(amount = 0){
   super(amount)
-  this.maxStackSize = 1
+  
 }
 checkSetParts(amount){
 
@@ -601,43 +620,16 @@ DeActivate(){
 
 
 }
-classes.leatherset = class extends classes.armorset{
-  constructor(amount = 0){
-    super(amount)
-    this.set = "leather"
-    this.description = "<br><p style='color:lime'> Set Ability: </p><br><p style='color:lightgray'> + 20 Damage if 3 parts are present<br> </p>"
-  }
-  Activate(){
-   
-    if(this.checkSetPartsAmount() ==3){
-      steve.stats.maxhealth += steve.skilllevels.combat
-      steve.stats.damage += 20
-    }
-  }
-  DeActivate(){
 
-    if(this.checkSetPartsAmount() < 4){
-      steve.stats.maxhealth -= steve.skilllevels.combat
-      steve.stats.damage -= 20
-    }
-  }
-}
-classes.ironset = class extends classes.armorset{
-  constructor(amount = 0){
-    super(amount)
-    this.set = "iron"
-   
-  }
-  
-}
-classes.ironhelmet = class extends classes.ironset{
+
+classes.ironhelmet = class extends classes.armor{
   constructor(amount = 0){
     super(amount)
     this.name = "ironhelmet"
     this.type = "helmet"
     this.stats = {
       maxhealth: 10,
-      defence: 5,
+      defense: 5,
     }
   }
 }
@@ -647,50 +639,53 @@ classes.ironhelmet = class extends classes.ironset{
 
 
 
-classes.leatherhelmet = class extends classes.leatherset{
+classes.leatherhelmet = class extends classes.armor{
   constructor(amount = 0){
   super(amount)
   this.name = "leatherhelmet"
   this.type = "helmet"
   this.stats = {
     maxhealth: 10,
-    defence: 5,
+    defense: 5,
   }
 }
 }
-classes.leatherchestplate = class extends classes.leatherset{
+classes.leatherchestplate = class extends classes.armor{
   constructor(amount = 0){
   super(amount)
   this.name = "leatherchestplate"
   this.type = "chestplate"
+  this.description = "Set Ability:" + br + " Get 5 damage for Each Kill"
   this.stats = {
     maxhealth: 20,
-    defence: 15,
+    defense: 15,
+    damage: 1
   }
+  this.kills = 0
+  this.temp = this.addKills.bind(this)
+}
+
+Activate(){
+//  document.removeEventListener("mobdeath",this.temp)
+
+  document.addEventListener("mobdeath",this.temp)
+  this.addKills(false)
+ 
+}
+DeActivate(){
+ 
+  document.removeEventListener("mobdeath",this.temp)
+}
+addKills(flag = true){
+  console.log(flag)
+  if(flag)
+ this.kills++
+ const olddmg = this.stats.damage
+ this.stats.damage =1 + 5 * this.kills
+ steve.stats.damage += -olddmg + this.stats.damage
 }
 }
-classes.leatherleggins = class extends classes.leatherset{
-  constructor(amount = 0){
-  super(amount)
-  this.name = "leatherleggins"
-  this.type = "leggins"
-  this.stats = {
-    maxhealth: 15,
-    defence: 10,
-  }
-}
-}
-classes.leatherboots = class extends classes.leatherset{
-  constructor(amount = 0){
-  super(amount)
-  this.name = "leatherboots"
-  this.type = "boots"
-  this.stats = {
-    maxhealth: 8,
-    defence: 5,
-  }
-}
-}
+
 classes.stonesword = class extends classes.tool{
   constructor(amount = 0){
     super(amount)
@@ -753,22 +748,22 @@ classes.zombiehat = class extends classes.item{
     this.type = "helmet"
     this.stats = {
       maxhealth: 20,
-      defence: 15,
+      defense: 15,
     }
     this.rarity = 1
-    this.description = "Gives "+ color("+20",getStatColor("defence")) + " defence for Each Undead Mob on Map"
+    this.description = "Gives "+ color("+20",getStatColor("defense")) + " defense for Each Undead Mob on Map"
   }
   Activate(){
     mobs.forEach(x=>{
       if(x.mobtype == "undead")
-      steve.stats.defence += 20
+      steve.stats.defense += 20
     })
 
   }
   DeActivate(){
     mobs.forEach(x=>{
       if(x.mobtype == "undead")
-      steve.stats.defence -= 20
+      steve.stats.defense -= 20
     })
   }
  
@@ -799,7 +794,7 @@ classes.glass = class extends classes.block{
 constructor(amount = 0){
  super(amount)
  this.name = 'glass'
-this.tool='pick'
+this.tool='pickaxe'
 this.hardness='500'
 }
 
@@ -872,7 +867,7 @@ classes.netherrack = class extends classes.block{
 constructor(amount = 0){
  super(amount)
  this.name = 'netherrack'
-this.tool='pick'
+this.tool='pickaxe'
 this.hardness='2000'
 }
 
@@ -1145,7 +1140,7 @@ classes.redstoneblock = class extends classes.block{
 constructor(amount = 0){
  super(amount)
  this.name = 'redstoneblock'
-this.tool='pick'
+this.tool='pickaxe'
 this.hardness='2000'
 this.xp=0
 }
@@ -1173,12 +1168,18 @@ constructor(amount = 0){
  this.name = 'accessory'
  this.type = 'accessory'
  this.family = 'none'
+ this.wasActivated = false
  this.tier = 0
  this.maxStackSize = 1
 
 }
-activate(){}
-deactivate(){}
+activate(){
+  this.wasActivated = true
+}
+deactivate(){
+  
+  this.wasActivated = false
+}
 }
 classes.wolfpaw = class extends classes.accessory{
   constructor(amount = 0){
@@ -1194,36 +1195,112 @@ classes.wolfpaw = class extends classes.accessory{
   }
   
   }
-
-
-
-  
-  classes.village = class extends classes.accessory{
+  classes.lewisrelic = class extends classes.accessory{
     constructor(amount = 0){
      super(amount)
-     this.name = 'village'
+     this.name = 'lewisrelic'
+     this.type = 'accessory'
+     this.family = 'lewis'
+    
+     this.tier = 4
+     this.rarity = 5
+     this.stats = {
+       damage: 69400,
+       speed:300,
+     }
+    }
+
+  }
+  classes.phone = class extends classes.accessory{
+    constructor(amount = 0){
+      super(amount)
+      this.name = 'phone'
+     this.type = 'accessory'
+     this.family = 'phone' 
+     this.tier = 1
+     this.rarity = 6
+     this.sellValue = 5000000
+     this.stats = {
+       damage: 20,
+       defense: 50,
+     }
+    }
+  }
+
+  
+  classes.villagetalisman = class extends classes.accessory{
+    constructor(amount = 0){
+     super(amount)
+     this.name = 'villagetalisman'
      this.type = 'accessory'
      this.family = 'village'
-     this.description2 = br +"Gives " + color("+10","white") + " Speed in Village"
+     this.additionalspeed = 30
+     this.description2 = br +"Gives " + color("+"+this.additionalspeed,"white") + " Speed in Village"
      this.tier = 1
      this.rarity = 1
      this.stats = {
-       speed:0
+       speed:5
      }
+    
     }
+  
     activate(){
-     if(currentBiome == "cave"){
-       steve.addStats({stats:{speed:10}})
-       console.log("Speed ",steve.stats.speed)
+      super.activate()
+     if(isInVillage()){
+       
+       steve.addStats({stats:{speed:this.additionalspeed}})
+       
       }
      }
      deactivate(){
-      if(currentBiome == "cave"){
-        steve.removeStats({stats:{speed:10}})
-        console.log("Speed ",steve.stats.speed)
+      super.deactivate()
+      if(isInVillage()){
+        
+        steve.removeStats({stats:{speed:this.additionalspeed}})
+        
        }
       }
     }
+    classes.villagecharm = class extends classes.villagetalisman{
+      constructor(amount = 0){
+       super(amount)
+       this.name = 'villagecharm'
+       this.additionalspeed = 60
+       this.description2 = br +"Gives " + color("+"+this.additionalspeed,"white") + " Speed in Village"
+       this.tier = 2
+       this.rarity = 2
+       this.stats = {
+         speed:10
+       }
+      }
+    }
+    classes.villageartifact = class extends classes.villagetalisman{
+      constructor(amount = 0){
+       super(amount)
+       this.name = 'villageartifact'
+       this.additionalspeed = 90
+       this.description2 = br +"Gives " + color("+"+this.additionalspeed,"white") + " Speed in Village"
+       this.tier = 3
+       this.rarity = 3
+       this.stats = {
+         speed:15
+       }
+      }
+    }
+    classes.villagerelic = class extends classes.villagetalisman{
+      constructor(amount = 0){
+       super(amount)
+       this.name = 'villagerelic'
+       this.additionalspeed = 120
+       this.description2 = br +"Gives " + color("+"+this.additionalspeed,"white") + " Speed in Village"
+       this.tier = 4
+       this.rarity = 5
+       this.stats = {
+         speed:25
+       }
+      }
+    }
+  
     
 
   classes.supercompactor = class extends classes.machine {
@@ -1403,3 +1480,60 @@ constructor(amount = 0){
 
 }
 
+
+
+  classes.revenantchestplate = class extends classes.armor{
+
+  constructor(amount = 0){
+  super(amount)
+  this.name = "revenantchestplate"
+  this.set = "revenant"
+  this.type = "chestplate"
+   
+  this.stats = {
+    maxhealth: 20,
+    defense: 15,
+    damage: 1,
+    zombiedefense: 0,
+  }
+  this.kills = 0
+  this.lvl = 0 
+ 
+  this.temp = this.addKills.bind(this)
+}
+postloadConstructor(){
+  this.slayerArmorLevelUp()
+}
+slayerArmorLevelUp(){
+  console.log("lvl",this.lvl)
+    console.log("kills", this.kills)
+  while(slayerArmorMilestones[this.lvl+1] <= this.kills){
+  
+    this.lvl++
+    
+    steve.stats.zombiedefense -= this.stats.zombiedefense
+    this.stats.zombiedefense = slayerArmorMilestonesDefense[this.lvl]
+    steve.stats.zombiedefense += this.stats.zombiedefense
+    
+  }
+}
+
+Activate(){
+//  document.removeEventListener("mobdeath",this.temp)
+
+  document.addEventListener("mobdeath",this.temp)
+}
+DeActivate(){
+ 
+  document.removeEventListener("mobdeath",this.temp)
+}
+addKills(evt){
+  console.log(evt.detail.name)
+  if(isZombie(evt.detail.name)) 
+  {
+    this.kills++
+    this.slayerArmorLevelUp()
+  }
+ 
+}
+}

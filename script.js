@@ -5,6 +5,20 @@ let mobtospawn = ""
 let mobs = []
 let caneat = true
 let currethowl
+//WIP let Events = {}
+let renamingColor = {
+  red: 0,
+  green: 0,
+  blue: 0,
+  toHex() {
+    return "#" + toHex0(+this.red) + toHex0(+this.green) + toHex0(+this.blue)
+  },
+}
+function toHex0(numb) {
+  if (numb <= 0) return "00"
+  if (numb > 255) return "FF"
+  return numb.toString(16).toUpperCase()
+}
 const maxbackpackslot = 33 //size of biggest backpack
 const maxaccesoriesslots = 33 //size of maxed accessory bag
 const maxCompactorSlots = 16
@@ -102,8 +116,9 @@ function onBeforeUnload() {
   }
 }
 function positionElement(evt) {
-  e.tooltip.style.top = evt.y + (istooltip ? -100 : -10) + "px"
-  e.tooltip.style.left = evt.x + 5 + "px"
+  e.tooltip.style.top =
+    evt.y + (istooltip ? -100 + session.tooltipYOffset : -10) + "px"
+  e.tooltip.style.left = evt.x + 5 + session.tooltipXOffset + "px"
 
   timer = false
 }
@@ -117,6 +132,7 @@ let isShiftOn = 0
  * W,A,S,D,E,LMB,R,U,Esc
  */
 let keys = [0, 0, 0, 0, 0, 0, 0, 0]
+let keyStates = {}
 let currentHotbarSlot = 0
 let selectedItem
 function downButtonHandler(evt) {
@@ -165,8 +181,12 @@ function downButtonHandler(evt) {
       }
     }
   }
-  if (evt.key == "Escape" && !isGuiOpen) {
+  if (evt.key == "Escape" && !isGuiOpen && !keyStates.Escape) {
     OpenSettingsMenu()
+  }
+  if (evt.key == "m" && !keyStates.m) {
+    steve.sortInventory()
+    if (istooltip) e.tooltip.style.display = "none"
   }
 
   switch (evt.key) {
@@ -195,8 +215,9 @@ function downButtonHandler(evt) {
     case "Shift":
       isShiftOn = 1
       break
-    case "Escape":
-      keys[8] = 1
+
+    default:
+      keyStates[evt.key] = 1
       break
   }
   switch (evt.key) {
@@ -231,7 +252,10 @@ function toggleNei() {
   if (RecipeGueue.length > 0 || !isNeiOpen) {
     if (isNeiOpen) {
       disableInventoryGuis()
+
+      craftingTableItems = dumbtoinventory(craftingTableItems)
       ShowRecipe(0)
+      craftingArray.set("empty", 9)
       e.craftingtable.style.marginLeft = "20vh"
       e.nei.style.display = "block"
     } else {
@@ -286,8 +310,9 @@ function upButtonHandler(evt) {
     case "Shift":
       isShiftOn = 0
       break
-    case "Escape":
-      keys[8] = 0
+
+    default:
+      keyStates[evt.key] = 0
       break
   }
 }
@@ -379,30 +404,31 @@ function PutInSlotFull(slot, codeslot, codeamount) {
     slot = itemInCursor
 
     itemInCursor = "none"
-    e.tooltip.className = ""
+    putInCursor()
+    //e.tooltip.className = ""
     makeToolTip(slot)
   } else if (slot.name == itemInCursor.name) {
     if (slot.getEmpty() >= itemInCursor.amount) {
       slot.amount += itemInCursor.amount
       itemInCursor = "none"
-      e.tooltip.className = ""
+      putInCursor()
+      // e.tooltip.className = ""
     } else {
       itemInCursor.amount -= slot.getEmpty()
       slot.amount = slot.maxStackSize
     }
-  }
-  else{
+  } else {
     let temp = Object.assign(
-                  Object.create(Object.getPrototypeOf(itemInCursor)),
-                  itemInCursor
-                )
+      Object.create(Object.getPrototypeOf(itemInCursor)),
+      itemInCursor
+    )
     itemInCursor = Object.assign(
-                  Object.create(Object.getPrototypeOf(slot)),
-                  slot
-                )
+      Object.create(Object.getPrototypeOf(slot)),
+      slot
+    )
     slot = temp
-    e.tooltip.className = itemInCursor.name + " block"
-    
+    putInCursor()
+    // e.tooltip.className = itemInCursor.name + " block"
   }
   if (codeamount != undefined) putItemInslot(slot, codeslot, codeamount)
   else putItemInslot(slot, codeslot, codeamount)
@@ -426,19 +452,29 @@ function PutInSlotOne(slot, codeslot, codeamount) {
   }
   if (itemInCursor.amount == 0) {
     itemInCursor = "none"
-    e.tooltip.className = ""
+    putInCursor()
+    //  e.tooltip.className = ""
   }
   putItemInslot(slot, codeslot, codeamount)
   return slot
 }
 function putInCursor() {
+  console.log("this")
   if (itemInCursor.name == "empty") {
     itemInCursor = "none"
     e.tooltip.className = ""
   } else {
+    console.log(istooltip)
+    console.log(e.tooltip.style.top)
     e.tooltip.className = itemInCursor.name + " block"
-    if (istooltip)
-      e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) + 90 + "px"
+    if (istooltip) {
+      e.tooltip.style.top =
+        +e.tooltip.style.top.slice(0, -2) + 90 - session.tooltipYOffset + "px"
+    } else {
+      e.tooltip.style.top =
+        +e.tooltip.style.top.slice(0, -2) - 90 + session.tooltipYOffset + "px"
+    }
+    console.log(e.tooltip.style.top)
     istooltip = false
     e.tooltip.innerText = ""
   }
@@ -450,9 +486,9 @@ function putInCursorFull(slot, codeslot, codeamount) {
       Object.create(Object.getPrototypeOf(slot)),
       slot
     )
-    e.tooltip.className = itemInCursor.name + " block"
-    if (istooltip)
-      e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) + 90 + "px"
+    putInCursor()
+    // e.tooltip.className = itemInCursor.name + " block"
+
     istooltip = false
 
     e.tooltip.innerText = ""
@@ -470,12 +506,7 @@ function AddItemToCursor(item) {
   ) {
     item.amount += itemInCursor == "none" ? 0 : itemInCursor.amount
     itemInCursor = item
-    e.tooltip.className = itemInCursor.name + " block"
-    if (istooltip)
-      e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) + 90 + "px"
-    istooltip = false
-
-    e.tooltip.innerText = ""
+    putInCursor()
     return true
   }
   return false
@@ -485,12 +516,8 @@ function putInCursorHalf(slot, codeslot, codeamount) {
   itemInCursor = Object.assign(Object.create(Object.getPrototypeOf(slot)), slot)
 
   itemInCursor.amount = amount
-  e.tooltip.className = itemInCursor.name + " block"
-  if (istooltip)
-    e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) + 90 + "px"
-  istooltip = false
+  putInCursor()
 
-  e.tooltip.innerText = ""
   if (slot.amount - amount == 0) {
     slot = new classes.empty()
   } else {
@@ -501,7 +528,8 @@ function putInCursorHalf(slot, codeslot, codeamount) {
 }
 function deleteItemInCursor() {
   itemInCursor = "none"
-  e.tooltip.className = ""
+  putInCursor()
+  // e.tooltip.className = ""
   makeToolTip(new classes.empty())
 }
 
@@ -510,7 +538,7 @@ function removeItemFromSlot(codeslot, codeamount) {
   codeamount.innerText = ""
 }
 function RclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
- // playClickSound()
+  // playClickSound()
   if (!isNeiOpen) {
     if (itemInCursor == "none") {
       switch (type) {
@@ -597,7 +625,7 @@ function RclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
 let itemInCursor = "none"
 
 function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
- // playClickSound()
+  // playClickSound()
   if (!isNeiOpen) {
     if (itemInCursor == "none") {
       switch (type) {
@@ -636,6 +664,14 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
                 e.inventory["slot" + i + "amount"]
               )
               if (i == currentHotbarSlot) selectHotbarItem(i)
+            } else if (thismachinei == -4) {
+              steve.inventory[i] = sellItem(steve.inventory[i])
+
+              putItemInslot(
+                steve.inventory[i],
+                e.inventory["slot" + i],
+                e.inventory["slot" + i + "amount"]
+              )
             } else {
               if (i < 9) {
                 steve.inventory[i] = steve.addToInventory(
@@ -831,6 +867,14 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
                 e.inventory["slot" + i + "amount"]
               )
               if (i == currentHotbarSlot) selectHotbarItem(i)
+            } else if (thismachinei == -4) {
+              steve.inventory[i] = sellItem(steve.inventory[i])
+
+              putItemInslot(
+                steve.inventory[i],
+                e.inventory["slot" + i],
+                e.inventory["slot" + i + "amount"]
+              )
             } else {
               if (i < 9) {
                 steve.inventory[i] = steve.addToInventory(
@@ -999,20 +1043,23 @@ function blockreplacement(mapLayoutY, mapLayoutX, y, x, replacement, layer) {
     currentmap[y][x][layer] = replacement
   }
 }
+function makeStatTooltip(amount, statname, symbolflag) {
+  return (
+    (amount > 0 ? symbolflag : "") +
+    amount +
+    getStatIcon(statname)
+  ).color(getStatColor(statname))
+}
 function makestats(item, plus = "+") {
   let str = ""
   for (const key in item.stats) {
     if (!hiddenstats.includes(key)) {
       str +=
         color(getName(key) + ": ", "lightgray") +
-        color(
-          (typeof item.stats[key] == "string"
-            ? item.stats[key]
-            : item.stats[key] >= 0
-            ? plus + item.stats[key]
-            : item.stats[key]) + "<br> ",
-          getStatColor(key)
-        )
+        (typeof item.stats[key] == "string"
+          ? item.stats[key].color(getStatColor(key))
+          : makeStatTooltip(item.stats[key], key, plus)) +
+        br
     }
   }
   return str
@@ -1060,14 +1107,8 @@ function makeConsumable(item) {
       )
     for (const key in item.addedstats) {
       str +=
-        getName(key) +
-        ": " +
-        color(
-          item.addedstats[key] >= 0
-            ? "+ " + item.addedstats[key]
-            : "- " + item.addedstats[key].toString().substr(1),
-          getStatColor(key)
-        ) +
+        color(getName(key) + ": ", "lightgray") +
+        makeStatTooltip(item.addedstats[key], key, "+") +
         br
     }
   }
@@ -1117,7 +1158,7 @@ function makeCollectionToolTip(item) {
     itemintooltip = item.name //used in recipe search
     e.tooltip.className = "tooltipimg"
     istooltip = true
-    e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
+    // = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
     e.tooltip.style.display = "block"
     e.tooltip.innerHTML =
       color(
@@ -1166,7 +1207,7 @@ function makeSteveToolTip() {
   if (itemInCursor == "none") {
     e.tooltip.className = "tooltipimg"
     istooltip = true
-    e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
+    //  e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
     e.tooltip.style.display = "block"
     e.tooltip.innerHTML =
       steve.nick +
@@ -1184,7 +1225,7 @@ function makeSteveToolTip() {
   }
 }
 
-function makeToolTip(item) {
+function makeToolTip(item, sellValue = true) {
   if (itemInCursor == "none") {
     if (item.name == "empty" || item.name == "machine") {
       e.tooltip.style.display = "none"
@@ -1192,7 +1233,7 @@ function makeToolTip(item) {
       itemintooltip = item.name //used in recipe search
       e.tooltip.className = "tooltipimg"
       istooltip = true
-      e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
+      // e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
       e.tooltip.style.display = "block"
       e.tooltip.innerHTML =
         (item.Rname == ""
@@ -1211,6 +1252,18 @@ function makeToolTip(item) {
         makeConsumable(item) +
         (item.description2 == "" ? "" : item.description2 + br) +
         "<br><br>" +
+        (item.sellValue != undefined && sellValue
+          ? "Sell Value: " +
+            (
+              item.sellValue *
+                (session.settings.fullStackPrice ? item.amount : 1) +
+              " Coins"
+            ).color("yellow") +
+            br
+          : "") +
+        (thismachinei == -4 && item.sellValue != undefined && sellValue
+          ? "Hold Shift to Sell" + br
+          : "") +
         color(
           " " +
             raritynames[item.rarity] +
@@ -1322,6 +1375,14 @@ function loadPlayer(Nick) {
               i
             )
           }
+        } else if (key1 == "sellHistory") {
+          pl.sellHistory.forEach((x) => {
+            let Obj = {
+              price: x.price,
+              item: loadInventoryItem(x.item),
+            }
+            steve.sellHistory.push(Obj)
+          })
         } else steve[key1] = pl[key1]
       }
     }
@@ -1336,12 +1397,14 @@ function loadInventoryItem(item) {
   let result = new classes[item.name](item.amount)
   result.Rname = item.Rname
   result.customcolor = item.customcolor
+  if (item.kills != undefined) result.kills = item.kills
   if (item.enchants != undefined) result.enchants = item.enchants
   if (item.inventory != undefined) {
     for (const key2 in item.inventory) {
       result.inventory[key2] = loadInventoryItem(item.inventory[key2])
     }
   }
+  result.postloadConstructor()
   return result
 }
 let lastmachine
@@ -1447,7 +1510,7 @@ function openMachineGui(machine, id = 0) {
       disableInventoryGuis()
       e.coins.style.display = "block"
       e.inventory.style.display = "block"
-      e.villagergui.style.display = "flex"
+      e.villagergui.style.display = "block"
       e.villagergui.innerHTML = makeVillagerNameTag(machine.villagerName)
       thismachinei = -4
       villagerTrades[machine.villagerName].forEach((x, i) => {
@@ -1490,6 +1553,7 @@ function openMachineGui(machine, id = 0) {
         )
         tag.appendChild(amount)
         e.villagergui.appendChild(tag)
+        e.villagergui.appendChild(sellHistorySlot())
       })
     } else {
       e[machine.machinetype].style.display = "block"
@@ -1585,10 +1649,24 @@ function ScrollHandler(evt) {
     e.inventory["slot" + currentHotbarSlot].style.margin = "0.1vh"
     selectHotbarItem(currentHotbarSlot)
   } else {
-    if (evt.deltaY < 0)
-      e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 6 + "px"
-    if (evt.deltaY > 0)
-      e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) + 6 + "px"
+    if (evt.deltaY < 0 && istooltip) {
+      if (isShiftOn) {
+        e.tooltip.style.left = +e.tooltip.style.left.slice(0, -2) - 6 + "px"
+        session.tooltipXOffset += -6
+      } else {
+        e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 6 + "px"
+        session.tooltipYOffset += -6
+      }
+    }
+    if (evt.deltaY > 0 && istooltip) {
+      if (isShiftOn) {
+        e.tooltip.style.left = +e.tooltip.style.left.slice(0, -2) + 6 + "px"
+        session.tooltipXOffset += 6
+      } else {
+        e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) + 6 + "px"
+        session.tooltipYOffset += 6
+      }
+    }
   }
   //deltaY == -100 scrollup
   //deltay == 100 scrolldown
@@ -1740,9 +1818,10 @@ function getEnchantCost(item) {
 }
 function getStatColor(stat) {
   switch (stat) {
+    case "health":
     case "maxhealth":
       return "#fa4a43"
-    case "defence":
+    case "defense":
       return "#02a604"
     case "damage":
     case "strength":
@@ -1775,7 +1854,7 @@ function getEnchantDescription(enchant, lvl) {
       return ""
   }
 }
-function MakeTextToolTip(text) {
+function makeTextToolTip(text) {
   if (itemInCursor == "none") {
     e.tooltip.className = "tooltipimg"
     istooltip = true
@@ -1914,9 +1993,15 @@ function givepaste(enchant, lvl = 5) {
 let nick
 let session = {
   nick: "",
+
   settings: {
     volume: "50",
+    fullStackPrice: false,
+    font: "Minecraftia",
+    toolTipFontSize: 2.5,
   },
+  tooltipYOffset: 0,
+  tooltipXOffset: 0,
 }
 
 function loadObject(Original, LoadOne) {
@@ -1927,19 +2012,23 @@ function loadObject(Original, LoadOne) {
       Original[key] = LoadOne[key]
     }
   }
-  
+
   return Original
 }
 
 function loadSession() {
   const cSession = JSON.parse(localStorage.getItem("RPGsessiondata"))
   if (cSession == null) {
-    cSession.nick = prompt("Enter Your Nick") || "default"
+    cSession = {}
+    cSession.nick = prompt("Enter Your Nick") || "Unnamed"
   }
 
   loadObject(session, cSession)
   e.musicRange.value = session.settings.volume
   setVolume(session.settings.volume)
+  e.shopPriceCheckBox.checked = session.settings.fullStackPrice
+  setFont(session.settings.font)
+  setToolTipFontSize(session.settings.toolTipFontSize)
 }
 
 function saveSession() {
@@ -2042,30 +2131,47 @@ function deleteAccount(elem) {
     buildAccountSelector()
   }
 }
-function makePriceToolTip(item, price, pricetype = "coins") {
-  if (makeToolTip(item)) {
-    e.tooltip.innerHTML += (br + "Price: " + price + " " + pricetype).color(
-      "yellow"
-    )
+function makePriceToolTip(
+  item,
+  price,
+  pricetype = "coins",
+  actuallamount = false
+) {
+  if (makeToolTip(item, false)) {
+    e.tooltip.innerHTML +=
+      (br + "Price: " + price + " " + pricetype).color("yellow") +
+      br +
+      "Hold Shift to Buy " +
+      (actuallamount ? item.amount : getBuyBatch(item))
   }
+}
+function getBuyBatch(item) {
+  return ((item.maxStackSize / item.amount) >> 0) * item.amount
 }
 
 function buyItem(item, price, pricetype) {
   if (itemInCursor == "none" || itemInCursor.name == item.name) {
     let isAffordable = false
-
+    let batch = isShiftOn ? getBuyBatch(item) : item.amount
+    const itemAm = item.amount
+    item.amount = batch
     if (pricetype == "coins") {
-      if (steve.coins >= price) isAffordable = true
+      if (steve.coins >= price * batch) isAffordable = true
     }
     if (isAffordable) {
-      if (
+      if (isShiftOn && steve.isEmptySlotInInventory()) {
+        steve.addToInventory(item)
+
+        if (pricetype == "coins") steve.addCoins(-1 * price * batch)
+      } else if (
         itemInCursor == "none" ||
         (itemInCursor != "none" && item.amount <= itemInCursor.getEmpty())
       ) {
         AddItemToCursor(item)
-        if (pricetype == "coins") steve.addCoins(-1 * price)
+        if (pricetype == "coins") steve.addCoins(-1 * price * batch)
       }
     }
+    item.amount = itemAm
   }
 }
 function makeVillagerNameTag(name) {
@@ -2201,7 +2307,123 @@ function playerAgeString() {
   )
 }
 function setVolume(volume) {
-  Howler.volume((volume / 100))
+  Howler.volume(volume / 100)
   session.settings.volume = volume
   e.volumeP.innerText = "Volume: " + volume
+}
+
+function sellItem(item) {
+  if (item.sellValue) {
+    const cost = item.sellValue * item.amount
+    steve.addCoins(cost)
+    steve.sellHistory.push({
+      item: item,
+      price: cost,
+    })
+    item = new classes.empty()
+    e.sellHistorySlot.className =
+      "guiSlot " + steve.sellHistory[steve.sellHistory.length - 1].item.name
+  }
+  return item
+}
+function sellHistorySlot() {
+  let tag = document.createElement("div")
+  tag.id = "sellHistorySlot"
+  tag.className = "guiSlot "
+  if (steve.sellHistory.length == 0) tag.style.display = "none"
+  else
+    tag.className =
+      "guiSlot " + steve.sellHistory[steve.sellHistory.length - 1].item.name
+  tag.setAttribute(
+    "onmouseenter",
+    "makePriceToolTip(steve.sellHistory[steve.sellHistory.length-1].item,steve.sellHistory[steve.sellHistory.length-1].price,'coins',true)"
+  )
+  tag.setAttribute(
+    "onmouseleave",
+    "if(istooltip) e.tooltip.style.display ='none'"
+  )
+  tag.setAttribute("onclick", "buyItemFromSellHistory()")
+
+  e["sellHistorySlot"] = tag
+
+  return tag
+}
+function buyItemFromSellHistory() {
+  if (
+    steve.sellHistory.length > 0 &&
+    isShiftOn &&
+    steve.isEmptySlotInInventory() &&
+    steve.coins >= steve.sellHistory[steve.sellHistory.length - 1].price
+  ) {
+    steve.addToInventory(steve.sellHistory[steve.sellHistory.length - 1].item)
+    steve.addCoins(steve.sellHistory[steve.sellHistory.length - 1].price * -1)
+    steve.sellHistory.pop()
+    if (steve.sellHistory.length == 0) {
+      e.sellHistorySlot.style.display = "none"
+    } else {
+      e.sellHistorySlot.style.display = "block"
+      e.sellHistorySlot.className =
+        "guiSlot " + steve.sellHistory[steve.sellHistory.length - 1].item.name
+      if (itemInCursor == "none")
+        makePriceToolTip(
+          steve.sellHistory[steve.sellHistory.length - 1].item,
+          steve.sellHistory[steve.sellHistory.length - 1].price,
+          "coins",
+          true
+        )
+      // e.sellHistorySlot.setAttribute("onmouseenter","makePriceToolTip(steve.sellHistory[steve.sellHistory.length-1].item,steve.sellHistory[steve.sellHistory.length-1].price),'coins',true")
+      // e.sellHistorySlot.setAttribute(  "onmouseleave", "if(istooltip) e.tooltip.style.display ='none'")
+    }
+  }
+}
+function isInVillage() {
+  return /Village|village|town|Town/.test(currentLocation)
+}
+function isZombie(mobName) {
+  return /zombie/.test(mobName)
+}
+const staticons = {
+  defense: "❈",
+  speed: "✦",
+  health: "❤",
+  maxhealth: "❤",
+  
+}
+function getStatIcon(statname) {
+  let icon = staticons[statname] || ""
+  if (icon == "") return icon
+  return (
+    "<span style='font-size: " +
+    (session.settings.toolTipFontSize + 1) +
+    "vh;'>" +
+    icon +
+    "</span>"
+  )
+}
+function setFont(font){
+  e.body.style.fontFamily = font
+  let list = document.getElementsByTagName("button")
+for (let item of list) {
+    item.style.fontFamily = font
+}
+list = document.getElementsByTagName("select")
+for (let item of list) {
+    item.style.fontFamily = font
+}
+list = document.getElementsByTagName("input")
+for (let item of list) {
+    item.style.fontFamily = font
+}
+}
+function changeFont(){
+  let font = prompt("Input Font Name(Default: Minecraftia)")
+  if(font != undefined){
+    session.settings.font = font
+    setFont(font)
+  }
+}
+function setToolTipFontSize(value){
+  session.settings.toolTipFontSize = value
+  e.tooltip.style.fontSize = session.settings.toolTipFontSize + "vh"
+  e.fontExample.innerText = "ToolTip FontSize: " + (value * 10)
 }

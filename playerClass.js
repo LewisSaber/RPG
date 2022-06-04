@@ -20,7 +20,7 @@ class player {
     this.stats = {
       maxhealth: 100,
       health: 100,
-      defence: 0,
+      defense: 0,
       damage: 5,
       strength: 1,
       criticaldamage: 50,
@@ -34,6 +34,7 @@ class player {
       naturalregeneration: 3,
       totalDamageMultiplier: 1,
       undeadbonus: 1,
+      zombiedefense: 0,
 
       range: 3,
       accessorybagslots: 9,
@@ -68,11 +69,12 @@ class player {
     this.makeSkills()
     this.makeCollections()
     this.loadInventory()
+    this.sellHistory = []
     setInterval(this.reduceFoodSecond.bind(this), 1000)
     setInterval(this.naturalRegeneration.bind(this), 1000)
     setInterval(this.addAge.bind(this), 1000)
   }
-  addAge(){
+  addAge() {
     this.age++
   }
   createPlayer() {
@@ -234,26 +236,23 @@ class player {
         if (this.y % 5 >> 0 <= this.diffrencey) {
           if (
             checkMapForBlock(
-              (this.y / 5) ,
+              this.y / 5,
               (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-            ) 
+            )
           )
             this.x = oldcoords[1]
         } else if (
           checkMapForBlock(
-            (this.y / 5),
-            (this.x - 0.2 - this.diffrencex + 0.01 ) / 5 + 1
-          )  ||
+            this.y / 5,
+            (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
+          ) ||
           checkMapForBlock(
             (this.y / 5 + 1) >> 0,
             (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-          ) 
-        )
-       {
-       
-         this.x = oldcoords[1]
+          )
+        ) {
+          this.x = oldcoords[1]
         }
-          
       }
 
       e.player.style.top = this.y + "vh"
@@ -293,6 +292,12 @@ class player {
     for (let i = e - 1; i >= s; i--) {
       if (this.inventory[i].name == "empty") return i
     }
+  }
+  isEmptySlotInInventory(s = 0, e = 36) {
+    for (let i = e - 1; i >= s; i--) {
+      if (this.inventory[i].name == "empty") return true
+    }
+    return false
   }
   removeFromInventory(item, amount) {
     const items = this.searchForItemInInventory({ name: item })
@@ -378,9 +383,15 @@ class player {
     }
   }
 
-  clearinventory(s = 0, e = this.inventorySlots - 1) {
-    for (s; s <= e; s++) {
+  clearinventory(s = 0, end = this.inventorySlots - 1) {
+    for (s; s <= end; s++) {
       this.inventory[s] = new classes.empty()
+
+      putItemInslot(
+        this.inventory[s],
+        e.inventory["slot" + s],
+        e.inventory["slot" + s + "amount"]
+      )
     }
   }
 
@@ -463,21 +474,27 @@ class player {
       ((this.stats.range + 1) * 5) ** 2
     )
   }
-  stopBreakingBlock(cblock){
+  stopBreakingBlock(cblock) {
     clearInterval(breaktimer)
     breaktimer = 0
     e.progressbar.style.display = "none"
-      e.progressbarInside.style.width = "100%"
-      selectedBlock = new classes[selectedBlock.name]()
+    e.progressbarInside.style.width = "100%"
+    selectedBlock = new classes[selectedBlock.name]()
+  }
+  sortInventory() {
+    let tempinventory = [...this.inventory]
+
+    tempinventory = tempinventory.slice(9)
+    tempinventory.sort(function (a, b) {
+      return a.name > b.name ? 1 : -1
+    })
+    this.clearinventory(9)
+    dumbtoinventory(tempinventory)
   }
   breakblock(cblock) {
     if (keys[5] == 0) {
       this.stopBreakingBlock(cblock)
       console.log("stop breaking")
-      
-      
-
-      
     } else {
       if (
         cblock.block.tool == "none" ||
@@ -488,7 +505,8 @@ class player {
         cblock.block.hardness -= 100
       }
       console.log("hardenss: " + cblock.block.hardness)
-      e.progressbarInside.style.width =cblock.block.hardness / cblock.maxhardness * 100 + "%"
+      e.progressbarInside.style.width =
+        (cblock.block.hardness / cblock.maxhardness) * 100 + "%"
       if (cblock.block.hardness <= 0) {
         e.progressbar.style.display = "none"
         e.progressbarInside.style.width = "100%"
@@ -516,16 +534,18 @@ class player {
         }, 100)
     }
   }
-  getDamageReduction() {
-    return +(1 - this.stats.defence / (this.stats.defence + 100)).toFixed(2)
+  getDamageReduction(mobName) {
+    let defense = this.stats.defense
+    if(isZombie(mobName))
+    defense += this.stats.zombiedefense
+    
+    return +(1 - defense / (defense + 100)).toFixed(2)
   }
   damageMob(id) {
-    if (this.isMobInRange(mobs[id]) && !isBlockBetween(this,mobs[id])) {
+    if (this.isMobInRange(mobs[id]) && !isBlockBetween(this, mobs[id])) {
       if (mobs[id].name == "villager") {
         openMachineGui(mobs[id])
       } else {
-        
-      
         mobs[id].knockback()
         mobs[id].stats.health -=
           (this.stats.damage *
@@ -548,10 +568,10 @@ class player {
         if (mobs[id].stats.health <= 0) {
           mobs[id].die()
           e.progressbar.style.display = "none"
-        } else{
+        } else {
           playMobHowl(mobs[id].name, "hurt")
           makeMonsterHotbar(id)
-      }
+        }
       }
     }
   }
@@ -740,6 +760,3 @@ class player {
         e.playertool.style.top = this.y + 0.5 + "vh";
       }
     } */
-
-
-

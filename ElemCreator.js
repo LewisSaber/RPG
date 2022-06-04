@@ -1,4 +1,5 @@
 let e = {}
+
 function loadIDS() {
   var allElements = document.querySelectorAll("*[id]")
   for (let i = 0, n = allElements.length; i < n; i++) {
@@ -32,6 +33,7 @@ function loadIDS() {
     "oncontextmenu",
     "openNoInventoryGui('collections'); return false"
   )
+  
 }
 const codeAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"//abcdefghijklmnopqrstuvwxyz"]
 const texturefilter = ["empty", "item", "block", "stonetype"]
@@ -54,6 +56,11 @@ const raritynames = [
   "Bloody",
 ]
 const Names = {
+  villagetalisman: "Village Talisman",
+  villagecharm: "Village Charm",
+  villageartifact: "Village Artifact",
+  villagerelic: "Village Relic",
+  lewisrelic: "Lewis Relic",
   furnace: "Stone Furnace",
   steeleaf: "Very Sharp Leaf",
   combatfortune:"Combat Fortune",
@@ -61,11 +68,11 @@ const Names = {
   accessorybagslots: "Accessory Bag Slots",
   criticaldamage: "Critical Damage",
   criticalchance: "Critical Chance",
-  woodpickaxe: "Wooden Pick",
+  woodpickaxe: "Wooden Pickaxe",
   woodaxe: "Wooden Axe",
   woodsword: "Wooden Sword",
   stoneaxe: "Stone Axe",
-  stonepickaxe: "Stone Pick",
+  stonepickaxe: "Stone Pickaxe",
   testItem: "Kekw",
   logoak: "Oak Wood Log",
   planksoak: "Oak Wood Plank",
@@ -149,7 +156,7 @@ let selectorblocks = [
   "dandelion",
 ]
 
-const hiddenstats = ["tool", "undeadbonus","totaldamage","naturalregeneration","totalDamageMultiplier","tooltier","health"]
+const hiddenstats = ["tool", "undeadbonus","totaldamage","naturalregeneration","totalDamageMultiplier","tooltier","health","zombiedefense"]
 const armornames = [
   "ring1",
   "helmet",
@@ -161,6 +168,7 @@ const armornames = [
   "boots",
 ]
 const toload = [
+  "customcolor",
   "age",
   "kills",
   "collectionitems",
@@ -175,9 +183,12 @@ const toload = [
   "mapX",
   "mapY",
   "food",
-  "skin"
+  "skin",
+  "sellHistory"
 ].concat(armornames)
 
+const slayerArmorMilestones = [0,50,300,1000,2000,3000,5000,7500,10000,15000,25000,50000,100000,200000,500000]
+const slayerArmorMilestonesDefense = [0,20,50,90,120,150,180,200,220,240,260,280,300,310,315]
 
 
 

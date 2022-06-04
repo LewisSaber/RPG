@@ -10,9 +10,11 @@ classes.empty = class {
     this.burnvalue = 0
     this.Rname = ""
     this.rarity = 0
-    this.customcolor = "brown"
+    this.customcolor = "#222222"
   }
-
+  postloadConstructor(){
+    
+  }
   getEmpty() {
     return this.maxStackSize - this.amount
   }
@@ -54,7 +56,7 @@ classes.stonetype = class extends classes.block {
   constructor(amount = 0) {
     super(amount)
     this.name = "stone"
-    this.tool = "pick"
+    this.tool = "pickaxe"
 
     this.restrictTool = true
     this.replacement = "bedrock"
@@ -365,6 +367,10 @@ classes.mob = class {
   }
   die() {
     playMobHowl(this.name,"death",0)
+    document.dispatchEvent(new CustomEvent("mobdeath", {
+      detail: { name: this.name }
+    }));
+    
     steve.kills++
     dumbtoinventory(this.generateDrop())
     e["mob" + this.id].style.opacity = 1
@@ -611,7 +617,7 @@ classes.mob = class {
       src: ["./sounds/damage/hit"+(1+(Math.floor(Math.random()*3)))+ ".ogg"],
      
     }).play()
-    steve.stats.health -= (this.stats.damage * steve.getDamageReduction()) >> 0
+    steve.stats.health -= (this.stats.damage * steve.getDamageReduction(this.name)) >> 0
     steve.updateheathbar()
   }
   knockback() {
@@ -631,9 +637,11 @@ classes.accessorybag = class {
   addToInventory(item, slot = undefined) {
     if (slot == undefined) slot = this.getEmptyInventorySlot()
     if (slot != undefined && item.type == "accessory") {
-      if(!this.searchForFamily(item.family)) steve.addStats(item)
+      if(!this.searchForFamily(item.family)) 
+      {
+        steve.addStats(item)
       item.activate()
-
+      }
       this.inventory[slot] = Object.assign(
         Object.create(Object.getPrototypeOf(item)),
         item
@@ -672,11 +680,14 @@ classes.accessorybag = class {
       e.accessorybag["slot" + slot],
       e.accessorybag["slot" + slot + "amount"]
     )
-    if(!this.isItemInInventory(item.name))
-    {
-      steve.removeStats(item)
-      item.deactivate()
-    }
+    
+      if(item.wasActivated)
+      {
+        steve.removeStats(item)
+        item.deactivate()
+
+      }
+    
     return item
   }
   searchForFamily(family) {

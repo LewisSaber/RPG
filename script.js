@@ -2017,7 +2017,7 @@ function loadObject(Original, LoadOne) {
 }
 
 function loadSession() {
-  const cSession = JSON.parse(localStorage.getItem("RPGsessiondata"))
+  let cSession = JSON.parse(localStorage.getItem("RPGsessiondata"))
   if (cSession == null) {
     cSession = {}
     cSession.nick = prompt("Enter Your Nick") || "Unnamed"

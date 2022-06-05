@@ -1618,7 +1618,7 @@ classes.intimidationtalisman = class extends classes.accessory{
    super(amount)
    this.name = 'intimidationtalisman'
    this.type = 'accessory'
-   this.family = 'intimiation'
+   this.family = 'intimidation'
    
  
    this.tier = 1
@@ -1637,7 +1637,7 @@ classes.intimidationtalisman = class extends classes.accessory{
      super(amount)
      this.name = 'intimidationcharm'
      this.type = 'accessory'
-     this.family = 'intimiation'
+     this.family = 'intimidation'
      
    
      this.tier = 2
@@ -1656,7 +1656,7 @@ classes.intimidationtalisman = class extends classes.accessory{
        super(amount)
        this.name = 'intimidationartifact'
        this.type = 'accessory'
-       this.family = 'intimiation'
+       this.family = 'intimidation'
        
      
        this.tier = 3

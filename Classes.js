@@ -460,6 +460,7 @@ classes.cow = class extends classes.mob {
     this.stats = {
       health: 50,
       maxhealth: 50,
+      speed: 50
     };
     this.respawntimer = 16000
     this.state = "passive";
@@ -554,6 +555,7 @@ classes.chicken = class extends classes.mob {
     this.stats = {
       health: 30,
       maxhealth: 30,
+      speed:60
     };
     this.respawntimer = 12000
     this.state = "passive";
@@ -597,7 +599,7 @@ checkSetParts(amount){
 
   if(steve.helmet.set == this.set) amount--
   if(steve.chestplate.set == this.set) amount--
-  if(steve.leggins.set == this.set) amount--
+  if(steve.leggings.set == this.set) amount--
   if(steve.boots.set == this.set) amount--
   return amount > 0 ? false : true
 }
@@ -605,15 +607,15 @@ checkSetPartsAmount(){
 let amount = 0
   if(steve.helmet.set == this.set) amount++
   if(steve.chestplate.set == this.set) amount++
-  if(steve.leggins.set == this.set) amount++
+  if(steve.leggings.set == this.set) amount++
   if(steve.boots.set == this.set) amount++
   return amount
 }
 Activate(){
-  console.log("set Ability activated")
+  steve.addSet(this)
 }
 DeActivate(){
-  console.log("set Ability deactivated")
+  steve.removeSet(this)
 }
 
 
@@ -677,7 +679,7 @@ DeActivate(){
   document.removeEventListener("mobdeath",this.temp)
 }
 addKills(flag = true){
-  console.log(flag)
+  
   if(flag)
  this.kills++
  const olddmg = this.stats.damage
@@ -1454,7 +1456,7 @@ classes.villager = class extends classes.mob{
       health: 1e6,
       maxhealth: 1e6,
       damage: 0,
-      speed: 50,
+      speed: 20,
       range: 0.4,
       angerrange: 0,
     };
@@ -1480,60 +1482,191 @@ constructor(amount = 0){
 
 }
 
+classes.revenantset = class extends classes.armor{
+  constructor(amount = 0){
+    super(amount)
+  }
+  postloadConstructor(){
+    this.slayerArmorLevelUp()
+  }
+  makeAbilityDescription(){
+    this.description2 =
+    'Full Set Bonus: Trolling The Reaper'.color("yellow") + br+
+    (steve.isSetActive("revenant") ? "(Set Bonus Activated)".color("lime") + br: "") + 
+// Healing Wands are +50% more effective. 
+    "Gain " + makeStatSpan(100,"defense") + " against Zombies." +br+br+br+
+    
+    
+    "Piece Bonus: Zombie Bulwark".color("yellow") + br +
+    "Kill Zombies to accumulate<br> defense against them.<br>"+
+    "Piece Bonus: " + makeStatSpan(this.stats.zombiedefense,"defense") + br +
+    "Next Upgrade: " + makeStatSpan(slayerArmorMilestonesDefense[this.lvl+1],"defense") + " ("+ this.kills.color(getStatColor("defense")) + "/" + slayerArmorMilestones[this.lvl+1].color("red") + ")"
+  }
+  slayerArmorLevelUp(){
+    
+    while(slayerArmorMilestones[this.lvl+1] <= this.kills){
+    
+      this.lvl++
+      
+      steve.stats.zombiedefense -= this.stats.zombiedefense
+      this.stats.zombiedefense = slayerArmorMilestonesDefense[this.lvl]
+      steve.stats.zombiedefense += this.stats.zombiedefense
+      
+    }
+  }
+  
+  Activate(){
+  //  document.removeEventListener("mobdeath",this.temp)
+  super.Activate()
+    document.addEventListener("mobdeath",this.temp)
+   
+    if(steve.sets.revenant.amount == 3){
+      steve.sets.revenant.isActivated = true
+      steve.stats.zombiedefense += 100
+    }
+  }
+  DeActivate(){
+   super.DeActivate()
+    document.removeEventListener("mobdeath",this.temp)
+  
+    if(steve.sets.revenant.amount <= 3 && steve.sets.revenant.isActivated == true){
+      steve.sets.revenant.isActivated = false
+      steve.stats.zombiedefense -= 100
+    }
+  }
+  addKills(evt){
+    if(isZombie(evt.detail.name)) 
+    {
+      this.kills++
+      this.slayerArmorLevelUp()
+    }
+   
+  }
+
+}
+classes.revenantboots = class extends classes.revenantset{
+  
+  constructor(amount = 0){
+  super(amount)
+  this.name = "revenantboots"
+  this.set = "revenant"
+  this.type = "boots"
+  this.rarity = 3
+  this.stats = {
+    maxhealth: 100,
+    defense: 30,
+   
+    zombiedefense: 0,
+  }
+  this.kills = 0
+  this.lvl = 0 
+   
+  this.temp = this.addKills.bind(this)
+  this.temp2 = this.makeAbilityDescription.bind(this)
+  document.addEventListener("ToolTipStart",this.temp2)
+}
+
+}
 
 
-  classes.revenantchestplate = class extends classes.armor{
+
+classes.revenantchestplate = class extends classes.revenantset{
 
   constructor(amount = 0){
   super(amount)
   this.name = "revenantchestplate"
   this.set = "revenant"
   this.type = "chestplate"
-   
+  this.rarity = 3
   this.stats = {
-    maxhealth: 20,
-    defense: 15,
-    damage: 1,
+    maxhealth: 180,
+    defense: 70,
+   
     zombiedefense: 0,
   }
   this.kills = 0
   this.lvl = 0 
- 
-  this.temp = this.addKills.bind(this)
-}
-postloadConstructor(){
-  this.slayerArmorLevelUp()
-}
-slayerArmorLevelUp(){
-  console.log("lvl",this.lvl)
-    console.log("kills", this.kills)
-  while(slayerArmorMilestones[this.lvl+1] <= this.kills){
   
-    this.lvl++
-    
-    steve.stats.zombiedefense -= this.stats.zombiedefense
-    this.stats.zombiedefense = slayerArmorMilestonesDefense[this.lvl]
-    steve.stats.zombiedefense += this.stats.zombiedefense
-    
-  }
+  this.temp = this.addKills.bind(this)
+  this.temp2 = this.makeAbilityDescription.bind(this)
+  document.addEventListener("ToolTipStart",this.temp2)
 }
+}
+classes.revenantleggings = class extends classes.revenantset{
 
-Activate(){
-//  document.removeEventListener("mobdeath",this.temp)
-
-  document.addEventListener("mobdeath",this.temp)
-}
-DeActivate(){
- 
-  document.removeEventListener("mobdeath",this.temp)
-}
-addKills(evt){
-  console.log(evt.detail.name)
-  if(isZombie(evt.detail.name)) 
-  {
-    this.kills++
-    this.slayerArmorLevelUp()
+  constructor(amount = 0){
+  super(amount)
+  this.name = "revenantleggings"
+  this.set = "revenant"
+  this.type = "leggings"
+  this.rarity = 3
+  this.stats = {
+    maxhealth: 130,
+    defense: 50,
+    zombiedefense: 0,
   }
+  this.kills = 0
+  this.lvl = 0 
+  
+  this.temp = this.addKills.bind(this)
+  this.temp2 = this.makeAbilityDescription.bind(this)
+  document.addEventListener("ToolTipStart",this.temp2)
+}
+}
+classes.intimidationtalisman = class extends classes.accessory{
+  constructor(amount = 0){
+   super(amount)
+   this.name = 'intimidationtalisman'
+   this.type = 'accessory'
+   this.family = 'intimiation'
+   
  
-}
-}
+   this.tier = 1
+   this.rarity = 1
+   this.stats = {
+     intimidationlevel: 5,
+     criticaldamage: 1,
+   }
+   this.description = 'Monsters at or below level ' + this.stats.intimidationlevel.color("lime") +br + "will no longer target you" + br
+  
+  }
+
+  }
+  classes.intimidationcharm = class extends classes.accessory{
+    constructor(amount = 0){
+     super(amount)
+     this.name = 'intimidationcharm'
+     this.type = 'accessory'
+     this.family = 'intimiation'
+     
+   
+     this.tier = 2
+     this.rarity = 3
+     this.stats = {
+       intimidationlevel: 15,
+       criticaldamage: 3,
+     }
+     this.description = 'Monsters at or below level ' + this.stats.intimidationlevel.color("lime") +br + "will no longer target you" + br
+    
+    }
+  
+    }
+    classes.intimidationartifact = class extends classes.accessory{
+      constructor(amount = 0){
+       super(amount)
+       this.name = 'intimidationartifact'
+       this.type = 'accessory'
+       this.family = 'intimiation'
+       
+     
+       this.tier = 3
+       this.rarity = 4
+       this.stats = {
+         intimidationlevel: 30,
+         criticaldamage: 5,
+       }
+       this.description = 'Monsters at or below level ' + this.stats.intimidationlevel.color("lime") +br + "will no longer target you" + br
+      
+      }
+    
+      }

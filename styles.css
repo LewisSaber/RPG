@@ -35,6 +35,8 @@
   image-rendering: pixelated;
   overflow: hidden;
   user-select: none;
+  background-color: #000000;
+
 }
 
 #accountdelete > select,
@@ -86,7 +88,7 @@ float: none;
 }
 .settingsblockbig{
  
-  height: 24vh;
+  height: 30vh;
  
 
 }
@@ -401,15 +403,15 @@ float: none;
 }
 
 #tooltip {
+  line-height: 3.2vh;
   display: none;
   position: absolute;
-  background-size: 100% 100%;
-  pointer-events: none;
- 
+  background-size: 100% 100% ;
+   pointer-events: none; 
   font-size: 2vh;
   color: lightgray;
-  padding: 1vh;
-  padding-left: 2vh;
+  padding: 1.2vh 2vh;
+  
   opacity: 1;
   z-index: 1300;
   box-shadow: none
@@ -824,8 +826,8 @@ float: none;
 .chestplategui{
   background-image: url(img/chestplate.png);
 }
-.legginsgui{
-  background-image: url(img/leggins.png);
+.leggingsgui{
+  background-image: url(img/leggings.png);
 }
 .bootsgui{
   background-image: url(img/boots.png);
@@ -890,7 +892,7 @@ float: none;
     user-select: none;
 }
 .tooltipimg{
-    background-image: url(img/tooltip.png);
+  background-image: url(img/tooltip.png);
 }
 
 .treeoak{

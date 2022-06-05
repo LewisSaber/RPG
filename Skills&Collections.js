@@ -197,7 +197,7 @@ function giveSkillReward(skill, lvl, l = 0) {
                 "empty",
                 "leather",
               ],
-              "leatherleggins",
+              "leatherleggings",
               1,
               [3, 3, 3, 3, 0, 3, 3, 0, 3]
             )

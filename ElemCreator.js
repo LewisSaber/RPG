@@ -36,6 +36,8 @@ function loadIDS() {
   
 }
 const codeAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"//abcdefghijklmnopqrstuvwxyz"]
+ const keywords = ["helmet","leggings","chestplate","boots","charm","relic","talisman","artifact","fortune","planks"]
+// const keywords = /helmet|leggings|chestplate|boots|charm|relic|talisman|artifact/
 const texturefilter = ["empty", "item", "block", "stonetype"]
 const raritycolors = [
   "white",
@@ -43,7 +45,7 @@ const raritycolors = [
   "#0244bf",
   "purple",
   "yellow",
-  "pink",
+  "#fc26a7",
   "#6b0000",
 ]
 const raritynames = [
@@ -56,15 +58,16 @@ const raritynames = [
   "Bloody",
 ]
 const Names = {
-  villagetalisman: "Village Talisman",
-  villagecharm: "Village Charm",
-  villageartifact: "Village Artifact",
-  villagerelic: "Village Relic",
-  lewisrelic: "Lewis Relic",
+  // revenantchestplate: "Revenant Chestplate",
+  // villagetalisman: "Village Talisman",
+  // villagecharm: "Village Charm",
+  // villageartifact: "Village Artifact",
+  // villagerelic: "Village Relic",
+  // lewisrelic: "Lewis Relic",
   furnace: "Stone Furnace",
   steeleaf: "Very Sharp Leaf",
-  combatfortune:"Combat Fortune",
-  farmingfortune: "Farming Fortune",
+  // combatfortune:"Combat Fortune",
+  // farmingfortune: "Farming Fortune",
   accessorybagslots: "Accessory Bag Slots",
   criticaldamage: "Critical Damage",
   criticalchance: "Critical Chance",
@@ -84,10 +87,10 @@ const Names = {
   beef: "Raw Beef Meat",
   rawchicken: "Raw Chicken Meat",
   cookedchicken: "Cooked Chicken Meat",
-  leatherhelmet: "Leather Helmet",
-  leatherchestplate: "Leather Chestplate",
-  leatherboots: "Leather Boots",
-  leatherleggins: "Leather Leggins",
+  // leatherhelmet: "Leather Helmet",
+  // leatherchestplate: "Leather Chestplate",
+  // leatherboots: "Leather Boots",
+  // leatherleggings: "Leather leggings",
   diamondsword: "Diamond Sword",
   ironsword: "Iron Sword",
   stonesword: "Stone Sword",
@@ -156,14 +159,14 @@ let selectorblocks = [
   "dandelion",
 ]
 
-const hiddenstats = ["tool", "undeadbonus","totaldamage","naturalregeneration","totalDamageMultiplier","tooltier","health","zombiedefense"]
+const hiddenstats = ["tool", "undeadbonus","totaldamage","naturalregeneration","totalDamageMultiplier","tooltier","health","zombiedefense","intimidationlevel"]
 const armornames = [
   "ring1",
   "helmet",
   "ring2",
   "chestplate",
   "bracelet",
-  "leggins",
+  "leggings",
   "belt",
   "boots",
 ]
@@ -190,8 +193,8 @@ const toload = [
 const slayerArmorMilestones = [0,50,300,1000,2000,3000,5000,7500,10000,15000,25000,50000,100000,200000,500000]
 const slayerArmorMilestonesDefense = [0,20,50,90,120,150,180,200,220,240,260,280,300,310,315]
 
-
-
+String.prototype.toUpperLetter = function() {return this[0].toUpperCase() + this.substring(1)
+}
 
 
 Array.prototype.set = function (n, l) {
@@ -211,14 +214,15 @@ String.prototype.match1word = function (str) {
   }
   return false
 }
+
 String.prototype.give = function(amount = 1){
   give(this,amount)
 }
-String.prototype.color = function (Color){
-  return color(this,Color)
+String.prototype.color = function (Color,weight){
+  return color(this,Color,weight)
 }
-Number.prototype.color = function (Color){
-  return color(this,Color)
+Number.prototype.color = function (Color,weight){
+  return color(this,Color,weight)
 }
 function buildHotbar() {
   e.hotbar.style.display = "block"
@@ -234,7 +238,7 @@ function buildHotbar() {
     tag.setAttribute("onmouseenter", "makeToolTip(steve.inventory[" + i + "])")
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
+      "leaveElement()"
     )
 
     e.inventory["slot" + i] = tag
@@ -259,7 +263,7 @@ function buildInventory() {
     tag.setAttribute("onmouseenter", "makeToolTip(steve.inventory[" + i + "])")
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
+      "leaveElement()"
     )
 
     tag.setAttribute("class", "guiSlot")
@@ -290,7 +294,7 @@ function buildCraftingTable() {
     )
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
+      "leaveElement()"
     )
     tag.style.position = "absolute"
     tag.style.top = 8 * ((i - (i % 3)) / 3) + 1 + "vh"
@@ -311,8 +315,7 @@ function buildCraftingTable() {
   tag.setAttribute("onmouseenter", "makeToolTip(craftingTableResult)")
   tag.setAttribute(
     "onmouseleave",
-    "if(istooltip) e.tooltip.style.display ='none'"
-  )
+    "leaveElement()"  )
   tag.setAttribute("class", "guiSlot")
   e.craftingtable["slot9"] = tag
   tag.style.position = "absolute"
@@ -337,8 +340,7 @@ function buildArmorGui() {
     )
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
-    )
+      "leaveElement()"    )
     tag.className = "guiSlot " + armornames[i] + "gui"
     e.armorgui[armornames[i]] = tag
 
@@ -357,7 +359,7 @@ function buildmachines() {
     tag.setAttribute("onmouseenter", "makeToolTip(steve.machines[" + i + "])")
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
+      "leaveElement()"
     )
 
     tag.className = "guiSlot machine"
@@ -375,8 +377,7 @@ function buildBackpacks() {
     tag.setAttribute("onclick", "LclickOnSlot(" + i + ",'backpack')")
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
-    )
+      "leaveElement()"    )
     tag.setAttribute(
       "oncontextmenu",
       "openMachineGui(steve.backpacks[" + i + "]," + i + "); return false"
@@ -395,8 +396,7 @@ function buildBackpacksGui() {
 
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
-    )
+      "leaveElement()"    )
     
     let amount = document.createElement("div")
     amount.setAttribute("class", "itemamount")
@@ -414,8 +414,7 @@ function buildEnchantingBook() {
 
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
-    )
+      "leaveElement()"    )
     let amount = document.createElement("div")
     amount.setAttribute("class", "itemamount")
     tag.className = "guiSlot empty"
@@ -466,8 +465,7 @@ function buildCollections() {
     holder.setAttribute("onmouseenter", "makeCollectionToolTip('" + key + "')")
     holder.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
-    )
+      "leaveElement()"    )
     e.collections.appendChild(holder)
   }
   
@@ -478,8 +476,7 @@ function buildGlitchedCompactor() {
 
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
-    )
+      "leaveElement()"    )
     let amount = document.createElement("div")
     amount.setAttribute("class", "itemamount")
     tag.className = "guiSlot empty"
@@ -499,8 +496,7 @@ function buildaccessoryGui() {
 
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
-    )
+      "leaveElement()"    )
     let amount = document.createElement("div")
     amount.setAttribute("class", "itemamount")
     tag.className = "guiSlot empty"
@@ -517,8 +513,7 @@ function buildSuperCompactor() {
 
     tag.setAttribute(
       "onmouseleave",
-      "if(istooltip) e.tooltip.style.display ='none'"
-    )
+      "leaveElement()"    )
     let amount = document.createElement("div")
     amount.setAttribute("class", "itemamount")
     tag.className = "guiSlot empty"

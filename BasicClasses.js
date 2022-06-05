@@ -13,7 +13,7 @@ classes.empty = class {
     this.customcolor = "#222222"
   }
   postloadConstructor(){
-    
+
   }
   getEmpty() {
     return this.maxStackSize - this.amount
@@ -185,11 +185,11 @@ classes.machine = class extends classes.empty {
             if (this.inventory[key].getEmpty() >= item.amount) {
               this.inventory[key].amount += item.amount
               item = reduceStack(item, item.amount)
-              // console.log("scenrio 1")
+            
             } else {
               item = reduceStack(item, this.inventory[key].getEmpty())
               this.inventory[key].amount = this.inventory[key].maxStackSize
-              // console.log("scenrio 2")
+          
             }
           } else if (this.inventory[key].name == "empty") {
             this.inventory[key] = Object.assign(
@@ -197,7 +197,7 @@ classes.machine = class extends classes.empty {
               item
             )
             item = reduceStack(item, item.amount)
-            // console.log("scenrio 3")
+          
           }
         }
       if (thismachinei == this.inventoryslotid) {
@@ -238,11 +238,11 @@ classes.backpack = class extends classes.empty {
           if (this.inventory[key].getEmpty() >= item.amount) {
             this.inventory[key].amount += item.amount
             item = reduceStack(item, item.amount)
-            // console.log("scenrio 1")
+            
           } else {
             item = reduceStack(item, this.inventory[key].getEmpty())
             this.inventory[key].amount = this.inventory[key].maxStackSize
-            // console.log("scenrio 2")
+          
           }
         } else if (this.inventory[key].name == "empty") {
           this.inventory[key] = Object.assign(
@@ -250,7 +250,7 @@ classes.backpack = class extends classes.empty {
             item
           )
           item = reduceStack(item, item.amount)
-          // console.log("scenrio 3")
+          
         }
 
       putItemInslot(
@@ -364,6 +364,7 @@ classes.mob = class {
       this.getAngry()
       this.angerinterval = setInterval(this.getAngry.bind(this), 1000)
     }
+    this.randominterval = setTimeout(this.randommove.bind(this), randomNumber(2000,10000))
   }
   die() {
     playMobHowl(this.name,"death",0)
@@ -376,6 +377,7 @@ classes.mob = class {
     e["mob" + this.id].style.opacity = 1
     this.stats.health = this.stats.maxhealth
     clearInterval(this.angerinterval)
+    clearInterval(this.randominterval)
     this.isAlive = false
     this.state = "passive"
     addSkillXP("combat", this.xp)
@@ -386,6 +388,7 @@ classes.mob = class {
     e["mob" + this.id].style.display = "none"
     this.isAlive = false
     clearInterval(this.angerinterval)
+    clearInterval(this.randominterval)
   }
   isPlayerInRange() {
     return (
@@ -405,7 +408,7 @@ classes.mob = class {
     )
   }
   getAngry() {
-    if (this.isPlayerInAngryRange() && this.isAlive && this.state != "angry") {
+    if (this.isPlayerInAngryRange() && this.isAlive && this.state != "angry" && (this.lvl > steve.stats.intimidationlevel || this.stats.health != this.stats.maxhealth) ) {
       clearInterval(this.angerinterval)
       this.angerinterval = 0
       this.state = "angry"
@@ -415,153 +418,209 @@ classes.mob = class {
   getSpeed() {
     return this.stats.speed / 200
   }
-  move(vectorspeed) {
+  move(vectorspeed,steveDependant = true) {
+ 
     let oldcoords = [this.y, this.x]
-    if (
-      this.x < 0 ||
-      this.y < 0 ||
-      this.y > (mapH - 1) * 5 - 1 ||
-      this.x > (mapW - 1) * 5 - 1
-    ) {
-      /*
-      savemap();
-      if (this.x < 0) {
-        this.x = (mapW - 1.2) * 5;
-        mapX--;
-      }
-      if (this.y < 0) {
-        this.y = (mapH - 1.2) * 5;
-        mapY--;
-      }
-      if (this.y > (mapH - 1) * 5 - 1) {
-        this.y = 4;
-        mapY++;
-      }
-      if (this.x > (mapW - 1) * 5 - 1) {
-        this.x = 4;
-        mapX++;
-      }
-  */
-      //  goToNextMap();
-    } else {
-      if (steve.y > this.y) this.y += vectorspeed[1]
-      else this.y -= vectorspeed[1]
+    if(this.x < 0) vectorspeed[0] = this.getSpeed()* !steveDependant
+    if(this.y < 0) vectorspeed[1] = this.getSpeed()* !steveDependant 
+    if(this.y > (mapH - 1) * 5 ) vectorspeed[1] = -this.getSpeed() * !steveDependant
+    if(this.x > (mapW - 1) * 5 ) vectorspeed[0] = -this.getSpeed()* !steveDependant
+   
+   {
+      if (steve.y < this.y && steveDependant) this.y -= vectorspeed[1]
+      else this.y += vectorspeed[1]
 
       this.y = +this.y.toFixed(2)
 
+      // if (oldcoords[0] > this.y) {
+      //   //move up
+      //   if (+(this.x % 5).toFixed(1) <= this.diffrencex) {
+      //     if (
+      //       !allowedblocks.includes(
+      //         currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0, 9)
+      //       )
+      //     ) {
+      //       this.y = oldcoords[0]
+      //     }
+      //   } else {
+      //     if (
+      //       !allowedblocks.includes(
+      //         currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0, 9)
+      //       ) ||
+      //       !allowedblocks.includes(
+      //         currentmap[(this.y / 5) >> 0][(this.x / 5 + 1) >> 0][0].slice(
+      //           0,
+      //           9
+      //         )
+      //       )
+      //     )
+      //       this.y = oldcoords[0]
+      //   }
+      // } else {
+      //   // move down
+      //   if (+(this.x % 5).toFixed(1) <= this.diffrencex) {
+      //     if (
+      //       !allowedblocks.includes(
+      //         currentmap[
+      //           ((this.y - vectorspeed[1] - this.diffrencey + 0.0001) / 5 +
+      //             1) >>
+      //             0
+      //         ][(this.x / 5) >> 0][0].slice(0, 9)
+      //       )
+      //     ) {
+      //       this.y = oldcoords[0]
+      //     }
+      //   } else if (
+      //     !allowedblocks.includes(
+      //       currentmap[
+      //         ((this.y - vectorspeed[1] - this.diffrencey + 0.0001) / 5 + 1) >>
+      //           0
+      //       ][(this.x / 5) >> 0][0].slice(0, 9)
+      //     ) ||
+      //     !allowedblocks.includes(
+      //       currentmap[
+      //         ((this.y - vectorspeed[1] - this.diffrencey + 0.0001) / 5 + 1) >>
+      //           0
+      //       ][(this.x / 5 + 1) >> 0][0].slice(0, 9)
+      //     )
+      //   )
+      //     this.y = oldcoords[0]
+      // }
+
+      // if (steve.x < this.x && steveDependant) this.x -= vectorspeed[0]
+      // else this.x += vectorspeed[0]
+
+      // this.x = +this.x.toFixed(2)
+      // //////
+      // if (oldcoords[1] > this.x) {
+      //   //move left
+      //   if (+(this.y % 5).toFixed(1) <= this.diffrencey) {
+      //     if (
+      //       !allowedblocks.includes(
+      //         currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0, 9)
+      //       )
+      //     )
+      //       this.x = oldcoords[1]
+      //   } else {
+      //     if (
+      //       !allowedblocks.includes(
+      //         currentmap[(this.y / 5 + 0.0001) >> 0][
+      //           (this.x / 5 + 0.0001) >> 0
+      //         ][0].slice(0, 9)
+      //       ) ||
+      //       !allowedblocks.includes(
+      //         currentmap[(this.y / 5 + 1 + 0.0001) >> 0][
+      //           (this.x / 5 + 0.0001) >> 0
+      //         ][0].slice(0, 9)
+      //       )
+      //     )
+      //       this.x = oldcoords[1]
+      //   }
+      // } else {
+      //   //move right
+
+      //   if (+(this.y % 5).toFixed(1) <= this.diffrencey) {
+      //     if (
+      //       !allowedblocks.includes(
+      //         currentmap[(this.y / 5) >> 0][
+      //           ((this.x - vectorspeed[0] - this.diffrencex + 0.0001) / 5 +
+      //             1) >>
+      //             0
+      //         ][0].slice(0, 9)
+      //       )
+      //     )
+      //       this.x = oldcoords[1]
+      //   } else if (
+      //     !allowedblocks.includes(
+      //       currentmap[(this.y / 5) >> 0][
+      //         ((this.x - vectorspeed[0] - this.diffrencex + 0.0001) / 5 + 1) >>
+      //           0
+      //       ][0].slice(0, 9)
+      //     ) ||
+      //     !allowedblocks.includes(
+      //       currentmap[(this.y / 5 + 1) >> 0][
+      //         ((this.x - vectorspeed[0] - this.diffrencex + 0.0001) / 5 + 1) >>
+      //           0
+      //       ][0].slice(0, 9)
+      //     )
+      //   )
+      //     this.x = oldcoords[1]
+      // }
       if (oldcoords[0] > this.y) {
         //move up
-        if (+(this.x % 5).toFixed(1) <= this.diffrencex) {
-          if (
-            !allowedblocks.includes(
-              currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0, 9)
-            )
-          ) {
+        if (this.x % 5 >> 0 <= this.diffrencex) {
+          if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
             this.y = oldcoords[0]
-          }
         } else {
           if (
-            !allowedblocks.includes(
-              currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0, 9)
-            ) ||
-            !allowedblocks.includes(
-              currentmap[(this.y / 5) >> 0][(this.x / 5 + 1) >> 0][0].slice(
-                0,
-                9
-              )
-            )
+            checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
+            checkMapForBlock((this.y / 5) >> 0, (this.x / 5 + 1) >> 0)
           )
             this.y = oldcoords[0]
         }
       } else {
         // move down
-        if (+(this.x % 5).toFixed(1) <= this.diffrencex) {
+        if (this.x % 5 >> 0 <= this.diffrencex) {
           if (
-            !allowedblocks.includes(
-              currentmap[
-                ((this.y - vectorspeed[1] - this.diffrencey + 0.0001) / 5 +
-                  1) >>
-                  0
-              ][(this.x / 5) >> 0][0].slice(0, 9)
+            checkMapForBlock(
+              (this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1,
+              (this.x / 5) >> 0
             )
           ) {
             this.y = oldcoords[0]
           }
         } else if (
-          !allowedblocks.includes(
-            currentmap[
-              ((this.y - vectorspeed[1] - this.diffrencey + 0.0001) / 5 + 1) >>
-                0
-            ][(this.x / 5) >> 0][0].slice(0, 9)
+          checkMapForBlock(
+            ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
+            (this.x / 5 + 1) >> 0
           ) ||
-          !allowedblocks.includes(
-            currentmap[
-              ((this.y - vectorspeed[1] - this.diffrencey + 0.0001) / 5 + 1) >>
-                0
-            ][(this.x / 5 + 1) >> 0][0].slice(0, 9)
+          checkMapForBlock(
+            ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
+            (this.x / 5) >> 0
           )
         )
           this.y = oldcoords[0]
       }
-
-      if (steve.x > this.x) this.x += vectorspeed[0]
-      else this.x -= vectorspeed[0]
+      if (steve.x < this.x && steveDependant) this.x -= vectorspeed[0]
+      else this.x += vectorspeed[0]
 
       this.x = +this.x.toFixed(2)
-      //////
       if (oldcoords[1] > this.x) {
+       
         //move left
-        if (+(this.y % 5).toFixed(1) <= this.diffrencey) {
-          if (
-            !allowedblocks.includes(
-              currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0, 9)
-            )
-          )
+        if (this.y % 5 >> 0 <= this.diffrencey) {
+          if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
             this.x = oldcoords[1]
         } else {
           if (
-            !allowedblocks.includes(
-              currentmap[(this.y / 5 + 0.0001) >> 0][
-                (this.x / 5 + 0.0001) >> 0
-              ][0].slice(0, 9)
-            ) ||
-            !allowedblocks.includes(
-              currentmap[(this.y / 5 + 1 + 0.0001) >> 0][
-                (this.x / 5 + 0.0001) >> 0
-              ][0].slice(0, 9)
-            )
+            checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
+            checkMapForBlock((this.y / 5 + 1) >> 0, (this.x / 5) >> 0)
           )
             this.x = oldcoords[1]
         }
       } else {
         //move right
-
-        if (+(this.y % 5).toFixed(1) <= this.diffrencey) {
+        
+        if (this.y % 5 >> 0 <= this.diffrencey) {
           if (
-            !allowedblocks.includes(
-              currentmap[(this.y / 5) >> 0][
-                ((this.x - vectorspeed[0] - this.diffrencex + 0.0001) / 5 +
-                  1) >>
-                  0
-              ][0].slice(0, 9)
+            checkMapForBlock(
+              this.y / 5,
+              (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
             )
           )
             this.x = oldcoords[1]
         } else if (
-          !allowedblocks.includes(
-            currentmap[(this.y / 5) >> 0][
-              ((this.x - vectorspeed[0] - this.diffrencex + 0.0001) / 5 + 1) >>
-                0
-            ][0].slice(0, 9)
+          checkMapForBlock(
+            this.y / 5,
+            (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
           ) ||
-          !allowedblocks.includes(
-            currentmap[(this.y / 5 + 1) >> 0][
-              ((this.x - vectorspeed[0] - this.diffrencex + 0.0001) / 5 + 1) >>
-                0
-            ][0].slice(0, 9)
+          checkMapForBlock(
+            (this.y / 5 + 1) >> 0,
+            (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
           )
-        )
+        ) {
           this.x = oldcoords[1]
+        }
       }
 
       e["mob" + this.id].style.top = this.y + "vh"
@@ -569,7 +628,7 @@ classes.mob = class {
     }
   }
   attackplayer(){
-    console.log("Attack");
+    
     if (this.isPlayerInRange() && !isBlockBetween(steve, this))
     {
       this.damagePlayer()
@@ -579,8 +638,27 @@ classes.mob = class {
       this.movetoplayer()
     }
   }
+  randommove(){
+    if(this.state != "angry" && this.isAlive){
+      playMobHowl(this.name, "step")
+      let vectorspeed = [
+        +((randomNumber(this.stats.speed* 0.85, this.stats.speed* 1.15)/200)* randomPlusMinus()).toFixed(2) ,
+        +((randomNumber(this.stats.speed* 0.85, this.stats.speed* 1.15)/200)* randomPlusMinus()).toFixed(2) 
+      ]
+     
+      
+      for (let i = 1; i < randomNumber(25,50); i++) {
+        setTimeout(this.move.bind(this), i * 50, vectorspeed,false)
+      }
+
+    }
+    let timer = randomNumber(5000,20000)
+    
+    setTimeout(this.randommove.bind(this),timer )
+    
+  }
   movetoplayer() {
-    if(this.attacktimer == 0)
+    if(this.attacktimer == 0 && this.isAlive)
     {
     
       if (this.isPlayerInRange()) {
@@ -589,9 +667,10 @@ classes.mob = class {
       }
       else
       {
+      
         playMobHowl(this.name, "step")
       
-        console.log("moving")
+     
     let hipon = Math.sqrt((this.x - steve.x) ** 2 + (this.y - steve.y) ** 2)
     let angleSin = Math.abs(this.x - steve.x) / hipon
     //vectorspeed[deltax,deltay]
@@ -622,7 +701,7 @@ classes.mob = class {
   }
   knockback() {
     for (let i = 0; i < 5; i++) {
-      setTimeout(this.move.bind(this), i * 25, [-0.6, -0.6])
+      setTimeout(this.move.bind(this), i * 25, [-0.5, -0.5])
     }
   }
 }
@@ -717,3 +796,4 @@ classes.accessorybag = class {
     
   }
 }
+

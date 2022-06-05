@@ -35,6 +35,7 @@ class player {
       totalDamageMultiplier: 1,
       undeadbonus: 1,
       zombiedefense: 0,
+      intimidationlevel: 0,
 
       range: 3,
       accessorybagslots: 9,
@@ -55,7 +56,7 @@ class player {
     this.itemInHand = new classes.empty()
     this.helmet = new classes.empty()
     this.chestplate = new classes.empty()
-    this.leggins = new classes.empty()
+    this.leggings = new classes.empty()
     this.boots = new classes.empty()
     this.ring1 = new classes.empty()
     this.ring2 = new classes.empty()
@@ -73,6 +74,7 @@ class player {
     setInterval(this.reduceFoodSecond.bind(this), 1000)
     setInterval(this.naturalRegeneration.bind(this), 1000)
     setInterval(this.addAge.bind(this), 1000)
+    this.sets = {}
   }
   addAge() {
     this.age++
@@ -592,7 +594,6 @@ class player {
     this.stats.health = amount
     this.updateheathbar()
   }
-
   addCoins(amount) {
     this.coins += amount
     e.coinstext.innerText = this.coins.formate()
@@ -602,162 +603,22 @@ class player {
       (this.stats.maxhealth * (this.stats.naturalregeneration / 100)) >> 0
     )
   }
-}
+  addSet(item){
+    if(item.set != undefined){
+       if(steve.sets[item.set] ==  undefined ){
+        steve.sets[item.set] = {
+          amount: 0,
+          isActivated: false
+        }
+       }
+       steve.sets[item.set].amount++
 
-/*
-   move() {
-      let movingright = true;
-      let oldcoords = [this.y, this.x];
-      if (!keys.slice(0, 4).includes(1)) {
-        clearInterval(movetimer);
-        movetimer = 0;
-      } else if (
-        this.x < 0 ||
-        this.y < 0 ||
-        this.y > (mapH - 1) * 5 - 1 ||
-        this.x > (mapW - 1) * 5 - 1
-      ) {
-        // savemap();
-        if (this.x < 0) {
-          this.x = (mapW - 1.2) * 5;
-          mapX--;
-        }
-        if (this.y < 0) {
-          this.y = (mapH - 1.2) * 5;
-          mapY--;
-        }
-        if (this.y > (mapH - 1) * 5 - 1) {
-          this.y = 4;
-          mapY++;
-        }
-        if (this.x > (mapW - 1) * 5 - 1) {
-          this.x = 4;
-          mapX++;
-        }
-  
-        goToNextMap();
-      } else {
-        if (keys[0] != keys[2]) {
-          if (keys[0]) this.y -= 0.2;
-          if (keys[2]) this.y += 0.2;
-        }
-  
-        this.y = +this.y.toFixed(1);
-  
-        if (oldcoords[0] > this.y) {
-          //move up
-          if (this.x % 5 >> 0 <= this.diffrencex) {
-            if (
-              !allowedblocks.includes(
-                currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0,9)
-              )
-            )
-              this.y = oldcoords[0];
-          } else {
-            if (
-              !allowedblocks.includes(
-                currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0,9)
-              ) ||
-              !allowedblocks.includes(
-                currentmap[(this.y / 5) >> 0][(this.x / 5 + 1) >> 0][0].slice(0,9)
-              )
-            )
-              this.y = oldcoords[0];
-          }
-        } else {
-          // move down
-          if (this.x % 5 >> 0 <= this.diffrencex) {
-            if (
-              !allowedblocks.includes(
-                currentmap[
-                  ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0
-                ][(this.x / 5) >> 0][0].slice(0,9)
-              )
-            ) {
-              this.y = oldcoords[0];
-            }
-          } else if (
-            !allowedblocks.includes(
-              currentmap[
-                ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0
-              ][(this.x / 5) >> 0][0].slice(0,9)
-            ) ||
-            !allowedblocks.includes(
-              currentmap[
-                ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0
-              ][(this.x / 5 + 1) >> 0][0].slice(0,9)
-            )
-          )
-            this.y = oldcoords[0];
-        }
-        if (keys[1] != keys[3]) {
-          if (keys[1]) this.x -= 0.2;
-          if (keys[3]) this.x += 0.2;
-        }
-        this.x = +this.x.toFixed(1);
-        //////
-        if (oldcoords[1] > this.x) {
-          movingright = false;
-          //move left
-          if (this.y % 5 >> 0 <= this.diffrencey) {
-            if (
-              !allowedblocks.includes(
-                currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0,9)
-              )
-            )
-              this.x = oldcoords[1];
-          } else {
-            if (
-              !allowedblocks.includes(
-                currentmap[(this.y / 5 + 0.0001) >> 0][
-                  (this.x / 5 + 0.0001) >> 0
-                ][0].slice(0,9)
-              ) ||
-              !allowedblocks.includes(
-                currentmap[(this.y / 5 + 1 + 0.0001) >> 0][
-                  (this.x / 5 + 0.0001) >> 0
-                ][0].slice(0,9)
-              )
-            )
-              this.x = oldcoords[1];
-          }
-        } else {
-          //move right
-          movingright = true;
-          if (this.y % 5 >> 0 <= this.diffrencey) {
-            if (
-              !allowedblocks.includes(
-                currentmap[(this.y / 5) >> 0][
-                  ((this.x - 0.2 - this.diffrencex + 0.0001) / 5 + 1) >> 0
-                ][0].slice(0,9)
-              )
-            )
-              this.x = oldcoords[1];
-          } else if (
-            !allowedblocks.includes(
-              currentmap[(this.y / 5) >> 0][
-                ((this.x - 0.2 - this.diffrencex + 0.0001) / 5 + 1) >> 0
-              ][0].slice(0,9)
-            ) ||
-            !allowedblocks.includes(
-              currentmap[(this.y / 5 + 1) >> 0][
-                ((this.x - 0.2 - this.diffrencex + 0.0001) / 5 + 1) >> 0
-              ][0].slice(0,9)
-            )
-          )
-            this.x = oldcoords[1];
-        }
-  
-        e.player.style.top = this.y + "vh";
-        e.player.style.left = this.x + "vh";
-        if (movingright) {
-          e.playertool.style.transform = "scale(-1,1) rotate(-90deg)";
-          e.playertool.style.left = this.x + 4 + "vh";
-        } else {
-          e.playertool.style.left = this.x - 3.6 + "vh";
-  
-          e.playertool.style.transform = "scale(1,1) rotate(-90deg)";
-        }
-        e.playertool.style.top = this.y + 0.5 + "vh";
-      }
-    } */
+    }
+  }
+  removeSet(item){
+    steve.sets[item.set].amount--
+  }
+  isSetActive(set){
+    return (true && steve.sets[set] && steve.sets[set].isActivated) || false
+  }
+}

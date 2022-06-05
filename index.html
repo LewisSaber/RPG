@@ -11,6 +11,7 @@
     <div id="progressbar"><p id="progressbartext"><div id="progressbarInside"></div></p></div>
 <div id="map"></div>
 <div id="tooltip" ></div>
+
 <div id="hotbar"></div>
 <div id="healthbar"><div id="healthbarinside"></div><div id="healthbartext"></div></div>
 <span id="guihandler" > f<div id="gui" ><div id="nei">
@@ -20,7 +21,7 @@
 <div id="craftingtable"><div id="craftingarrow"></div></div>
 <div id="inventory"></div>
 <div class="player " id="playerStats"  onmouseenter="makeSteveToolTip()" onmouseleave =
-"if(istooltip) e.tooltip.style.display ='none'"></div>
+"leaveElement()"></div>
 <div id="coins"><div id="coinspicture"></div><p id="coinstext"></p></div>
 <div id="backpacks"> <p id="backpacks0">Backpacks</p><input id="backpackSeach" onfocus="removeKeysEvent();formBackPackContains()" onblur="addKeysEvent()" oninput="highLightBackPacks()" onclick="playClickSound()" oncontextmenu="wipeInput(this); backpackContains.set('',backPacksInGui);   highLightBackPacks(); return false"></div>
 <div id="armorgui"></div>
@@ -54,20 +55,20 @@
 </div>
 <div id="guibuttons">
   <button id="collectionsbutton" onclick="openNoInventoryGui('collections');playClickSound()" onmouseenter="makeTextToolTip(CollectionsDesc)" onmouseleave =
-  "if(istooltip) e.tooltip.style.display ='none'"></button>
+  "leaveElement()"></button>
 <button id="skillsbutton" onclick="openNoInventoryGui('skills');playClickSound()" onmouseenter="makeTextToolTip(SkillsDesc)" onmouseleave =
-"if(istooltip) e.tooltip.style.display ='none'"></button>
+"leaveElement()"></button>
 <button id="accessorybagbutton" onclick="openMachineGui(steve.accessorybag);playClickSound()" onmouseenter="makeTextToolTip(AccesoryBagDesc)" onmouseleave =
-"if(istooltip) e.tooltip.style.display ='none'"></button>
+"leaveElement()"></button>
 </div>
 <div id="accessorybag"><p>       Accessories</p></div>
 <div id="backpack"><div id="backpackname">fff</div></div>
 <div id="villagergui"></div>
 <div id="trashcan" class="guiSlot" onclick="deleteItemInCursor()" onmouseenter="makeTextToolTip(color('Trashcan','green') + br + color('WARNING','red') + ', removed items can`t be restored')" onmouseleave =
-"if(istooltip) e.tooltip.style.display ='none'"></div>
+"leaveElement()"></div>
 </div></span>
 <button id="settingsButton" onclick="OpenSettingsMenu(); playClickSound()" onmouseenter="makeTextToolTip('Settings')" onmouseleave =
-"if(istooltip) e.tooltip.style.display ='none'"></button>
+"leaveElement()"></button>
 
 <div id="settings">
   
@@ -75,6 +76,7 @@
   <div id="accountdelete" class="settingsblock">Delete Account<br><select onclick="playClickSound()"  id="accountsToDelete" onchange="deleteAccount(this)"></select></div>
  
   <div onclick="changeNick()" class="settingsblock button">Change Your Nickname</div>
+ 
   <div class="settingsblockbig">
     Shop Settings<br>
     <input type="checkbox" id="shopPriceCheckBox" name="shopPrice" onchange="if(this.checked) session.settings.fullStackPrice = true; else session.settings.fullStackPrice = false;  ">
@@ -82,9 +84,10 @@
     
     
   </div>
+  <div onclick="changeBodyColor()" class="settingsblock button">Change Background Color</div>
   <div onclick="changeFont()" class="settingsblock button">Change Your Font<br> <a href="https://www.w3schools.com/cssref/css_websafe_fonts.asp" target="_blank">Possible Fonts</a> </div>
   <div class="settingsblock button" onclick="changeSkin()" onmouseenter="makeTextToolTip('Type Default To Get Normal Skin')" onmouseleave =
-  "if(istooltip) e.tooltip.style.display ='none'">Change Skin</div>
+  "leaveElement()">Change Skin</div>
  
   <div class="settingsblock">
     <p id="volumeP">Volume: 50</p>
@@ -94,7 +97,7 @@
   <div class="settingsblock">
     <p id="fontExample">ToolTip FontSize: 25</p>
     <input type="range" min="10" max="50" value="25" class="slider" id="fontRange" oninput="setToolTipFontSize(this.value/10)" onmouseenter="makeTextToolTip('example<br>Defense: 20')" onmouseleave =
-    "if(istooltip) e.tooltip.style.display ='none'">
+    "leaveElement()">
 
   </div>
   <a href="https://discord.gg/8sSTpAZ7NH" target="_blank" id="discord"></a>
@@ -112,7 +115,7 @@
     <select  id="biomes" onchange="setBiome()">   
     </select>
        <button id="selectLocation" onclick="setLocation()" onmouseenter="currentmap.location == null ? '' :makeTextToolTip(currentmap.location)" onmouseleave =
-       "if(istooltip) e.tooltip.style.display ='none'">L</button>
+       "leaveElement()">L</button>
        <button id="saveMap" onclick='
         saveMapToCloud()'>Save</button>
        <button id="openMaps" onclick="OpenMapGui()">M</button>
@@ -142,8 +145,8 @@
     <script src="Classes.js"></script>
     <script src="Crafting.js"></script>
     <script src="maps.js"></script>
-    <script src="villagerTrades.js"></script>
     <script src="script.js"></script>
+    <script src="villagerTrades.js"></script>
    
 
 

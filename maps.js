@@ -1,8 +1,8 @@
 let MAP = createEmptyMapVariable()
 
-const biomes = ["plains","forest","cave"]
+const biomes = ["plains","forest","cave","desert"]
 
-let allowedblocks = ["air","grassPlant","treeoak","empty","mobmobmob","dandelion","sugarcane"]
+let allowedblocks = ["air","grassPlan","treeoak","empty","mobmobmob","dandelion","sugarcane"]
 let mapW = 24;
 let mapH = 16;
 
@@ -310,11 +310,13 @@ function loadmap(){
   let xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-     MAP = JSON.parse(this.responseText)
+      let text = atob(this.responseText)
+      if(text != "")
+     MAP = JSON.parse(atob(this.responseText))
      LOADING()
     }
   };
-  xhttp.open("Get", "mapfile.json", true);
+  xhttp.open("Get", "mapfile.txt", true);
   xhttp.send();
 }
 // function savemap() {
@@ -393,14 +395,24 @@ function putFileMapToCloud(){
   let xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-     MAP = JSON.parse(this.responseText)
+     MAP = JSON.parse(atob(this.responseText))
      localStorage.setItem("RPGmaps", JSON.stringify(MAP))
     }
   };
-  xhttp.open("Get", "mapfile.json", true);
+  xhttp.open("Get", "mapfile.txt", true);
   xhttp.send();
   
   ShouldSaveOnLeave = false
   window.location.reload()
 }
-
+function exportmap(){
+  navigator.clipboard.writeText(btoa(JSON.stringify(MAP))).then(
+        function () {
+         
+        },
+        function (e) {
+          test(e.message)
+          alert("Error copying to clipboard, try again...")
+        }
+      )
+}

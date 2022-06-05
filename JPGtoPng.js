@@ -37,9 +37,9 @@ Jimp.read(directoryPath+"/"+file, function (err, image) {
                 if ( err ) console.log('ERROR: ' + err);
             });
         }
-        if(/_/.test(file)){
+        if(/leggins/.test(file)){
             console.log(file)
-            fs.rename(directoryPath+"/"+file, directoryPath+"/"+file.replace("_",""), function(err) {
+            fs.rename(directoryPath+"/"+file, directoryPath+"/"+file.replace("leggins","leggings"), function(err) {
                 if ( err ) console.log('ERROR: ' + err);
             });
         }

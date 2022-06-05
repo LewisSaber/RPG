@@ -413,6 +413,7 @@ function PutInSlotFull(slot, codeslot, codeamount) {
       itemInCursor = "none"
       putInCursor()
       // e.tooltip.className = ""
+      makeToolTip(slot)
     } else {
       itemInCursor.amount -= slot.getEmpty()
       slot.amount = slot.maxStackSize
@@ -453,6 +454,7 @@ function PutInSlotOne(slot, codeslot, codeamount) {
   if (itemInCursor.amount == 0) {
     itemInCursor = "none"
     putInCursor()
+    makeToolTip(slot)
     //  e.tooltip.className = ""
   }
   putItemInslot(slot, codeslot, codeamount)

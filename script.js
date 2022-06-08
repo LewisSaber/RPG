@@ -138,7 +138,7 @@ let selectedItem
 function downButtonHandler(evt) {
   console.log(evt)
   // console.log("down");
-  if (evt.key == "e" && !keys[4] && !isSettingsOpen) {
+  if (evt.code == "KeyE" && !keys[4] && !isSettingsOpen) {
     if (isNeiOpen) {
       toggleNei()
       toggleInventory()
@@ -150,7 +150,7 @@ function downButtonHandler(evt) {
       toggleInventory()
     }
   }
-  if (evt.key == "r" && !keys[6] && isGuiOpen) {
+  if (evt.code == "KeyR" && !keys[6] && isGuiOpen) {
     findCraftingRecipes()
     if (RecipeGueue.length > 0) {
       if (itemInCursor == "none") {
@@ -168,7 +168,7 @@ function downButtonHandler(evt) {
       }
     }
   }
-  if (evt.key == "u" && !keys[7] && isGuiOpen) {
+  if (evt.code == "KeyU" && !keys[7] && isGuiOpen) {
     findUsageRecipes()
 
     if (RecipeGueue.length > 0) {
@@ -182,50 +182,50 @@ function downButtonHandler(evt) {
       }
     }
   }
-  if (evt.key == "Escape" && !isGuiOpen && !keyStates.Escape) {
+  if (evt.code == "Escape" && !isGuiOpen && !keyStates.Escape) {
     OpenSettingsMenu()
   }
-  if (evt.key == "m" && !keyStates.m) {
+  if (evt.code == "KeyM" && !keyStates.m) {
     steve.sortInventory()
     if (istooltip) e.tooltip.style.display = "none"
   }
 
-  switch (evt.key) {
-    case "w":
+  switch (evt.code) {
+    case "KeyW":
       keys[0] = 1
       break
-    case "a":
+    case "KeyA":
       keys[1] = 1
       break
-    case "s":
+    case "KeyS":
       keys[2] = 1
       break
-    case "d":
+    case "KeyD":
       keys[3] = 1
 
       break
-    case "e":
+    case "KeyE":
       keys[4] = 1
       break
-    case "r":
+    case "KeyR":
       keys[6] = 1
       break
-    case "u":
+    case "KeyU":
       keys[7] = 1
       break
-    case "Shift":
+    case "ShiftLeft":
       isShiftOn = 1
       break
 
     default:
-      keyStates[evt.key] = 1
+      keyStates[evt.code] = 1
       break
   }
-  switch (evt.key) {
-    case "w":
-    case "s":
-    case "a":
-    case "d":
+  switch (evt.code) {
+    case "KeyW":
+    case "KeyA":
+    case "KeyS":
+    case "KeyD":
       if (!movetimer) {
         steve.move()
         movetimer = setInterval(function () {
@@ -286,34 +286,35 @@ function selectHotbarItem(i) {
   )
 }
 function upButtonHandler(evt) {
-  switch (evt.key) {
-    case "w":
+  switch (evt.code) {
+    case "KeyW":
       keys[0] = 0
       break
-    case "a":
+    case "KeyA":
       keys[1] = 0
       break
-    case "s":
+    case "KeyS":
       keys[2] = 0
       break
-    case "d":
+    case "KeyD":
       keys[3] = 0
+
       break
-    case "e":
+    case "KeyE":
       keys[4] = 0
       break
-    case "r":
+    case "KeyR":
       keys[6] = 0
       break
-    case "u":
+    case "KeyU":
       keys[7] = 0
       break
-    case "Shift":
+    case "ShiftLeft":
       isShiftOn = 0
       break
 
     default:
-      keyStates[evt.key] = 0
+      keyStates[evt.code] = 0
       break
   }
 }

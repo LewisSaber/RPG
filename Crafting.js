@@ -121,7 +121,7 @@ this.setOutput()
       dumpTable(){
        if(!isNeiOpen)
         for(let i = 0 ; i < 9 ; i++){
-          console.log("dumping:", this.inventory[i])
+          if(isEmpty(this.inventory[i]))
           this.inventory[i] = steve.addToInventory(  this.inventory[i])
           putItemInslot(this.inventory[i],e.craftingtable["slot" + i], e.craftingtable["slot" + i + "amount"])
         } 
@@ -308,7 +308,7 @@ function loadrecipes() {
   addFurnaceRecipe("beef","steak",100)
   addFurnaceRecipe("rawchicken","cookedchicken",80)
   addShapedRecipe([empty,"planksoak",empty,empty,"planksoak",empty,empty,"stick",empty],"woodsword",1,[],{},[,{kills:20}])
-  addShapedRecipe([empty,"cobblestone",empty,empty,"cobblestone",empty,empty,"stick",empty],"stonesword",1,[].set(0,9),{stats : { maxhealth: 20}})
+  addShapedRecipe([empty,"cobblestone",empty,empty,"cobblestone",empty,empty,"stick",empty],"stonesword",1,[],{stats : { maxhealth: 20}})
   addFurnaceRecipe("sand","glass",100)
   addGlitchRecipe("cobblestone")
   addGlitchRecipe("rottenflesh")

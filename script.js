@@ -263,14 +263,7 @@ function toggleNei() {
       thismachinei = -2
       craftingTable.clear()
       e.nei.style.display = "none"
-      craftingTableItems.forEach((x, i) => {
-        putItemInslot(
-          x,
-          e.craftingtable["slot" + i],
-          e.craftingtable["slot" + i + "amount"]
-        )
-      })
-      setCraftingTableOutput()
+     
     }
   }
 }
@@ -372,13 +365,7 @@ function toggleInventory() {
         e.inventory["slot" + i],
         e.inventory["slot" + i + "amount"]
       )
-      craftingTableItems.forEach((x, i) => {
-        putItemInslot(
-          x,
-          e.craftingtable["slot" + i],
-          e.craftingtable["slot" + i + "amount"]
-        )
-      })
+   
       for (let i = 0; i < armornames.length; i++) {
         steve[armornames[i]].name == "empty"
           ? (e.armorgui[armornames[i]].className =
@@ -389,10 +376,6 @@ function toggleInventory() {
     isInventoryopen = !isInventoryopen
   } else {
     e.hotbar.style.bottom = "0vh"
-    dumbtoinventory(craftingTableItems)
-    doRecipe(craftingTableItems)
-
-    setCraftingTableOutput()
     //  window.addEventListener("mousedown", leftclick);
     disableInventoryGuis()
   }

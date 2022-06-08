@@ -136,7 +136,7 @@ let keyStates = {}
 let currentHotbarSlot = 0
 let selectedItem
 function downButtonHandler(evt) {
-  console.log(evt)
+  //console.log(evt)
   // console.log("down");
   if (evt.code == "KeyE" && !keys[4] && !isSettingsOpen) {
     if (isNeiOpen) {
@@ -253,7 +253,7 @@ function toggleNei() {
   if (RecipeGueue.length > 0 || !isNeiOpen) {
     if (isNeiOpen) {
       disableInventoryGuis()
-      craftingTable.dumpTable()
+      craftingTable.dumpTable(true)
 
       ShowRecipe(0)
       
@@ -709,7 +709,8 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
 
           break
         case "craftingtable":
-          craftingTable.addToInventory(i, "fullCursorLclick")
+          craftingTable.addToInventory(i, "emptyCursorLclick")
+          //craftingTable.addToInventory(i, "fullCursorLclick")
           // if (isShiftOn) {
           //   craftingTableItems[i] = steve.addToInventory(craftingTableItems[i])
           //   leaveElement()
@@ -910,7 +911,7 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
 
           break
         case "craftingtable":
-          craftingTable.addToInventory(i, "emptyCursorLclick")
+          craftingTable.addToInventory(i, "fullCursorLclick")
           // if (isShiftOn) {
           //   craftingTableItems[i] = steve.addToInventory(craftingTableItems[i])
 

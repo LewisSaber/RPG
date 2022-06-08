@@ -11,12 +11,15 @@ let craftingTable  = {
    inventory : [].set(new classes.empty(1),9),
    output: new classes.empty(),
    addToInventory(slot,clicktype){
+    console.log("Add",clicktype)
    if(clicktype == "emptyCursorLclick")
    if(isShiftOn){
     this.inventory[slot] = steve.addToInventory(  this.inventory[slot] )
     putItemInslot(this.inventory[slot],e.craftingtable["slot" + slot], e.craftingtable["slot" + slot + "amount"])
+   
+    makeToolTip( this.inventory[slot])
    }else{
-     this.inventory[slot] = PutInSlotFull(
+     this.inventory[slot] = putInCursorFull(
        this.inventory[slot],
        e.craftingtable["slot" + slot],
        e.craftingtable["slot" + slot + "amount"]
@@ -27,8 +30,9 @@ let craftingTable  = {
     if(isShiftOn){
       this.inventory[slot] = steve.addToInventory(  this.inventory[slot] )
       putItemInslot(this.inventory[slot],e.craftingtable["slot" + slot], e.craftingtable["slot" + slot + "amount"])
+    
      }else{
-    this.inventory[slot] = putInCursorFull(
+    this.inventory[slot] =PutInSlotFull(
       this.inventory[slot],
       e.craftingtable["slot" + slot],
       e.craftingtable["slot" + slot + "amount"]
@@ -118,10 +122,10 @@ this.setOutput()
 
          }
        },
-      dumpTable(){
-       if(!isNeiOpen)
+      dumpTable(ignore = false){
+       if(!isNeiOpen || ignore)
         for(let i = 0 ; i < 9 ; i++){
-          if(isEmpty(this.inventory[i]))
+          if(!isEmpty(this.inventory[i]))
           this.inventory[i] = steve.addToInventory(  this.inventory[i])
           putItemInslot(this.inventory[i],e.craftingtable["slot" + i], e.craftingtable["slot" + i + "amount"])
         } 
@@ -298,7 +302,7 @@ function loadrecipes() {
 
   addShapedRecipe(['ironblock', 'ironblock', 'ironblock', 'empty', 'ironingot', 'empty', 'ironingot', 'ironingot', 'ironingot'],"anvil")
  
-  addShapedRecipe(["paper","paper",empty,"paper","leather"],"book")
+  addShapedRecipe(["paper","paper",empty,"paper","leather"],"book",1,[2])
   addShapelessRecipe(["ironingot","ironingot","ironingot","ironingot","ironingot","ironingot","ironingot","ironingot","ironingot"],"ironblock")
   addFurnaceRecipe("cobblestone", "stone", 160, 1);
   addFurnaceRecipe("ironore", "ironingot", 160, 1);
@@ -313,82 +317,6 @@ function loadrecipes() {
   addGlitchRecipe("cobblestone")
   addGlitchRecipe("rottenflesh")
  
-}
-
-let craftingTableItems = [];
-craftingTableItems.set(new classes.empty(), 9);
-let craftingArray = [];
-craftingArray.set(empty, 9);
-let craftingAmounts = [];
-craftingAmounts.set(0, 9);
-let recipeAmounts = [];
-let craftingTableResult = new classes.empty();
-function checkinput(a, b) {
-  for (const key in a) {
-    if (a[key] != 1 && a[key] > b[key]) return false;
-  }
-  return true;
-}
-function searchCraftingRecipe() {
-  let sortedarray = [...craftingArray].sort();
-  if (
-    shapedrecipes[craftingArray] != undefined &&
-    checkinput(shapedrecipes[craftingArray][2], craftingAmounts)
-  ) {
-    return shapedrecipes[craftingArray];
-  }
-  if (
-    shapelessrecipes[sortedarray] != undefined &&
-    checkinput(shapelessrecipes[sortedarray][2], [...craftingAmounts].sort())
-  ) {
-    return shapelessrecipes[sortedarray];
-  }
-
-  return [empty, 0, [0, 0, 0, 0, 0, 0, 0, 0, 0]];
-}
-function setCraftingTableOutput() {
-  let recipe = searchCraftingRecipe();
- 
- 
-  recipeAmounts = recipe[2];
-  craftingTableResult = new classes[recipe[0]](recipe[1]);
-  craftingTableResult.addTag(recipe[3])
-  putItemInslot(
-    craftingTableResult,
-    e.craftingtable["slot9"],
-    e.craftingtable["slot9amount"]
-  );
-}
-function doRecipe(input) {
-  for (let i = 0; i < input.length; i++) {
-    input[i].amount =
-      input[i].name == empty
-        ? input[i].amount
-        : input[i].amount - recipeAmounts[i];
-    craftingAmounts[i] = input[i].amount;
-    if (input[i].amount == 0) {
-      input[i] = new classes.empty();
-      craftingArray[i] = empty;
-    }
-  }
-
-  return input;
-}
-function doCraftingRecipe() {
-  if (!isNeiOpen)
-    if (craftingTableResult.name != empty) {
-      if (AddItemToCursor(craftingTableResult)) {
-        craftingTableItems = doRecipe(craftingTableItems);
-        craftingTableItems.forEach((x, i) => {
-          putItemInslot(
-            x,
-            e.craftingtable["slot" + i],
-            e.craftingtable["slot" + i + "amount"]
-          );
-        });
-        setCraftingTableOutput();
-      }
-    }
 }
 
 function dumbtoinventory(items) {

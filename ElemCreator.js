@@ -290,7 +290,7 @@ function buildCraftingTable() {
     )
     tag.setAttribute(
       "onmouseenter",
-      "makeToolTip(craftingTableItems[" + i + "])"
+      "makeToolTip(craftingTable.inventory[" + i + "])"
     )
     tag.setAttribute(
       "onmouseleave",
@@ -310,9 +310,10 @@ function buildCraftingTable() {
   let amount = document.createElement("div")
   amount.setAttribute("class", "itemamount")
   e.craftingtable["slot9amount"] = amount
-  tag.setAttribute("onclick", "doCraftingRecipe()")
+  tag.setAttribute("onclick", "craftingTable.doRecipe()")
+
   // tag.setAttribute("oncontextmenu", "RclickOnSlot(" + i + ",'craftingtable'); return false");
-  tag.setAttribute("onmouseenter", "makeToolTip(craftingTableResult)")
+  tag.setAttribute("onmouseenter", "makeToolTip(craftingTable.output)")
   tag.setAttribute(
     "onmouseleave",
     "leaveElement()"  )

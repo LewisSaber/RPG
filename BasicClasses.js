@@ -19,15 +19,20 @@ classes.empty = class {
     return this.maxStackSize - this.amount
   }
   useAbility() {}
+  withTag(tag) { this.addTag(tag)}
   addTag(tag) {
-    for (const key in tag) {
-      if (typeof tag[key] == "object") {
-        for (const key2 in tag[key]) {
-          this[key][key2] = tag[key][key2]
-        }
-      } else this[key] = tag[key]
+    if(tag){
+
+      for (const key in tag) {
+        if (typeof tag[key] == "object") {
+          for (const key2 in tag[key]) {
+            this[key][key2] = tag[key][key2]
+          }
+        } else this[key] = tag[key]
+      }
     }
   }
+
 }
 classes.block = class extends classes.empty {
   constructor(amount = 0) {

@@ -17,6 +17,7 @@ classes.cobblestone = class extends classes.stonetype {
     this.name = "cobblestone";
     this.hardness = 2000;
     this.sellValue = 1
+    
   }
 };
 
@@ -26,62 +27,87 @@ classes.stone = class extends classes.stonetype {
     this.name = "stone";
     this.hardness = 2200;
     this.restrictTool = true;
-    this.xp = 1
+    this.xp = {
+      amount: 1,
+      type: "mining",
+    }
+   
   }
-  generateDrop() {
-    let drops = [];
-
-   const amount0 = Math.floor(steve.getMiningFortune())
-   if(steve.enchants.smeltingtouch)
-   drops.push(
-    new classes['stone'](amount0)
-  );
-   else
-   drops.push(
-     new classes['cobblestone'](amount0)
-   );
-   addCollectionItem('cobblestone',amount0)
-    addSkillXP('mining',this.xp)
-    return drops;
-  }
+ 
+  
 };
+
 classes.ironore = class extends classes.stonetype {
   constructor(amount = 0) {
     super(amount);
     this.hardness = 5000;
-    this.xp = 5
+    this.xp = {
+      amount: 10,
+      type: "mining",
+    }
     this.name = "ironore";
     this.tier = 1;
+  
   }
-  generateDrop(){
-    let drops = []
-  const amount0 = Math.floor(steve.getMiningFortune())
-  if(steve.enchants.smeltingtouch)
-  drops.push(
-    new classes['ironingot'](amount0)
-  );
-  else
-  drops.push(
-    new classes['ironore'](amount0)
-  );
-  addCollectionItem('ironingot',amount0)
-   addSkillXP('mining',this.xp)
-    return drops
-  }
+  
+
 };
+selectorblocks.push("redstoneore")
+classes.redstoneore = class extends classes.stonetype {
+  constructor(amount = 0) {
+    super(amount);
+    this.hardness = 7000;
+    this.xp = {
+      amount: 50,
+      type: "mining",
+    }
+    this.name = "redstoneore";
+    this.tier = 2;
+  
+  }
+  
+
+};
+selectorblocks.push("diamondore")
+classes.diamondore = class extends classes.stonetype {
+  constructor(amount = 0) {
+    super(amount);
+    this.hardness = 10000;
+    this.xp = {
+      amount: 100,
+      type: "mining",
+    }
+    this.name = "diamondore";
+    this.tier = 2;
+  
+  }
+  
+
+};
+classes.diamond = class extends classes.item{
+constructor(amount = 0){
+ super(amount)
+ this.name = 'diamond'
+ this.rarity = 1
+ this.sellValue = 20
+}
+
+}
+
+
 classes.coalore = class extends classes.stonetype {
   constructor(amount = 0) {
     super(amount);
     this.hardness = 2300;
-    this.xp = 5
+    this.xp = {
+      amount: 10,
+      type: "mining",
+    }
     this.name = "coalore";
     this.tier = 0;
+   
   }
-  generateDrop(){
-    addSkillXP("mining",this.xp)
-    addCollectionItem("coal",Math.floor(steve.getMiningFortune()))
-    return [new classes["coal"](Math.floor(steve.getMiningFortune()))]
-  }
+  
 };
 classes.bedrock = class extends classes.block {
   constructor(amount = 0) {
@@ -100,6 +126,7 @@ classes.woodpickaxe = class extends classes.tool {
       tool: "pickaxe",
       miningspeed: 100,
     };
+    this.sellValue = 50
   }
 };
 classes.ruslanshovel = class extends classes.tool {
@@ -116,8 +143,10 @@ classes.ruslanshovel = class extends classes.tool {
 };
 classes.logoak = class extends classes.block {
   constructor(amount = 0) {
+
     super(amount);
     this.name = "logoak";
+    this.sellValue = 10
   }
 };
 
@@ -127,26 +156,46 @@ classes.treeoak = class extends classes.tree {
     this.name = "treeoak";
     this.hardness = 10000;
     this.logs = 4
-    this.xp = 30
+    this.xp = {
+      amount: 30,
+      type: "foraging"
+    }
+   
+
+  }
+  generateDrop(){
+  let drop = super.generateDrop() 
+  drop.forEach((x,i)=>{
+    if(x.name == "logoak" && steve.itemInHand.name == "efficientaxe"){
+      drop[i] = new classes.planksoak(x.amount*5)
+     
+    }
+  })
+  return drop
   }
 };
 classes.planksoak = class extends classes.block {
   constructor(amount = 0) {
     super(amount);
     this.name = "planksoak";
+    this.sellValue = 3
+  
   }
+  
 };
 classes.stick = class extends classes.item {
   constructor(amount = 0) {
     super(amount);
     this.name = "stick";
-    this.burnvalue = 200;
+    this.burnvalue = 20;
+    this.sellValue = 1
   }
 };
 classes.woodaxe = class extends classes.tool {
   constructor(amount = 0) {
     super(amount);
     this.name = "woodaxe";
+    this.sellValue = 50
     this.stats = {
       tool: "axe",
       tooltier: 0,
@@ -254,7 +303,7 @@ classes.furnace = class extends classes.machine {
     if (this.inventoryslotid >= 0) {
       e.machines["slot" + this.inventoryslotid].className = "guiSlot furnace";
     }
-    console.log("Recipe stopped");
+  
   }
 };
 classes.shears = class extends classes.tool {
@@ -265,7 +314,7 @@ classes.shears = class extends classes.tool {
     this.stats = {
       tooltier: 1,
       tool: "shears",
-      miningspeed: "500",
+      miningspeed: 500,
     };
   }
 };
@@ -296,6 +345,7 @@ classes.ironblock = class extends classes.block {
   constructor(amount = 0) {
     super(amount);
     this.name = "ironblock";
+   
   }
 };
 classes.anvil = class extends classes.machine {
@@ -412,19 +462,7 @@ classes.zombie = class extends classes.mob{
     this.create()
     this.spawn()
   }
-  generateDrop() {
-    let drops = [];
-    const amount0 = Math.floor(randomAmount(3,100)* steve.getCombatFortune())
-    drops.push(
-      new classes['rottenflesh'](amount0)
-    );
-    addCollectionItem('rottenflesh',amount0)
-   const amount1 = Math.floor(randomAmount(1,5)* steve.getCombatFortune())
-   drops.push(
-     new classes['zombiefang'](amount1)
-   );
-    return drops;
-  }
+
 }
 classes.rottenflesh = class extends classes.item{
   constructor(amount = 0){
@@ -432,6 +470,7 @@ classes.rottenflesh = class extends classes.item{
     this.name = "rottenflesh"
   }
 }
+
 classes.leather = class extends classes.item{
   constructor(amount = 0){
     super(amount)
@@ -442,6 +481,7 @@ classes.woodsword = class extends classes.tool{
   constructor(amount = 0){
     super(amount)
     this.name = "woodsword"
+    this.sellValue = 50
     this.stats = {
       damage: 20,
       tool: "sword",
@@ -467,20 +507,7 @@ classes.cow = class extends classes.mob {
     this.create()
     this.spawn()
   }
-  generateDrop() {
-    let drops = [];
-    const amount = Math.floor(randomAmount(2,100)* steve.getCombatFortune())
-    drops.push(
-      new classes['leather'](amount)
-    );
-    addCollectionItem('leather',amount)
-    addSkillXP('combat',this.xp)
-   
-    drops.push(
-      new classes["beef"](Math.floor(((Math.random() * 1)+1)*steve.getCombatFortune()))
-    );
-    return drops;
-  }
+
 }
 classes.carrot = class extends classes.consumable{
 constructor(amount = 0){
@@ -555,23 +582,14 @@ classes.chicken = class extends classes.mob {
     this.stats = {
       health: 30,
       maxhealth: 30,
-      speed:60
+      speed:40
     };
     this.respawntimer = 12000
     this.state = "passive";
     this.create()
     this.spawn()
   }
-  generateDrop() {
-    let drops = [];
-    drops.push(
-      new classes["feather"](Math.floor(((Math.random() * 2)+1)*steve.getCombatFortune()))
-    );
-    drops.push(
-      new classes["rawchicken"](Math.floor(((Math.random() * 1)+1)*steve.getCombatFortune()))
-    );
-    return drops;
-  }
+
 }
 
 classes.coal = class extends classes.item{
@@ -646,6 +664,7 @@ classes.leatherhelmet = class extends classes.armor{
   super(amount)
   this.name = "leatherhelmet"
   this.type = "helmet"
+  this.set = "leather"
   this.stats = {
     maxhealth: 10,
     defense: 5,
@@ -657,36 +676,17 @@ classes.leatherchestplate = class extends classes.armor{
   super(amount)
   this.name = "leatherchestplate"
   this.type = "chestplate"
-  this.description = "Set Ability:" + br + " Get 5 damage for Each Kill"
+  this.set = "leather"
   this.stats = {
     maxhealth: 20,
     defense: 15,
     damage: 1
   }
-  this.kills = 0
-  this.temp = this.addKills.bind(this)
-}
-
-Activate(){
-//  document.removeEventListener("mobdeath",this.temp)
-
-  document.addEventListener("mobdeath",this.temp)
-  this.addKills(false)
  
 }
-DeActivate(){
- 
-  document.removeEventListener("mobdeath",this.temp)
 }
-addKills(flag = true){
-  
-  if(flag)
- this.kills++
- const olddmg = this.stats.damage
- this.stats.damage =1 + 5 * this.kills
- steve.stats.damage += -olddmg + this.stats.damage
-}
-}
+
+
 
 classes.stonesword = class extends classes.tool{
   constructor(amount = 0){
@@ -740,7 +740,8 @@ classes.efficientaxe = class extends classes.tool{
       tool: "axe",
       
     }
-    this.description = "Gives 5 planks instead of Log when cutting tree" + br
+    this.description2 = 'Ability: WoodSaw'.color("yellow") +br +
+    "When cutting tree, get " + "5".color("yellow") + " Planks instead of "+ "1".color("yellow") + " Log" + br
   }
 }
 classes.zombiehat = class extends classes.item{
@@ -748,14 +749,28 @@ classes.zombiehat = class extends classes.item{
     super(amount)
     this.name = "zombiehat"
     this.type = "helmet"
+    this.set = "zombiehat"
     this.stats = {
       maxhealth: 20,
       defense: 15,
     }
     this.rarity = 1
-    this.description = "Gives "+ color("+20",getStatColor("defense")) + " defense for Each Undead Mob on Map"
+    this.temp = this.makeAbilityDescription.bind(this)
+  document.addEventListener("ToolTipStart",this.temp)
+    
+  }
+  makeAbilityDescription(){
+    let amount = 0
+    mobs.forEach(x=>{
+      if(x.mobtype == "undead")
+      amount++
+    })
+    this.description2 =  'Ability: One With Undead'.color("yellow") +br+"Gives " + makeStatSpan(20,"defense")+ "  per Undead Mob on Map" + br+
+    "Current Bonus: " + makeStatSpan(20 * amount,"defense")
+
   }
   Activate(){
+    
     mobs.forEach(x=>{
       if(x.mobtype == "undead")
       steve.stats.defense += 20
@@ -850,19 +865,7 @@ classes.brutezombie = class extends classes.mob{
     this.create()
     this.spawn()
   }
-  generateDrop() {
-    let drops = [];
-   const amount0 = Math.floor(randomAmount(5,100)* steve.getCombatFortune())
-   drops.push(
-     new classes['rottenflesh'](amount0)
-   );
-   addCollectionItem('rottenflesh',amount0)
-   const amount1 = Math.floor(randomAmount(1,40)* steve.getCombatFortune())
-   drops.push(
-     new classes['zombiefang'](amount1)
-   );
-    return drops;
-  }
+  
 }
 selectorblocks.push('netherrack')
 classes.netherrack = class extends classes.block{
@@ -891,20 +894,12 @@ constructor(amount = 0){
  this.name = 'sugarcane'
 this.tool='none'
 this.hardness='100'
-this.xp = 3
+this.xp = {
+  amount: 3,
+  type: "farming"
+}
 this.replacement = "air"
 }
-generateDrop(){
-  let drops = []
-  const amount0 = Math.floor( steve.getFarmingFortune())
-  drops.push(
-    new classes['sugarcane'](amount0)
-  );
-  addSkillXP("farming",this.xp)
-  addCollectionItem('sugarcane',amount0)
-  return drops
-}
-
 }
 
 classes.paper = class extends classes.item{
@@ -927,7 +922,7 @@ classes.enchantingbook = class extends classes.machine {
     this.name = "enchantingbook";
     this.machinetype = "enchantingbook"
     this.description = "Use It to Apply Enchanting Pastes"
-
+    this.rarity = 1
 
     this.inventory = {
       input: new classes.empty(),
@@ -946,15 +941,21 @@ classes.enchantingbook = class extends classes.machine {
   }
 
   doRecipeInternal() {
-    if(this.inventory.input2.name == "enchantingpaste" && this.inventory.input.name != "empty" && this.inventory.input.stats.tool != undefined)
+    console.log(this)
+    if(this.inventory.input2.name == "enchantingpaste" && this.inventory.input.name != "empty")
     {
+    
       if(steve.coins >=getEnchantCost(this.inventory.input2)){
         e.enchantingbookbutton.innerHTML = "Apply"
-        steve.addCoins(getEnchantCost(this.inventory.input2) * -1)
+       
         if(this.inventory.input.enchants == undefined) this.inventory.input.enchants = {}
+       
         for(const key in this.inventory.input2.enchants ){
-          if((!enchantsConflict(this.inventory.input,key) && Enchants[key].tool.match1word(this.inventory.input.stats.tool)) || this.inventory.input.name == "enchantingpaste")
+          console.log("passed", Enchants[key].tool.match1word(this.inventory.input.type))
+          if((!enchantsConflict(this.inventory.input,key) && (Enchants[key].tool.match1word(this.inventory.input.stats.tool) ||Enchants[key].tool.match1word(this.inventory.input.type) )) || this.inventory.input.name == "enchantingpaste")
           {
+        
+            steve.addCoins(getEnchantCost(this.inventory.input2) * -1)
             if(this.inventory.input.enchants[key] == this.inventory.input2.enchants[key])
             {
               if(Enchants[key].maxlvl > this.inventory.input.enchants[key])
@@ -1093,18 +1094,13 @@ constructor(amount = 0){
  this.name = 'cactus'
 this.tool='shears'
 this.hardness='500'
-this.xp=5
+this.xp={
+  amount:5,
+  type: "farming"
 }
-generateDrop(){
-  let drops = []
-const amount0 = Math.floor(randomAmount(3,100)* steve.getFarmingFortune())
-drops.push(
-  new classes['cactus'](amount0)
-);
-addCollectionItem('cactus',amount0)
- addSkillXP('farming',this.xp)  
-  return drops
+
 }
+
 
 }
 classes.dyegreen = class extends classes.item{
@@ -1144,7 +1140,7 @@ constructor(amount = 0){
  this.name = 'redstoneblock'
 this.tool='pickaxe'
 this.hardness='2000'
-this.xp=0
+
 }
 
 }
@@ -1237,7 +1233,7 @@ classes.wolfpaw = class extends classes.accessory{
      this.type = 'accessory'
      this.family = 'village'
      this.additionalspeed = 30
-     this.description2 = br +"Gives " + color("+"+this.additionalspeed,"white") + " Speed in Village"
+     this.description2 = "Ability: ".color("yellow") + br +"Gives " + makeStatSpan(this.additionalspeed,"speed")  + " in Village"
      this.tier = 1
      this.rarity = 1
      this.stats = {
@@ -1268,7 +1264,7 @@ classes.wolfpaw = class extends classes.accessory{
        super(amount)
        this.name = 'villagecharm'
        this.additionalspeed = 60
-       this.description2 = br +"Gives " + color("+"+this.additionalspeed,"white") + " Speed in Village"
+       this.description2 = "Ability: ".color("yellow") + br +"Gives " + makeStatSpan(this.additionalspeed,"speed")  + " in Village"
        this.tier = 2
        this.rarity = 2
        this.stats = {
@@ -1281,7 +1277,7 @@ classes.wolfpaw = class extends classes.accessory{
        super(amount)
        this.name = 'villageartifact'
        this.additionalspeed = 90
-       this.description2 = br +"Gives " + color("+"+this.additionalspeed,"white") + " Speed in Village"
+       this.description2 = "Ability: ".color("yellow") + br +"Gives " + makeStatSpan(this.additionalspeed,"speed")  + " in Village"
        this.tier = 3
        this.rarity = 3
        this.stats = {
@@ -1294,7 +1290,7 @@ classes.wolfpaw = class extends classes.accessory{
        super(amount)
        this.name = 'villagerelic'
        this.additionalspeed = 120
-       this.description2 = br +"Gives " + color("+"+this.additionalspeed,"white") + " Speed in Village"
+       this.description2 = "Ability: ".color("yellow") + br +"Gives " + makeStatSpan(this.additionalspeed,"speed")  + " in Village"
        this.tier = 4
        this.rarity = 5
        this.stats = {
@@ -1627,7 +1623,7 @@ classes.intimidationtalisman = class extends classes.accessory{
      intimidationlevel: 5,
      criticaldamage: 1,
    }
-   this.description = 'Monsters at or below level ' + this.stats.intimidationlevel.color("lime") +br + "will no longer target you" + br
+   this.description2 = "Ability: SCARY".color("yellow")+br+ 'Monsters at or below level ' + this.stats.intimidationlevel.color("lime") +br + "will no longer target you" + br
   
   }
 
@@ -1646,7 +1642,7 @@ classes.intimidationtalisman = class extends classes.accessory{
        intimidationlevel: 15,
        criticaldamage: 3,
      }
-     this.description = 'Monsters at or below level ' + this.stats.intimidationlevel.color("lime") +br + "will no longer target you" + br
+     this.description2 = "Ability: SCARY".color("yellow")+br+ 'Monsters at or below level ' + this.stats.intimidationlevel.color("lime") +br + "will no longer target you" + br
     
     }
   
@@ -1665,8 +1661,122 @@ classes.intimidationtalisman = class extends classes.accessory{
          intimidationlevel: 30,
          criticaldamage: 5,
        }
-       this.description = 'Monsters at or below level ' + this.stats.intimidationlevel.color("lime") +br + "will no longer target you" + br
+       this.description2 = "Ability: SCARY".color("yellow")+br+ 'Monsters at or below level ' + this.stats.intimidationlevel.color("lime") +br + "will no longer target you" + br
       
       }
     
       }
+classes.woodtoughrod = class extends classes.item{
+constructor(amount = 0){
+ super(amount)
+ this.name = 'woodtoughrod'
+ this.sellValue = 50
+}
+
+}
+classes.ironpickaxe = class extends classes.tool {
+  constructor(amount = 0) {
+    super(amount);
+    this.name = "ironpickaxe";
+    this.rarity = 1
+    this.stats = {
+      tooltier: 3,
+      tool: "pickaxe",
+      miningspeed: 500,
+      miningfortune: 50
+    };
+    this.sellValue = 500
+  }
+};
+classes.glitchedredstone = class extends classes.item{
+constructor(amount = 0){
+ super(amount)
+ this.name = 'glitchedredstone'
+this.rarity = 2
+}
+
+}
+
+classes.zombieheartline = class extends classes.armor{
+  constructor(amount = 0){
+    super(amount)
+    this.type= 'helmet'
+    this.set= "zombieheart"
+  }
+ 
+  makeAbilityDescription(){
+   
+    this.description2 =
+    'Ability: Healing Boost'.color("yellow") + br+
+     ("x" + (this.stats.healthmultiplier+1)).color(getStatColor("health")) +" ALL Healing" 
+// Healing Wands are +50% more effective. 
+   
+  }
+
+
+}
+classes.zombieheart = class extends classes.zombieheartline{
+  constructor(amount = 0){
+    super(amount)
+    this.name = "zombieheart"
+    this.rarity = 2
+    this.stats = {
+      maxhealth: 50,
+      healthmultiplier: 1
+    }
+    this.makeAbilityDescription()
+  }
+}
+classes.treetalisman = class extends classes.accessory{
+  constructor(amount = 0){
+    super(amount)
+    this.name = "treetalisman"
+    this.family = "forest"
+    this.rarity = 1
+    this.sellValue = 3000
+    this.stats = {
+      miningspeed: 50,
+      foragingfortune: 50
+
+    }
+     this.description2 = "Ability: ".color("yellow") + br + "Gives "+  makeStatSpan(40,"speed") + br+ " In Forest Biomes"
+  }
+  activate(){
+    super.activate()
+   if(isInForest()){
+     
+     steve.addStats({stats:{speed:40}})
+     
+    }
+   }
+   deactivate(){
+    super.deactivate()
+    if(isInForest()){
+      
+      steve.removeStats({stats:{speed:40}})
+      
+     }
+    }
+}
+classes.steeleafhandle = class extends classes.item{
+constructor(amount = 0){
+ super(amount)
+ this.name = 'steeleafhandle'
+ this.rarity = 1
+
+}
+
+}
+classes.ironaxe = class extends classes.tool {
+  constructor(amount = 0) {
+    super(amount);
+    this.name = "ironaxe";
+    this.stats = {
+      tool: "axe",
+      tooltier: 2,
+      miningspeed: 400,
+      foragingfortune: 80,
+    };
+    this.rarity = 1
+  }
+};

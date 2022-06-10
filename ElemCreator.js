@@ -36,7 +36,7 @@ function loadIDS() {
   
 }
 const codeAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"//abcdefghijklmnopqrstuvwxyz"]
- const keywords = ["helmet","leggings","chestplate","boots","charm","relic","talisman","artifact","fortune","planks"]
+ const keywords = ["helmet","leggings","chestplate","boots","charm","relic","talisman","artifact","fortune","planks","pickaxe","axe","sword"]
 // const keywords = /helmet|leggings|chestplate|boots|charm|relic|talisman|artifact/
 const texturefilter = ["empty", "item", "block", "stonetype"]
 const raritycolors = [
@@ -78,7 +78,7 @@ const Names = {
   stonepickaxe: "Stone Pickaxe",
   testItem: "Kekw",
   logoak: "Oak Wood Log",
-  planksoak: "Oak Wood Plank",
+  planksoak: "Oak Wood Planks",
   ironblock: "Block of Iron",
   ironingot: "Iron Ingot",
   smallbackpack: "Small Backpack",
@@ -91,6 +91,8 @@ const Names = {
   // leatherchestplate: "Leather Chestplate",
   // leatherboots: "Leather Boots",
   // leatherleggings: "Leather leggings",
+  steeleafhandle: "Steeleaf Handle",
+  woodtoughrod: "Hardened Wooden Stick",
   diamondsword: "Diamond Sword",
   ironsword: "Iron Sword",
   stonesword: "Stone Sword",
@@ -121,6 +123,7 @@ const Names = {
   foragingfortune: "Foraging Fortune",
   miningfortune: "Mining Fortune",
   maxhealth: "Health",
+  zombieheart: "Zombie Heart"
 }
 
 
@@ -159,7 +162,7 @@ let selectorblocks = [
   "dandelion",
 ]
 
-const hiddenstats = ["tool", "undeadbonus","totaldamage","naturalregeneration","totalDamageMultiplier","tooltier","health","zombiedefense","intimidationlevel"]
+const hiddenstats = ["tool", "undeadbonus","totaldamage","naturalregeneration","totalDamageMultiplier","tooltier","health","zombiedefense","intimidationlevel","healthmultiplier"]
 const armornames = [
   "ring1",
   "helmet",
@@ -208,9 +211,18 @@ Array.prototype.put = function (n, i) {
   return this
 }
 String.prototype.match1word = function (str) {
+  if(str == "") return true
+  if(!str) return false
+ 
   const s = str.split(" ")
+  const arr = this.split(" ")
   for (const key of s) {
-    if (this.includes(key)) return true
+    for(const key2 of arr){
+      if(key == key2) return true
+    }
+    //  if (this.includes(key)) return true
+    
+
   }
   return false
 }

@@ -36,6 +36,7 @@ class player {
       undeadbonus: 1,
       zombiedefense: 0,
       intimidationlevel: 0,
+      healthmultiplier: 1,
 
       range: 3,
       accessorybagslots: 9,
@@ -354,19 +355,19 @@ class player {
     }
   }
   addStats(item) {
-    if (item.stats != undefined) {
-      for (const key in item.stats) {
-        if (typeof this.stats[key] == "string") {
-          this.stats[key] = item.stats[key]
-        } else this.stats[key] += item.stats[key]
-        if (key == "speed") {
-          clearInterval(movetimer)
-          movetimer = setInterval(function () {
-            steve.move()
-          }, Math.ceil(200 / steve.getSpeed()))
-        }
-      }
-    }
+    // if (item.stats != undefined) {
+    //   for (const key in item.stats) {
+    //     if (typeof this.stats[key] == "string") {
+    //       this.stats[key] = item.stats[key]
+    //     } else this.stats[key] += item.stats[key]
+    //     if (key == "speed") {
+    //       clearInterval(movetimer)
+    //       movetimer = setInterval(function () {
+    //         steve.move()
+    //       }, Math.ceil(200 / steve.getSpeed()))
+    //     }
+    //   }
+    // }
   }
   addEnchants(item) {
     if (item.enchants != undefined) {
@@ -462,6 +463,15 @@ class player {
   getMiningSpeed() {
     return this.stats.miningspeed * (1 + (this.enchants.efficiency * 0.08 || 0))
   }
+  fortunes = {
+    combat : () => (this.stats.combatfortune + 100) / 100,
+    farming: () => (this.stats.farmingfortune + 100) / 100,
+    mining: () => (this.stats.miningfortune + 100) / 100,
+    foraging: () => (this.stats.foragingfortune + 100) / 100,
+    none: () => 1,
+  }
+
+
 
   isInRange(target) {
     return (
@@ -542,7 +552,7 @@ class player {
     if(isZombie(mobName))
     defense += this.stats.zombiedefense
     
-    return +(1 - defense / (defense + 100)).toFixed(2)
+    return +(1 - defense / (defense + 100)).toFixed(2) * (1 - (steve.enchants.protection >> 0) * 0.02)
   }
   damageMob(id) {
     if (this.isMobInRange(mobs[id]) && !isBlockBetween(this, mobs[id])) {
@@ -585,8 +595,8 @@ class player {
   }
   addHealth(amount) {
     this.stats.health =
-      this.stats.health + amount < this.stats.maxhealth
-        ? this.stats.health + amount
+      this.stats.health + amount*this.stats.healthmultiplier < this.stats.maxhealth
+        ? this.stats.health + amount*this.stats.healthmultiplier
         : this.stats.maxhealth
     this.updateheathbar()
   }
@@ -620,5 +630,22 @@ class player {
   }
   isSetActive(set){
     return (true && steve.sets[set] && steve.sets[set].isActivated) || false
+  }
+  getStat(key){
+    let amount = 0
+    amount += this.stats[key] >> 0
+   
+    for(const key2 in this.food){
+       amount += key2.stats[key] >> 0
+    }
+   
+    amount += this.itemInHand.stats[key] >> 0
+  
+    armornames.forEach(x => {
+      if(this[x].name != empty)
+      amount += this[x].stats[key] >> 0
+    })
+    return amount
+
   }
 }

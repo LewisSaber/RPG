@@ -1,5 +1,5 @@
 let currentmap
-let loaded = 0
+let isLoaded = 0
 let isMapModeOn
 let mobtospawn = ""
 let mobs = []
@@ -25,7 +25,7 @@ const maxCompactorSlots = 16
 /** How many packpacks Right Inventory Gui can have */
 const backPacksInGui = 24
 const SkillsDesc = "Skills"
-const CollectionsDesc = "Collections "
+const CollectionsDesc = "Collections"
 const AccesoryBagDesc =
   "Accessory Bag<br><br> " +
   color("ONLY 1", "red") +
@@ -54,6 +54,7 @@ function LOADING() {
     addKeysEvent()
     window.addEventListener("keyup", upButtonHandler)
     window.addEventListener("wheel", ScrollHandler)
+  
 
     //window.addEventListener("mousedown", test);
     buildAccountSelector()
@@ -104,12 +105,13 @@ function LOADING() {
 
     mapMode()
   }
-  loaded = 1
+  isLoaded = 1
   console.log("loaded")
 }
 function onBeforeUnload() {
   if (ShouldSaveOnLeave) {
     craftingTable.dumpTable()
+    if(itemInCursor!="none")
     dumbtoinventory([itemInCursor])
     savePlayer(session.nick)
     saveSession()
@@ -151,6 +153,7 @@ function downButtonHandler(evt) {
     }
   }
   if (evt.code == "KeyR" && !keys[6] && isGuiOpen) {
+
     findCraftingRecipes()
     if (RecipeGueue.length > 0) {
       if (itemInCursor == "none") {
@@ -188,6 +191,10 @@ function downButtonHandler(evt) {
   if (evt.code == "KeyM" && !keyStates.m) {
     steve.sortInventory()
     if (istooltip) e.tooltip.style.display = "none"
+  }
+  if(evt.code == "ShiftLeft" && !isShiftOn){
+    isShiftOn = true
+    document.dispatchEvent(new CustomEvent("shiftToolTip"))
   }
 
   switch (evt.code) {
@@ -279,6 +286,11 @@ function selectHotbarItem(i) {
   )
 }
 function upButtonHandler(evt) {
+
+  if(evt.code == "ShiftLeft" && isShiftOn){
+    isShiftOn = false
+    document.dispatchEvent(new CustomEvent("shiftToolTip"))
+  }
   switch (evt.code) {
     case "KeyW":
       keys[0] = 0
@@ -621,6 +633,10 @@ function RclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
           break
       }
     }
+  }else
+  {
+    downButtonHandler({code:"KeyU"})
+    upButtonHandler({code:"KeyU"})
   }
 }
 
@@ -1033,6 +1049,9 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
         }
       }
     }
+  }else{
+    downButtonHandler({code:"KeyR"})
+    upButtonHandler({code:"KeyR"})
   }
 }
 
@@ -1172,20 +1191,21 @@ function makeCollectionToolTip(item) {
       ) +
       br +
       color("Collection amount: ", "gray") +
-      color(steve.collectionitems[item], "green") +
+      color(steve.collectionitems[item].formateComas(), "green") +
       br +
       br +
       color("Rewards: ", "yellow") +
       br
-    const ca = getCollectionAmounts(item)
+   
 
-    for (const key in collections[item]) {
+    for (const key of collections[item]) {
+      
       e.tooltip.innerHTML +=
-        (steve.collectionlevels[item] < key
-          ? color(ca[key].formate(3, 1) + ": ", "lightgray") +
-            color(collections[item][key].message, "lightblue")
+        (steve.collectionitems[item] < key.amount
+          ? color(key.amount.formate(3, 1) + ": ", "lightgray") +
+            color(key.message, "lightblue")
           : color(
-              ca[key].formate(3, 1) + ": " + collections[item][key].message,
+            key.amount.formate(3, 1) + ": " + key.message,
               "lime"
             )) + br
     }
@@ -1221,6 +1241,7 @@ function getName(name) {
 function makeSteveToolTip() {
   if (itemInCursor == "none") {
     e.tooltip.className = "tooltipimg"
+    itemintooltip = "steve"
     istooltip = true
     //  e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
     e.tooltip.style.display = "block"
@@ -1232,7 +1253,7 @@ function makeSteveToolTip() {
       makestats(steve, "") +
       br +
       "Total kills: " +
-      steve.kills.color("red") +
+      (steve.kills + "💀").color("red") +
       br +
       "Playtime: " +
       playerAgeString() +
@@ -1241,11 +1262,13 @@ function makeSteveToolTip() {
 }
 
 function makeToolTip(item, sellValue = true) {
+  document.toolTipText = ""
   if (itemInCursor == "none") {
     if (item.name == "empty" || item.name == "machine") {
       e.tooltip.style.display = "none"
       itemintooltip = "none"
     } else {
+      document.toolTipText = ""
       itemintooltip = item.name //used in recipe search
       e.tooltip.className = "tooltipimg"
       istooltip = true
@@ -1279,8 +1302,8 @@ function makeToolTip(item, sellValue = true) {
         (item.sellValue != undefined && sellValue
           ? "Sell Value: " +
             (
-              item.sellValue *
-                (session.settings.fullStackPrice ? item.amount : 1) +
+              (item.sellValue *
+                (session.settings.fullStackPrice ? item.amount : 1)).formateComas() +
               " Coins"
             ).color("yellow") +
             br
@@ -1540,7 +1563,7 @@ function openMachineGui(machine, id = 0) {
         amount.setAttribute("class", "itemamount")
 
         // tag.setAttribute("oncontextmenu", "RclickOnSlot(" + i + "); return false")
-        console.log(x)
+       
         tag.setAttribute(
           "onmouseenter",
           "makePriceToolTip(villagerTrades['" +
@@ -1691,7 +1714,8 @@ function ScrollHandler(evt) {
   //deltay == 100 scrolldown
 }
 function give(item, amount = 1) {
-  steve.addToInventory(new classes[item](amount))
+  dumbtoinventory([new classes[item](amount)])
+  
 }
 function clearMobs() {
   for (let i = 0; i < mobs.length; i++) {
@@ -1828,6 +1852,18 @@ function randomAmount(amount, chance = 100) {
   }
   return 0
 }
+function randomItem(min,max,chance){
+if(random1000(chance)){
+return randomNumber(min,max+1)
+
+}
+
+
+}
+
+function random1000(chance){
+  return Math.floor(Math.random() * 1000 + 1)<= chance*10
+}
 function getEnchantCost(item) {
   let cost = 0
   for (const key in item.enchants) {
@@ -1855,8 +1891,17 @@ function getStatColor(stat) {
       return "#1373bd"
     case "accessorybagslots":
       return "lightblue"
+    case "miningfortune":
+      return '#03fcc2'
+    case "farmingfortune":
+      return "#02d6a5"
+    case "combatfortune":
+      return "#02c799"
+    case "foragingfortune":
+      return "#059e7a"
     default:
       return "#ffd000"
+
   }
 }
 function getEnchantDescription(enchant, lvl) {
@@ -1869,50 +1914,98 @@ function getEnchantDescription(enchant, lvl) {
       return "You mine " + 8 * lvl + "% faster"
     case "smeltingtouch":
       return "Automatically Smelt Blocks When Mining"
-
+    case "protection":
+      return "You get " + 2*lvl + "% less damage"
     default:
       return ""
   }
 }
+
 function makeTextToolTip(text) {
+  
+ 
+
   if (itemInCursor == "none") {
-    itemintooltip = "text"
+    if(typeof text != "string") 
+    {
+      text = document.toolTipText
+   
+    }
+    document.removeEventListener("shiftToolTip",inner)
+    document.addEventListener("shiftToolTip",inner)
+    
+    document.toolTipText = text
+   
     e.tooltip.className = "tooltipimg"
-    istooltip = true
+    if(!istooltip)
     e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
+    istooltip = true
+    itemintooltip = text
     e.tooltip.style.display = "block"
-    e.tooltip.innerHTML = text
-    if (text == "Skills") {
-      e.tooltip.innerHTML += br + "Levels: " + br
-      for (const key in skillnames) {
-        e.tooltip.innerHTML +=
-          skillnames[key] +
-          ": " +
-          color(steve.skilllevels[key], "yellow") +
-          " (" +
-          (
-            (steve.skillxp[key] / skilllevelxp[steve.skilllevels[key]]) *
-            100
-          ).toFixed(0) +
-          "%)" +
-          br
+    
+    function inner(){
+      
+      if(document.toolTipText == text)
+      {
+        e.tooltip.innerHTML = text
+      
+      if (text == "Skills") {
+        e.tooltip.innerHTML += br + (isShiftOn? "XP: " : "Levels: ") + br
+        for (const key in skillnames) {
+          e.tooltip.innerHTML +=
+            skillnames[key] +
+            ": " +
+            (isShiftOn ?
+              (steve.skillxp[key]+"/"+skilllevelxp[steve.skilllevels[key]]).color("yellow") 
+              :
+              color(steve.skilllevels[key], "yellow")  
+              )
+            +
+            " (" +
+            (
+              (steve.skillxp[key] / skilllevelxp[steve.skilllevels[key]]) *
+              100
+            ).toFixed(0) +
+            "%)" +
+            br
+        }
+      }
+      if (text.includes("Accessory")) {
+        let iter = 0
+        e.tooltip.innerHTML += br + "Currently Stores: " + br
+        steve.accessorybag.inventory.forEach((x, i) => {
+          if (x.name != "empty") {
+            e.tooltip.innerHTML +=
+              color(getName(x.name), raritycolors[x.rarity]) + ",  "
+            iter++
+            if (iter % 3 == 2) e.tooltip.innerHTML += br
+          }
+        })
+        if (iter == 0) e.tooltip.innerHTML = text
+  
+        e.tooltip.innerHTML += br + br + br
+      }
+      if(text == "Collections"){
+        e.tooltip.innerHTML = "Collections".color("green") + br+br
+        for(const key in collections){
+          e.tooltip.innerHTML +=  getName(key) + ": " + steve.collectionitems[key].formateComas().color("yellow") 
+          if(isShiftOn)
+          if(collections[key][steve.collectionlevels[key]] == undefined){
+            e.tooltip.innerHTML += " (MAXED)".color("green")
+          }else
+          {
+            e.tooltip.innerHTML += " (" + (steve.collectionitems[key]/collections[key][steve.collectionlevels[key]].amount * 100 >> 0) + "%)"
+          }
+          e.tooltip.innerHTML += br
+  
+  
+  
+  
+        }
       }
     }
-    if (text.includes("Accessory")) {
-      let iter = 0
-      e.tooltip.innerHTML += br + "Currently Stores: " + br
-      steve.accessorybag.inventory.forEach((x, i) => {
-        if (x.name != "empty") {
-          e.tooltip.innerHTML +=
-            color(getName(x.name), raritycolors[x.rarity]) + ",  "
-          iter++
-          if (iter % 3 == 2) e.tooltip.innerHTML += br
-        }
-      })
-      if (iter == 0) e.tooltip.innerHTML = text
-
-      e.tooltip.innerHTML += br + br + br
     }
+    inner()
   }
 }
 
@@ -1972,8 +2065,8 @@ function enchantsConflict(item, enchantToAdd) {
   }
   return false
 }
-
-const harvestingTools = "pick axe"
+const armor = "helmet chestplate leggins boots"
+const harvestingTools = "pickaxe axe"
 const combatTools = "sword"
 
 Enchants = {
@@ -2001,6 +2094,13 @@ Enchants = {
     cost: 100,
     conflict: "",
   },
+   protection : {
+    maxlvl : 5,
+    tool : armor,
+    cost : 100,
+   conflict: ''
+   },
+  
 }
 
 function givepaste(enchant, lvl = 5) {
@@ -2051,7 +2151,7 @@ function loadSession() {
   e.shopPriceCheckBox.checked = session.settings.fullStackPrice
   setFont(session.settings.font)
   setToolTipFontSize(session.settings.toolTipFontSize)
-
+ 
   e.body.style.backgroundColor = session.settings.bodycolor
 }
 
@@ -2331,9 +2431,9 @@ function playerAgeString() {
   date.minutes -= date.hours * 60
   date.hours -= date.days * 24
   return (
-    (date.days > 0 ? date.days.color("#069c03") + " Days " : "") +
+    (date.days > 0 ? date.days.color("#069c03") + " Day"+ isS(date.days) + " " : "") +
     (date.hours > 0 || date.days > 0
-      ? date.hours.color("#069c03") + " Hours "
+      ? date.hours.color("#069c03") + " Hour" + isS(date.hours) + " "
       : "") +
     (date.days > 0 ? "" : date.minutes.color("#069c03") + " Minutes ") +
     (date.hours > 0 || date.days > 0
@@ -2349,13 +2449,14 @@ function setVolume(volume) {
 
 function sellItem(item) {
   if (item.sellValue) {
-    const cost = item.sellValue * item.amount
+    const cost = item.sellValue * item.amount * 1.5
     steve.addCoins(cost)
     steve.sellHistory.push({
       item: item,
       price: cost,
     })
     item = new classes.empty()
+    e.sellHistory.style.display = "block"
     e.sellHistorySlot.className =
       "guiSlot " + steve.sellHistory[steve.sellHistory.length - 1].item.name
   }
@@ -2413,6 +2514,10 @@ function isInVillage() {
 function isZombie(mobName) {
   return /zombie/.test(mobName)
 }
+function isInForest(){
+  return /forest/.test(currentBiome)
+}
+
 const staticons = {
   defense: "❈",
   speed: "✦",
@@ -2422,6 +2527,14 @@ const staticons = {
   damage: "❁",
   criticalchance: "☣",
   criticaldamage: "☠",
+  accessorybagslots: "🎒",
+  range: "➚",
+  miningspeed: "⸕",
+  miningfortune: "☘",
+  farmingfortune: "☘",
+  combatfortune: "☘",
+  foragingfortune: "☘",
+  
 }
 function getStatIcon(statname) {
   let icon = staticons[statname] || ""
@@ -2464,6 +2577,7 @@ function setToolTipFontSize(value) {
 }
 function leaveElement() {
   itemintooltip = "none"
+  document.toolTipText = ""
   setTimeout(function () {
     if (istooltip && itemintooltip == "none") e.tooltip.style.display = "none"
   }, 200)
@@ -2489,3 +2603,27 @@ function compareObjects(item, tag) {
   }
   return state
 }
+function notification(text,color = "red"){
+  if(isLoaded)
+  {
+    
+  let tag =document.createElement("div")
+  tag.style.textAlign = "center"
+  tag.className = "notification"
+  tag.innerHTML = br
+  text.forEach(x=>{
+    tag.innerHTML += x + br
+  })
+  tag.innerHTML += br
+  e.notificationbar.appendChild(tag)
+  setTimeout(function(element){
+    element.className = "notification slideright"
+    setTimeout(function(tag){
+      tag.remove()
+    },2000,element)
+  },10000,tag)
+
+}
+}
+
+const isS = (amount) => amount == 1? "" : "s"

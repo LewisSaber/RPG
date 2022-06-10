@@ -46,71 +46,115 @@ const RomanNumbers = [
 
 // const collections = ["cobblestone","logoak","rottenflesh","sugarcane","cactus","coal","ironingot","leather"]
 const collections = {
-  leather: {
-    2: {
+  leather: [
+     {
       message: "Small Backpack Recipe",
       reward:
         'addShapedRecipe(["leather","leather","leather","leather","ironingot","leather","leather","leather","leather"],"smallbackpack",1,[2,2,2,2,4,2,2,2,2])',
+      amount: 50,
+      
+      
     },
-  },
-  cobblestone: {
-    1: {
+  ],
+  cobblestone: [
+    {
       message: "Stone Tools Recipes",
       reward:
-        "addShapedRecipe(['cobblestone', 'cobblestone', 'cobblestone', 'empty', 'stick', 'empty', 'empty', 'stick', 'empty'],'stonepickaxe')",
+        "addShapedRecipe(['cobblestone', 'cobblestone', 'cobblestone', 'empty', 'woodtoughrod', 'empty', 'empty', 'woodtoughrod', 'empty'],'stonepickaxe'); addShapedRecipe(['cobblestone', 'cobblestone',  'empty', 'cobblestone','woodtoughrod', 'empty', 'empty', 'woodtoughrod', 'empty'],'stoneaxe');addShapedRecipe([empty, 'cobblestone', empty, 'empty', 'cobblestone', 'empty', 'empty', 'woodtoughrod', 'empty'],'stonesword');",
+        amount: 10
     },
-    2: {
+   {
       message: "Stone Furnace Recipe",
       reward:
         "addShapedRecipe(['cobblestone','cobblestone','cobblestone','cobblestone','empty','cobblestone','cobblestone','cobblestone','cobblestone'],'furnace',1,[].set(16, 9).put(1, 4))",
+      amount: 200
     },
-  },
-  rottenflesh: {
-    1: {
+  ],
+  rottenflesh: [
+     {
       message: "Undead Sword Recipe",
       reward:
         "addShapedRecipe(['empty', 'rottenflesh', 'empty', 'empty', 'rottenflesh', 'empty', 'ironingot', 'stick', 'ironingot'],'undeadsword')",
+        amount:32
     },
-    2: {
+    {
       message: "Zombie Hat Recipe",
       reward:
         "addShapedRecipe(['zombiefang','rottenflesh','zombiefang','rottenflesh','ironhelmet','rottenflesh'],'zombiehat',1,[2,16,2,16,1,16,0,0,0])",
+      amount:256
     },
-  },
-  logoak: {
-    2: {
+    {
+      message: "Glitched Rotten Flesh Recipe",
+      reward: "addGlitchRecipe('rottenflesh')",
+      amount: 512
+    },
+    {
+      message: "Zombie Heart Recipe",
+      reward: "addShapedRecipe(['glitchedrottenflesh','glitchedrottenflesh','glitchedrottenflesh','glitchedrottenflesh','zombiehat','glitchedrottenflesh','glitchedrottenflesh','glitchedrottenflesh','glitchedrottenflesh'],'zombieheart',1,[8,8,8,8,0,8,8,8,8])",
+      amount: 1500
+    }
+
+  ],
+  logoak: [
+    
+     {
       message: "Efficient Axe Recipe",
       reward:
-        "addShapedRecipe(['logoak', 'logoak', 'planksoak', 'logoak', 'stick', 'empty', 'empty', 'ironingot', 'empty'],'efficientaxe',1,[16,16,16,16,8,0,0,4,0])",
+        "addShapedRecipe(['logoak', 'logoak', 'planksoak', 'logoak', 'woodtoughrod', 'empty', 'empty', 'ironingot', 'empty'],'efficientaxe',1,[16,16,16,16,8,0,0,4,0])",
+        amount: 32,
     },
-  },
-  sugarcane: {
-    2: {
+    {
+      message: "Steeleaf Handle Recipe",
+      reward: "addShapedRecipe([empty,'steeleaf','ironingot','steeleaf', 'woodtoughrod' ,'steeleaf','ironingot',  'steeleaf',empty],'steeleafhandle')",
+      amount:128
+    }
+  
+  ],
+  sugarcane: [
+    {
       message: "Paper Recipe",
       reward:
-        'addShapelessRecipe(["sugarcane","sugarcane","sugarcane"],"paper",3)',
+        'addShapedRecipe(["sugarcane","sugarcane","sugarcane"],"paper",3)',
+      amount: 32
     },
-  },
-  cactus: {
-    2: {
+    {
+      
+      message: "Enchanting Book Recipe",
+      reward: 'addShapedRecipe([empty,"glitchedredstone",empty,"string","book","string"],"enchantingbook",1,[0,2,0,32,1,32])',
+      amount: 256
+    }
+  ],
+  cactus: [
+     {
       message: "Green Dye Recipe",
       reward: 'addFurnaceRecipe("cactus","dyegreen",60)',
+      amount: 16
     },
-  },
-  coal: {
-    2: {
+  ],
+  coal: [
+    {
       message: "Smelting Touch Enchanting Paste",
       reward:
         'addShapedRecipe(["coal","paper","coal","paper","ironblock","paper","coal","paper","coal"],"enchantingpaste",1,[].set(16,9).put(4,4),{enchants : {smeltingtouch:1}})',
+        amount: 32,
     },
-  },
-  ironingot: {
-    2: {
+  ],
+   
+  ironingot: [
+    {
       message: "Glitch Compactor 3000 Recipe",
       reward:
         'addShapedRecipe(["ironingot","dyegreen","ironingot","dyegreen",empty,"dyegreen","ironingot","dyegreen","ironingot"],"greenbox",1,[].set(4,9).put(1,4)); addShapedRecipe(["redstone","ironblock","redstone","redstoneblock","greenbox","redstoneblock","redstone","ironblock","redstone"],"glitchcompactor")',
+        amount: 128,
     },
-  },
+  ],
+  redstone: [
+    {
+      message: "Glitched Redstone Recipe",
+      reward: "addGlitchRecipe('redstone')",
+      amount: 512
+    }
+  ]
 }
 
 function levelUpSkill(skill) {
@@ -119,10 +163,11 @@ function levelUpSkill(skill) {
     e["skilllevel" + skill].innerText = RomanNumerals.toRoman(
       steve.skilllevels[skill]
     )
-    if (loaded) {
+    if (isLoaded) {
       steve.addCoins((steve.skilllevels[skill] * 100) >> 0)
       updateSkillXp(skill)
-      recalculateStats()
+    
+     // recalculateStats()
     }
     giveSkillReward(skill, steve.skilllevels[skill])
     changeSkillBar(skill)
@@ -147,6 +192,9 @@ function updateSkillXp(skill) {
     "/" +
     skilllevelxp[steve.skilllevels[skill]].formate(5)
 }
+
+
+
 
 function addSkillXP(skill, a) {
   steve.skillxp[skill] += a
@@ -226,34 +274,38 @@ function giveSkillReward(skill, lvl, l = 0) {
 }
 
 function addCollectionItem(item, amount) {
-  steve.collectionitems[item] += amount
-  levelUpCollection(item)
-}
-function getCollectionAmounts(item) {
-  switch (item) {
-    case "G":
-      break
+  if(steve.collectionitems[item] != undefined)
+  {
+    steve.collectionitems[item] += amount
+    levelUpCollection(item)
 
-    default:
-      return [0, 5, 50, 100, 2000, 5000]
   }
 }
 
+
 function levelUpCollection(item) {
   if (
+    collections[item][steve.collectionlevels[item]] &&
     steve.collectionitems[item] >=
-    getCollectionAmounts(item)[steve.collectionlevels[item] + 1]
-  ) {
-    steve.collectionlevels[item]++
-    giveCollectionReward(item, steve.collectionlevels[item])
-
+    collections[item][steve.collectionlevels[item]].amount
+  
+    ) {
+      giveCollectionReward(item, steve.collectionlevels[item])
+      steve.collectionlevels[item]++
+    
     return true
   }
   return false
 }
 
 function giveCollectionReward(item, lvl) {
-  if (collections[item][lvl] != undefined) eval(collections[item][lvl].reward)
+  if (collections[item][lvl] != undefined){
+    eval(collections[item][lvl].reward)
+   
+    // notification([getName(item)+ " Collection", "Level UP!","Reward",collections[item][lvl].message])
+
+  } 
+    
 
   // switch (item) {
   //   case "cobblestone":

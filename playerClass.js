@@ -340,19 +340,19 @@ class player {
     this.addEnchants(item1)
   }
   removeStats(item) {
-    if (item.stats != undefined) {
-      for (const key in item.stats) {
-        if (typeof this.stats[key] == "string") {
-          this.stats[key] = "none"
-        } else this.stats[key] -= item.stats[key]
-        if (key == "speed") {
-          clearInterval(movetimer)
-          movetimer = setInterval(function () {
-            steve.move()
-          }, Math.ceil(200 / steve.getSpeed()))
-        }
-      }
-    }
+    // if (item.stats != undefined) {
+    //   for (const key in item.stats) {
+    //     if (typeof this.stats[key] == "string") {
+    //       this.stats[key] = "none"
+    //     } else this.stats[key] -= item.stats[key]
+    //     if (key == "speed") {
+    //       clearInterval(movetimer)
+    //       movetimer = setInterval(function () {
+    //         steve.move()
+    //       }, Math.ceil(200 / steve.getSpeed()))
+    //     }
+    //   }
+    // }
   }
   addStats(item) {
     // if (item.stats != undefined) {
@@ -642,9 +642,20 @@ class player {
     amount += this.itemInHand.stats[key] >> 0
   
     armornames.forEach(x => {
-      if(this[x].name != empty)
+     
       amount += this[x].stats[key] >> 0
+      amount += this[x].additionalstats[key] >> 0
     })
+for(let i = 0; i < this.accessorybag.inventory.length; i++){
+    if(this.accessorybag.inventory[i].name == empty) i = 10000
+    else
+    if(this.accessorybag.inventory[i].wasActivated)
+    {
+      amount += this.accessorybag.inventory[i].stats[key] >> 0
+      amount += this.accessorybag.inventory[i].additionalstats[key] >> 0
+    }
+}
+
     return amount
 
   }

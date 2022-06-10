@@ -55,8 +55,8 @@ classes.block = class extends classes.empty {
     if(LootTable[this.name])
     {
       for (const key of LootTable[this.name]) {
-        console.log(key)
-        if (steve.stats.tool.match1word(key.tool)) {
+      
+        if (steve.statstool.match1word(key.tool)) {
         
           let name = key.item
           if ((key.smeltsInto != "none" && steve.enchants.smeltingtouch))
@@ -327,12 +327,12 @@ classes.consumable = class extends classes.empty {
     }
   }
   removeStats() {
-    for (const key in this.addedstats) {
-      if (key != "health") {
-        steve.stats[key] -= this.addedstats[key]
-        steve.foodstats[key] -= this.addedstats[key]
-      }
-    }
+    // for (const key in this.addedstats) {
+    //   if (key != "health") {
+    //     steve.stats[key] -= this.addedstats[key]
+    //     steve.foodstats[key] -= this.addedstats[key]
+    //   }
+    // }
   }
   addStats() {
     for (const key in this.addedstats) {

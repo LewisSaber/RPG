@@ -1334,7 +1334,9 @@ function breakblock(block) {
   keys[5] = 1
   let clickX = (+block.style.left.slice(0, -2) / 5) >> 0
   let clickY = (+block.style.top.slice(0, -2) / 5) >> 0
+ 
   if (clickX < mapW && clickY < mapH) {
+ 
     if (
       classes[
         currentmap[clickY][clickX][
@@ -1342,6 +1344,7 @@ function breakblock(block) {
         ]
       ] != undefined
     ) {
+     
       currentblock["block"] = new classes[
         currentmap[clickY][clickX][
           currentmap[clickY][clickX][0] == "air" ? 1 : 0
@@ -1351,13 +1354,15 @@ function breakblock(block) {
       currentblock["x"] = clickX
       currentblock["y"] = clickY
       currentblock["layer"] = currentmap[clickY][clickX][0] == "air" ? 1 : 0
-
+     
       if (currentblock.block.isBreakable && steve.isInRange(currentblock)) {
+        console.log(currentblock.block.tier)
         if (
           currentblock.block.tier <= steve.stats.tooltier &&
           (!currentblock.block.restrictTool ||
             steve.stats.tool.match1word(currentblock.block.tool))
         ) {
+        
           if (breaktimer == 0) {
             if (steve.getMiningSpeed() >= currentblock.block.hardness) {
               steve.breakblock(currentblock)

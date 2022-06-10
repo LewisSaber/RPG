@@ -204,8 +204,9 @@ function addSkillXP(skill, a) {
 function giveSkillReward(skill, lvl, l = 0) {
   switch (skill) {
     case "combat":
-      steve.stats.totalDamageMultiplier += 0.04
-      steve.stats.combatfortune += 5
+      steve.skillstats.totalDamageMultiplier +=  0.04
+      
+      steve.skillstats.combatfortune += 5
       switch (lvl) {
         case 2:
           if (l == 0) {
@@ -266,7 +267,7 @@ function giveSkillReward(skill, lvl, l = 0) {
       break
 
     case "mining":
-      steve.stats.miningfortune += 10
+      steve.skillstats.miningfortune += 10
       break
     default:
       break

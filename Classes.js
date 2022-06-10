@@ -161,7 +161,7 @@ classes.woodaxe = class extends classes.tool {
     super(amount)
     this.name = "woodaxe"
     this.sellValue = 50
-    this.tool = "axe"
+    this.type = "axe"
     this.tier = 0
     this.stats = {
      
@@ -173,7 +173,7 @@ classes.stoneaxe = class extends classes.tool {
   constructor(amount = 0) {
     super(amount)
     this.name = "stoneaxe"
-    this.tool = "axe"
+    this.type = "axe"
     this.tier = 1
     this.stats = {
       miningspeed: 200,
@@ -277,7 +277,7 @@ classes.shears = class extends classes.tool {
     this.name = "shears"
     this.rarity = 1
     this.tier = 1,
-    this.tool = "shears",
+    this.type = "shears",
     this.stats = {
       miningspeed: 500,
     }
@@ -289,7 +289,7 @@ classes.stonepickaxe = class extends classes.tool {
     super(amount)
     this.name = "stonepickaxe"
     this.rarity = 1
-    this.tool = "pickaxe"
+    this.type = "pickaxe"
     this.tier = 1
     this.stats = {
      
@@ -459,8 +459,9 @@ classes.woodsword = class extends classes.tool {
     this.sellValue = 50
     this.stats = {
       damage: 20,
-      tool: "sword",
+    
     }
+    this.type = "sword"
   }
 }
 classes.cow = class extends classes.mob {
@@ -581,6 +582,7 @@ classes.charcoal = class extends classes.item {
 classes.armor = class extends classes.empty {
   constructor(amount = 0) {
     super(amount)
+   this.wasActivated = false
   }
   checkSetParts(amount) {
     if (steve.helmet.set == this.set) amount--
@@ -599,9 +601,12 @@ classes.armor = class extends classes.empty {
   }
   Activate() {
     steve.addSet(this)
+    this.wasActivated = true
   }
   DeActivate() {
+   
     steve.removeSet(this)
+    this.wasActivated = false
   }
 }
 
@@ -649,8 +654,9 @@ classes.stonesword = class extends classes.tool {
     this.name = "stonesword"
     this.stats = {
       damage: 25,
-      tool: "sword",
+     
     }
+    this.type = "sword"
   }
 }
 classes.ironsword = class extends classes.tool {
@@ -659,8 +665,9 @@ classes.ironsword = class extends classes.tool {
     this.name = "ironsword"
     this.stats = {
       damage: 30,
-      tool: "sword",
+     
     }
+    this.type = "sword"
   }
 }
 classes.diamondsword = class extends classes.tool {
@@ -669,9 +676,10 @@ classes.diamondsword = class extends classes.tool {
     this.name = "diamondsword"
     this.stats = {
       damage: 35,
-      tool: "sword",
+     
     }
     this.rarity = 1
+    this.type = "sword"
   }
 }
 classes.undeadsword = class extends classes.tool {
@@ -680,9 +688,10 @@ classes.undeadsword = class extends classes.tool {
     this.name = "undeadsword"
     this.stats = {
       damage: 30,
-      tool: "sword",
+     
       undeadbonus: 1,
     }
+    this.type = "sword"
     this.description =
       br + "Deals " + color("+100%", "lime") + " damage to Undead Mobs" + br
   }
@@ -693,8 +702,9 @@ classes.efficientaxe = class extends classes.tool {
     this.name = "efficientaxe"
     this.stats = {
       miningspeed: 200,
-      tool: "axe",
+     
     }
+    this.type = "axe"
     this.description2 =
       "Ability: WoodSaw".color("yellow") +
       br +
@@ -721,10 +731,7 @@ classes.zombiehat = class extends classes.item {
     document.addEventListener("ToolTipStart", this.temp)
   }
   makeAbilityDescription() {
-    let amount = 0
-    mobs.forEach((x) => {
-      if (x.mobtype == "undead") amount++
-    })
+   
     this.description2 =
       "Ability: One With Undead".color("yellow") +
       br +
@@ -733,17 +740,16 @@ classes.zombiehat = class extends classes.item {
       "  per Undead Mob on Map" +
       br +
       "Current Bonus: " +
-      makeStatSpan(20 * amount, "defense")
+      makeStatSpan(this.additionalstats.defense>>0, "defense")
   }
   Activate() {
     mobs.forEach((x) => {
-      if (x.mobtype == "undead") steve.stats.defense += 20
+      if (x.mobtype == "undead")  this.additionalstats.defense = 20 +  (this.additionalstats.defense>>0)
     })
   }
   DeActivate() {
-    mobs.forEach((x) => {
-      if (x.mobtype == "undead") steve.stats.defense -= 20
-    })
+    this.additionalstats = { }
+   
   }
 }
 classes.zombiefang = class extends classes.item {
@@ -906,14 +912,10 @@ classes.enchantingbook = class extends classes.machine {
           this.inventory.input.enchants = {}
 
         for (const key in this.inventory.input2.enchants) {
-          console.log(
-            "passed",
-            Enchants[key].tool.match1word(this.inventory.input.type)
-          )
+        
           if (
             (!enchantsConflict(this.inventory.input, key) &&
-              (Enchants[key].tool.match1word(this.inventory.input.stats.tool) ||
-                Enchants[key].tool.match1word(this.inventory.input.type))) ||
+              Enchants[key].tool.match1word(this.inventory.input.type) ) ||
             this.inventory.input.name == "enchantingpaste"
           ) {
             steve.addCoins(getEnchantCost(this.inventory.input2) * -1)
@@ -1178,13 +1180,14 @@ classes.villagetalisman = class extends classes.accessory {
   activate() {
     super.activate()
     if (isInVillage()) {
-      steve.addStats({ stats: { speed: this.additionalspeed } })
+     this.additionalstats.speed = this.additionalspeed
     }
   }
   deactivate() {
     super.deactivate()
     if (isInVillage()) {
-      steve.removeStats({ stats: { speed: this.additionalspeed } })
+      this.additionalstats.speed = 0
+    
     }
   }
 }
@@ -1436,7 +1439,7 @@ classes.revenantset = class extends classes.armor {
       br +
       "Kill Zombies to accumulate<br> defense against them.<br>" +
       "Piece Bonus: " +
-      makeStatSpan(this.stats.zombiedefense, "defense") +
+      makeStatSpan(this.additionalstats.zombiedefense >> 0, "defense") +
       br +
       "Next Upgrade: " +
       makeStatSpan(slayerArmorMilestonesDefense[this.lvl + 1], "defense") +
@@ -1450,9 +1453,8 @@ classes.revenantset = class extends classes.armor {
     while (slayerArmorMilestones[this.lvl + 1] <= this.kills) {
       this.lvl++
 
-      steve.stats.zombiedefense -= this.stats.zombiedefense
-      this.stats.zombiedefense = slayerArmorMilestonesDefense[this.lvl]
-      steve.stats.zombiedefense += this.stats.zombiedefense
+      this.additionalstats.zombiedefense = slayerArmorMilestonesDefense[this.lvl]
+     
     }
   }
 
@@ -1463,7 +1465,7 @@ classes.revenantset = class extends classes.armor {
 
     if (steve.sets.revenant.amount == 3) {
       steve.sets.revenant.isActivated = true
-      steve.stats.zombiedefense += 100
+      // steve.stats.zombiedefense += 100
     }
   }
   DeActivate() {
@@ -1471,11 +1473,10 @@ classes.revenantset = class extends classes.armor {
     document.removeEventListener("mobdeath", this.temp)
 
     if (
-      steve.sets.revenant.amount <= 3 &&
-      steve.sets.revenant.isActivated == true
+      steve.sets.revenant.amount <= 3 
     ) {
       steve.sets.revenant.isActivated = false
-      steve.stats.zombiedefense -= 100
+      
     }
   }
   addKills(evt) {
@@ -1630,7 +1631,7 @@ classes.ironpickaxe = class extends classes.tool {
     this.name = "ironpickaxe"
     this.rarity = 1
     this.tier = 3
-    this.tool = "pickaxe"
+    this.type = "pickaxe"
     this.stats = {
       miningspeed: 500,
       miningfortune: 50,
@@ -1716,7 +1717,7 @@ classes.ironaxe = class extends classes.tool {
   constructor(amount = 0) {
     super(amount)
     this.name = "ironaxe"
-    this.tool = "axe"
+    this.type = "axe"
     this.tier = 2
     this.stats = {
      

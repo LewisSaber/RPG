@@ -276,7 +276,6 @@ function toggleNei() {
 }
 function selectHotbarItem(i) {
   selectedItem = steve.inventory[i]
-  steve.equipItem(selectedItem)
   steve.itemInHand = selectedItem
   e.playertool.className = selectedItem.name
   putItemInslot(
@@ -843,8 +842,7 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
           break
       }
       if (armornames.includes(type)) {
-        steve.removeStats(steve[type])
-        steve.removeEnchants(steve[type])
+     
         if (steve[type].DeActivate != undefined) steve[type].DeActivate()
         steve[type] = putInCursorFull(steve[type], e.armorgui[type])
         e.armorgui[type].className = "guiSlot " + type + "gui"
@@ -1041,7 +1039,7 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
             itemInCursor.type == type ||
             itemInCursor.type == type.slice(0, -1)
           ) {
-            steve.equipItem(itemInCursor, steve[type])
+           
 
             steve[type] = PutInSlotFull(steve[type], e.armorgui[type])
             if (steve[type].Activate != undefined) steve[type].Activate()
@@ -1315,12 +1313,8 @@ function makeToolTip(item, sellValue = true) {
           " " +
           raritynames[item.rarity] +
           " " +
-          (item.type == "none" ? "" : item.type) +
-          (item.stats == undefined || item.stats.tool == undefined
-            ? ""
-            : item.stats.tool == "none"
-            ? ""
-            : item.stats.tool)
+          (item.type == "none" ? "" : item.type) 
+         
         )
           .toUpperCase()
           .color(raritycolors[item.rarity], 1800)
@@ -1400,9 +1394,7 @@ function loadPlayer(Nick) {
           }
         } else if (armornames.includes(key1)) {
           steve[key1] = loadInventoryItem(pl[key1])
-          steve.addStats(steve[key1])
-          steve.addEnchants(steve[key1])
-          if (steve[key1].Activate != undefined) steve[key1].Activate()
+       
         } else if (key1 == "machines") {
           for (let i = 0; i < 9; i++) {
             steve.machines[i] = loadInventoryItem(pl[key1][i])
@@ -1801,37 +1793,22 @@ function coin(size) {
 }
 function recalculateStats() {
   let health = steve.stats.health
-  const oldarmor = {}
+  
   armornames.forEach((x) => {
-    oldarmor[x] = steve[x]
+   
     if (steve[x].DeActivate != undefined) {
+      if(steve[x].wasActivated)
       steve[x].DeActivate()
-    }
-    steve[x] = new classes.empty()
-  })
-  steve.stats = Object.assign(
-    Object.create(Object.getPrototypeOf(steve.basicstats)),
-    steve.basicstats
-  )
-  steve.itemInHand = new classes.empty()
-  selectHotbarItem(currentHotbarSlot)
-  steve.accessorybag.addAll()
-  armornames.forEach((x) => {
-    steve[x] = oldarmor[x]
-    steve.addStats(oldarmor[x])
-    steve.addEnchants(oldarmor[x])
-
-    if (steve[x].Activate != undefined) {
       steve[x].Activate()
     }
+   
   })
-  for (const key in steve.skilllevels) {
-    for (let i = 0; i < steve.skilllevels[key]; i++) {
-      giveSkillReward(key, i, 1)
-    }
-  }
-  steve.addAllFood()
-  steve.setHealth(health)
+  // steve.stats = Object.assign(
+  //   Object.create(Object.getPrototypeOf(steve.basicstats)),
+  //   steve.basicstats
+  // )
+  steve.accessorybag.addAll()
+  
 }
 function createTextures() {
   for (const key in classes) {
@@ -2071,7 +2048,7 @@ function enchantsConflict(item, enchantToAdd) {
   return false
 }
 const armor = "helmet chestplate leggins boots"
-const harvestingTools = "pickaxe axe"
+const harvestingTools = "pickaxe axe shears"
 const combatTools = "sword"
 
 Enchants = {

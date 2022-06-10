@@ -13,6 +13,7 @@ classes.empty = class {
     this.customcolor = "#222222"
     this.stats = {}
     this.additionalstats = {}
+    this.enchants = {}
   }
   postloadConstructor() {}
   getEmpty() {
@@ -59,7 +60,7 @@ classes.block = class extends classes.empty {
         if (steve.getTool().match1word(key.tool) && key.condition()) {
         
           let name = key.item
-          if ((key.smeltsInto != "none" && steve.enchants.smeltingtouch))
+          if ((key.smeltsInto != "none" && steve.getEnchant("smeltingtouch")))
             name = key.smeltsInto
           const amount =
             (randomItem(key.min, key.max, key.chance) *
@@ -303,7 +304,7 @@ classes.consumable = class extends classes.empty {
     if (caneat) {
       caneat = false
 
-      this.addStats()
+     
       steve.inventory[currentHotbarSlot] = reduceStack(
         steve.inventory[currentHotbarSlot],
         1
@@ -324,21 +325,7 @@ classes.consumable = class extends classes.empty {
       }, 1000)
     }
   }
-  removeStats() {
-    // for (const key in this.addedstats) {
-    //   if (key != "health") {
-    //     steve.stats[key] -= this.addedstats[key]
-    //     steve.foodstats[key] -= this.addedstats[key]
-    //   }
-    // }
-  }
-  addStats() {
-    for (const key in this.addedstats) {
-      if (key != "health") {
-        steve.stats[key] += this.addedstats[key]
-      } else steve.addHealth(this.addedstats[key])
-    }
-  }
+
 }
 classes.mob = class {
   constructor(x, y, id) {
@@ -475,7 +462,7 @@ classes.mob = class {
       this.isPlayerInAngryRange() &&
       this.isAlive &&
       this.state != "angry" &&
-      (this.lvl > steve.stats.intimidationlevel ||
+      (this.lvl > steve.getStat("intimidationlevel") ||
         this.stats.health != this.stats.maxhealth)
     ) {
       console.log("ID", this.id, this.name, "got Angry")
@@ -787,7 +774,7 @@ classes.accessorybag = class {
     if (slot == undefined) slot = this.getEmptyInventorySlot()
     if (slot != undefined && item.type == "accessory") {
       if (!this.searchForFamily(item.family)) {
-        steve.addStats(item)
+      
         item.activate()
       }
       this.inventory[slot] = Object.assign(
@@ -829,7 +816,7 @@ classes.accessorybag = class {
     )
 
     if (item.wasActivated) {
-      steve.removeStats(item)
+    
       item.deactivate()
     }
 
@@ -850,13 +837,12 @@ classes.accessorybag = class {
     return is
   }
   addAll() {
-    this.families = []
+  
     this.inventory.forEach((x) => {
-      if (!this.families.includes(x.family)) {
-        this.families.push(x.family)
-        steve.addStats(x)
-        if (!isEmpty(x)) x.activate()
-      }
+    if(x.wasActivated){
+      x.deactivate()
+      x.activate()
+    }
     })
   }
 }

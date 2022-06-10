@@ -17,6 +17,11 @@ class player {
     this.backpacks = []
     this.backpacks.set(new classes.empty(), 24)
     this.accessorybag = new classes.accessorybag()
+    this.skillstats = {
+      totalDamageMultiplier: 0,
+      combatfortune:0,
+      miningfortune: 0,
+    }
     this.stats = {
       maxhealth: 100,
       health: 100,
@@ -40,8 +45,6 @@ class player {
 
       range: 3,
       accessorybagslots: 9,
-      tool: "none",
-      
     }
     this.enchants = {
       smeltingtouch: 0,
@@ -100,7 +103,7 @@ class player {
     for (const key in this.food) {
       this.food[key].time -= 1000
       if (this.food[key].time <= 0) {
-        this.removeStats(this.food[key])
+      
         delete this.food[key]
       }
     }
@@ -135,8 +138,7 @@ class player {
     }
   }
   makeCollections() {
-    for(const key in collections)
-    {
+    for (const key in collections) {
       this.collectionitems[key] = 0
       this.collectionlevels[key] = 0
     }
@@ -274,7 +276,7 @@ class player {
   }
 
   getSpeed() {
-    return this.stats.speed / 10
+    return this.getStat("speed") / 10
   }
   spawn() {
     e.map.appendChild(e.playertool)
@@ -333,59 +335,6 @@ class player {
     return amount
   }
 
-  equipItem(item1, item2 = this.itemInHand) {
-    this.removeStats(item2)
-    this.removeEnchants(item2)
-    this.addStats(item1)
-    this.addEnchants(item1)
-  }
-  removeStats(item) {
-    // if (item.stats != undefined) {
-    //   for (const key in item.stats) {
-    //     if (typeof this.stats[key] == "string") {
-    //       this.stats[key] = "none"
-    //     } else this.stats[key] -= item.stats[key]
-    //     if (key == "speed") {
-    //       clearInterval(movetimer)
-    //       movetimer = setInterval(function () {
-    //         steve.move()
-    //       }, Math.ceil(200 / steve.getSpeed()))
-    //     }
-    //   }
-    // }
-  }
-  addStats(item) {
-    // if (item.stats != undefined) {
-    //   for (const key in item.stats) {
-    //     if (typeof this.stats[key] == "string") {
-    //       this.stats[key] = item.stats[key]
-    //     } else this.stats[key] += item.stats[key]
-    //     if (key == "speed") {
-    //       clearInterval(movetimer)
-    //       movetimer = setInterval(function () {
-    //         steve.move()
-    //       }, Math.ceil(200 / steve.getSpeed()))
-    //     }
-    //   }
-    // }
-  }
-  addEnchants(item) {
-    if (item.enchants != undefined) {
-      for (const key in item.enchants) {
-        this.enchants[key] =
-          this.enchants[key] == undefined
-            ? item.enchants[key]
-            : this.enchants[key] + item.enchants[key]
-      }
-    }
-  }
-  removeEnchants(item) {
-    if (item.enchants != undefined) {
-      for (const key in item.enchants) {
-        this.enchants[key] -= item.enchants[key]
-      }
-    }
-  }
 
   clearinventory(s = 0, end = this.inventorySlots - 1) {
     for (s; s <= end; s++) {
@@ -450,30 +399,30 @@ class player {
   }
 
   getMiningSpeed() {
-    return this.getStat("miningspeed") * (1 + (this.enchants.efficiency * 0.08 || 0))
+    return (
+      this.getStat("miningspeed") * (1 + (steve.getEnchant("efficiency") * 0.08 || 0))
+    )
   }
   fortunes = {
-    combat : () => (this.stats.combatfortune + 100) / 100,
-    farming: () => (this.stats.farmingfortune + 100) / 100,
-    mining: () => (this.stats.miningfortune + 100) / 100,
-    foraging: () => (this.stats.foragingfortune + 100) / 100,
+    combat: () => (this.getStat("combatfortune") + 100) / 100,
+    farming: () => (this.getStat("farmingfortune") + 100) / 100,
+    mining: () => (this.getStat("miningfortune") + 100) / 100,
+    foraging: () => (this.getStat("foragingfortune") + 100) / 100,
     none: () => 1,
   }
-
-
 
   isInRange(target) {
     return (
       (target.x * 5 + 2.5 - (this.x + this.width / 2)) ** 2 +
         (target.y * 5 + 2.5 - (this.y + this.height / 2)) ** 2 <=
-      ((this.stats.range + 1) * 5) ** 2
+      ((this.getStat("range") + 1) * 5) ** 2
     )
   }
   isMobInRange(target) {
     return (
       (target.x - (this.x + this.width / 2)) ** 2 +
         (target.y - (this.y + this.height / 2)) ** 2 <=
-      ((this.stats.range + 1) * 5) ** 2
+      ((this.getStat("range") + 1) * 5) ** 2
     )
   }
   stopBreakingBlock(cblock) {
@@ -537,35 +486,36 @@ class player {
     }
   }
   getDamageReduction(mobName) {
-    let defense = this.stats.defense
-    if(isZombie(mobName))
-    defense += this.stats.zombiedefense
-    
-    return +(1 - defense / (defense + 100)).toFixed(2) * (1 - (steve.enchants.protection >> 0) * 0.02)
+    let defense = this.getStat("defense")
+    if (isZombie(mobName)) defense += this.getStat("zombiedefense")
+
+    return (
+      +(1 - defense / (defense + 100)).toFixed(2) *
+      (1 - (steve.getEnchant("protection") >> 0) * 0.02)
+    )
   }
+  
   damageMob(id) {
     if (this.isMobInRange(mobs[id]) && !isBlockBetween(this, mobs[id])) {
       if (mobs[id].name == "villager") {
         openMachineGui(mobs[id])
       } else {
         mobs[id].knockback()
-        mobs[id].stats.health -=
-          (this.stats.damage *
-            (1 + this.stats.strength / 100) *
-            (random100(this.stats.criticalchance)
-              ? this.stats.criticaldamage / 100 + 1
+        let damage = 
+          this.getStat("damage") *
+             (1 + this.getStat("strength") / 100) *
+            (random100(this.getStat('criticalchance'))
+              ? this.getStat('criticaldamage') / 100 + 1
               : 1) *
             (mobs[id].mobtype == "undead"
-              ? this.stats.undeadbonus == undefined
-                ? 1
-                : this.stats.undeadbonus
-              : 1) *
-            (1 + (this.enchants.sharpness * 0.1 || 0)) *
-            this.stats.totalDamageMultiplier) >>
-          0
-
-        e["mob" + id].style.opacity =
-          mobs[id].stats.health / mobs[id].stats.maxhealth + 0.1
+              ? this.getStat('undeadbonus') 
+                : 1
+               ) *
+         (1 + (this.getEnchant('sharpness') * 0.1)) *
+            this.getStat('totalDamageMultiplier') >>0
+          mobs[id].stats.health -= damage
+          console.log(damage)
+       
 
         if (mobs[id].stats.health <= 0) {
           mobs[id].die()
@@ -578,15 +528,17 @@ class player {
     }
   }
   updateheathbar() {
-    e.healthbarinside.style.width =
-      (this.stats.health / this.stats.maxhealth) * 100 + "%"
-    e.healthbartext.innerText = this.stats.health + " / " + this.stats.maxhealth
+    let maxhealth = this.getStat("maxhealth")
+    e.healthbarinside.style.width = (this.stats.health / maxhealth) * 100 + "%"
+    e.healthbartext.innerText = this.stats.health + " / " + maxhealth
   }
   addHealth(amount) {
+    let maxhealth = this.getStat("maxhealth")
+    let multiplier = this.getStat("healthmultiplier")
     this.stats.health =
-      this.stats.health + amount*this.stats.healthmultiplier < this.stats.maxhealth
-        ? this.stats.health + amount*this.stats.healthmultiplier
-        : this.stats.maxhealth
+      this.stats.health + amount * multiplier < maxhealth
+        ? this.stats.health + amount * multiplier
+        : maxhealth
     this.updateheathbar()
   }
   setHealth(amount) {
@@ -599,59 +551,65 @@ class player {
   }
   naturalRegeneration() {
     this.addHealth(
-      (this.stats.maxhealth * (this.stats.naturalregeneration / 100)) >> 0
+      (this.getStat("maxhealth") * (this.getStat('naturalregeneration') / 100)) >> 0
     )
   }
-  addSet(item){
-    if(item.set != undefined){
-       if(steve.sets[item.set] ==  undefined ){
+  addSet(item) {
+    if (item.set != undefined) {
+      if (steve.sets[item.set] == undefined) {
         steve.sets[item.set] = {
           amount: 0,
-          isActivated: false
+          isActivated: false,
         }
-       }
-       steve.sets[item.set].amount++
-
+      }
+      steve.sets[item.set].amount++
     }
   }
-  removeSet(item){
+  removeSet(item) {
     steve.sets[item.set].amount--
   }
-  isSetActive(set){
+  isSetActive(set) {
     return (true && steve.sets[set] && steve.sets[set].isActivated) || false
   }
-  getStat(key){
+  getStat(key) {
     let amount = 0
     amount += this.stats[key] >> 0
-   
-    for(const key2 in this.food){
-       amount += key2.stats[key] >> 0
+
+    for (const key2 in this.food) {
+      amount += key2.stats[key] >> 0
     }
-   
+
     amount += this.itemInHand.stats[key] >> 0
-  
-    armornames.forEach(x => {
-     
+    amount += this.skillstats[key] || 0
+    armornames.forEach((x) => {
       amount += this[x].stats[key] >> 0
       amount += this[x].additionalstats[key] >> 0
     })
-for(let i = 0; i < this.accessorybag.inventory.length; i++){
-    if(this.accessorybag.inventory[i].name == empty) i = 10000
-    else
-    if(this.accessorybag.inventory[i].wasActivated)
-    {
-      amount += this.accessorybag.inventory[i].stats[key] >> 0
-      amount += this.accessorybag.inventory[i].additionalstats[key] >> 0
+    for (let i = 0; i < this.accessorybag.inventory.length; i++) {
+      if (this.accessorybag.inventory[i].name == empty) i = 10000
+      else if (this.accessorybag.inventory[i].wasActivated) {
+        amount += this.accessorybag.inventory[i].stats[key] >> 0
+        amount += this.accessorybag.inventory[i].additionalstats[key] >> 0
+      }
     }
-}
 
     return amount
-
   }
-  getTool(){
-    return this.itemInHand.tool || ""
+  getTool() {
+    return this.itemInHand.type || ""
   }
-  getToolTier(){
+  getToolTier() {
     return this.itemInHand.tier || 0
+  }
+  getEnchant(key) {
+    let amount = 0
+
+    amount += this.itemInHand.enchants[key] >> 0
+
+    armornames.forEach((x) => {
+      amount += this[x].enchants[key] >> 0
+    })
+
+    return amount
   }
 }

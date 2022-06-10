@@ -56,7 +56,7 @@ classes.block = class extends classes.empty {
     {
       for (const key of LootTable[this.name]) {
       
-        if (steve.statstool.match1word(key.tool)) {
+        if (steve.getTool().match1word(key.tool) && key.condition()) {
         
           let name = key.item
           if ((key.smeltsInto != "none" && steve.enchants.smeltingtouch))
@@ -105,16 +105,14 @@ classes.tool = class extends classes.item {
     super(amount)
     this.name = "tool"
     this.maxStackSize = 1
-    this.stats = {
-      tooltier: 0,
-    }
+    
   }
 }
 classes.tree = class extends classes.block {
   constructor(amount = 0) {
     super(amount)
     this.name = "tree"
-    this.tool = "axe"
+    this.tool = "axe shears"
     this.logs = 0
     this.xp = 0
     
@@ -442,7 +440,7 @@ classes.mob = class {
     {
       for (const key of LootTable[this.name]) {
    
-        if (steve.stats.tool.match1word(key.tool)) {
+        if (steve.getTool().match1word(key.tool)) {
       
           let name = key.item
           if ((key.smeltsInto != "none" && steve.enchants.smeltingtouch))
@@ -872,7 +870,8 @@ class Loot {
     max = 1,
     smeltsInto = "none",
     tool = "",
-    collection = item
+    collection = item,
+    condition = function(){return true}
   ) {
     return {
       item: item,
@@ -883,6 +882,7 @@ class Loot {
       smeltsInto: smeltsInto,
       tool: tool,
       collection:collection,
+      condition:condition
     }
   }
 }

@@ -17,7 +17,7 @@ const villagerTrades = {
 
   const LootTable = {
    treeoak: [
-       new Loot("logoak",100,"foraging",4,4,"charcoal","axe"),
+       new Loot("logoak",100,"foraging",4,4,"charcoal","","logoak",function(){ return !steve.getTool().match1word("shears")}),
        new Loot("steeleaf",100,"foraging",1,4,"none","shears"),
        new Loot("treetalisman",1)
    ],

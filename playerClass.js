@@ -41,7 +41,7 @@ class player {
       range: 3,
       accessorybagslots: 9,
       tool: "none",
-      tooltier: 0,
+      
     }
     this.enchants = {
       smeltingtouch: 0,
@@ -448,20 +448,9 @@ class player {
 
     return item
   }
-  getMiningFortune() {
-    return (this.stats.miningfortune + 100) / 100
-  }
-  getForagingFortune() {
-    return (this.stats.foragingfortune + 100) / 100
-  }
-  getCombatFortune() {
-    return (this.stats.combatfortune + 100) / 100
-  }
-  getFarmingFortune() {
-    return (this.stats.farmingfortune + 100) / 100
-  }
+
   getMiningSpeed() {
-    return this.stats.miningspeed * (1 + (this.enchants.efficiency * 0.08 || 0))
+    return this.getStat("miningspeed") * (1 + (this.enchants.efficiency * 0.08 || 0))
   }
   fortunes = {
     combat : () => (this.stats.combatfortune + 100) / 100,
@@ -511,7 +500,7 @@ class player {
     } else {
       if (
         cblock.block.tool == "none" ||
-        steve.stats.tool.match1word(cblock.block.tool)
+        steve.getTool().match1word(cblock.block.tool)
       ) {
         cblock.block.hardness -= this.getMiningSpeed()
       } else {
@@ -658,5 +647,11 @@ for(let i = 0; i < this.accessorybag.inventory.length; i++){
 
     return amount
 
+  }
+  getTool(){
+    return this.itemInHand.tool || ""
+  }
+  getToolTier(){
+    return this.itemInHand.tier || 0
   }
 }

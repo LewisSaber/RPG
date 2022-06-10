@@ -1358,9 +1358,9 @@ function breakblock(block) {
       if (currentblock.block.isBreakable && steve.isInRange(currentblock)) {
         console.log(currentblock.block.tier)
         if (
-          currentblock.block.tier <= steve.stats.tooltier &&
+          currentblock.block.tier <= steve.getToolTier() &&
           (!currentblock.block.restrictTool ||
-            steve.stats.tool.match1word(currentblock.block.tool))
+            steve.getTool().match1word(currentblock.block.tool))
         ) {
         
           if (breaktimer == 0) {

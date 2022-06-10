@@ -102,26 +102,16 @@ classes.woodpickaxe = class extends classes.tool {
   constructor(amount = 0) {
     super(amount)
     this.name = "woodpickaxe"
+    this.tier = 0
+    this.type = "pickaxe",
     this.stats = {
-      tooltier: 0,
-      tool: "pickaxe",
+     
       miningspeed: 100,
     }
     this.sellValue = 50
   }
 }
-classes.ruslanshovel = class extends classes.tool {
-  constructor(amount = 0) {
-    super(amount)
-    this.name = "ruslanshovel"
-    this.stats = {
-      tooltier: 10,
-      tool: "pickaxe axe shovel",
-      miningspeed: 10000,
-      miningfortune: 600,
-    }
-  }
-}
+
 classes.logoak = class extends classes.block {
   constructor(amount = 0) {
     super(amount)
@@ -171,9 +161,10 @@ classes.woodaxe = class extends classes.tool {
     super(amount)
     this.name = "woodaxe"
     this.sellValue = 50
+    this.tool = "axe"
+    this.tier = 0
     this.stats = {
-      tool: "axe",
-      tooltier: 0,
+     
       miningspeed: 100,
     }
   }
@@ -182,9 +173,9 @@ classes.stoneaxe = class extends classes.tool {
   constructor(amount = 0) {
     super(amount)
     this.name = "stoneaxe"
+    this.tool = "axe"
+    this.tier = 1
     this.stats = {
-      tool: "axe",
-      tooltier: 1,
       miningspeed: 200,
       foragingfortune: 40,
     }
@@ -285,9 +276,9 @@ classes.shears = class extends classes.tool {
     super(amount)
     this.name = "shears"
     this.rarity = 1
+    this.tier = 1,
+    this.tool = "shears",
     this.stats = {
-      tooltier: 1,
-      tool: "shears",
       miningspeed: 500,
     }
   }
@@ -298,9 +289,10 @@ classes.stonepickaxe = class extends classes.tool {
     super(amount)
     this.name = "stonepickaxe"
     this.rarity = 1
+    this.tool = "pickaxe"
+    this.tier = 1
     this.stats = {
-      tooltier: 1,
-      tool: "pickaxe",
+     
       miningspeed: 200,
       miningfortune: 10,
     }
@@ -1637,9 +1629,9 @@ classes.ironpickaxe = class extends classes.tool {
     super(amount)
     this.name = "ironpickaxe"
     this.rarity = 1
+    this.tier = 3
+    this.tool = "pickaxe"
     this.stats = {
-      tooltier: 3,
-      tool: "pickaxe",
       miningspeed: 500,
       miningfortune: 50,
     }
@@ -1724,9 +1716,10 @@ classes.ironaxe = class extends classes.tool {
   constructor(amount = 0) {
     super(amount)
     this.name = "ironaxe"
+    this.tool = "axe"
+    this.tier = 2
     this.stats = {
-      tool: "axe",
-      tooltier: 2,
+     
       miningspeed: 400,
       foragingfortune: 80,
     }

@@ -117,7 +117,6 @@ const Names = {
   supercompactor9000: "Super Compactor 9000",
   sugarcane: "Sugar Cane",
   brutezombie: "Brute Zombie",
-  tooltier: "Tool tier",
   tool: "Type",
   miningspeed: "Mining Speed",
   foragingfortune: "Foraging Fortune",

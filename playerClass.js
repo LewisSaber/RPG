@@ -6,6 +6,7 @@ class player {
     this.y = 20
     this.mapX = 0
     this.mapY = 0
+    this.name = "steve"
     this.nick = "none"
     this.skin = "default"
     this.diffrencex = +(5 - this.width).toFixed(2)
@@ -494,36 +495,49 @@ class player {
       (1 - (steve.getEnchant("protection") >> 0) * 0.02)
     )
   }
+  getDamage(mob){
+    return   this.getStat("damage") *
+    (1 + this.getStat("strength") / 100) *
+   (random100(this.getStat('criticalchance'))
+     ? this.getStat('criticaldamage') / 100 + 1
+     : 1) *
+   (mob.mobtype == "undead"
+     ? this.getStat('undeadbonus') 
+       : 1
+      ) *
+(1 + (this.getEnchant('sharpness') * 0.1)) *
+   this.getStat('totalDamageMultiplier') >>0
+  }
+  getProjectileDamage(mob,initialDamage){
+  return initialDamage
+  }
+  dealDamageToMob(id,type = "hit",initialDamage = 0){
+    mobs[id].knockback()
+    let damage =0
+   if(type == "hit")
+   damage = this.getDamage(mobs[id])
+   if(type == "projectile")
+   damage = this.getProjectileDamage(mobs[id],initialDamage)
+   
+     mobs[id].stats.health -= damage
+     console.log(damage)
   
-  damageMob(id) {
+
+   if (mobs[id].stats.health <= 0) {
+     mobs[id].die()
+     e.progressbar.style.display = "none"
+   } else {
+     playMobHowl(mobs[id].name, "hurt")
+     makeMonsterHotbar(id)
+   }
+  }
+  damageMob(id,) {
     if (this.isMobInRange(mobs[id]) && !isBlockBetween(this, mobs[id])) {
       if (mobs[id].name == "villager") {
         openMachineGui(mobs[id])
       } else {
-        mobs[id].knockback()
-        let damage = 
-          this.getStat("damage") *
-             (1 + this.getStat("strength") / 100) *
-            (random100(this.getStat('criticalchance'))
-              ? this.getStat('criticaldamage') / 100 + 1
-              : 1) *
-            (mobs[id].mobtype == "undead"
-              ? this.getStat('undeadbonus') 
-                : 1
-               ) *
-         (1 + (this.getEnchant('sharpness') * 0.1)) *
-            this.getStat('totalDamageMultiplier') >>0
-          mobs[id].stats.health -= damage
-          console.log(damage)
-       
-
-        if (mobs[id].stats.health <= 0) {
-          mobs[id].die()
-          e.progressbar.style.display = "none"
-        } else {
-          playMobHowl(mobs[id].name, "hurt")
-          makeMonsterHotbar(id)
-        }
+        this.dealDamageToMob(id)
+        
       }
     }
   }
@@ -611,5 +625,8 @@ class player {
     })
 
     return amount
+  }
+  getCenterCoordsArray(){
+    return [this.x + this.width/2,this.y + this.height/2]
   }
 }

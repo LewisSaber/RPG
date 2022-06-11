@@ -1469,3 +1469,15 @@ background-size: 100%;
   color: yellow;
   margin-top: 2vh;
 }
+.redCircle{
+  background-color: red;
+  border-radius: 100%;
+}
+.whiteBall{
+  background-color: white;
+  border-radius: 100%;
+}
+.projectile{
+  z-index: 1000;
+  position: absolute;
+}

@@ -38,7 +38,7 @@ function loadIDS() {
 const codeAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"//abcdefghijklmnopqrstuvwxyz"]
  const keywords = ["helmet","leggings","chestplate","boots","charm","relic","talisman","artifact","fortune","planks","pickaxe","axe","sword"]
 // const keywords = /helmet|leggings|chestplate|boots|charm|relic|talisman|artifact/
-const texturefilter = ["empty", "item", "block", "stonetype"]
+const texturefilter = ["empty", "item", "block", "stonetype","tool","projectile"]
 const raritycolors = [
   "white",
   "lime",
@@ -158,6 +158,7 @@ let selectorblocks = [
   "mobmobmob zombie",
   "mobmobmob cow",
   "mobmobmob chicken",
+  "mobmobmob skeleton",
   "dandelion",
 ]
 

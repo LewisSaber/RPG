@@ -70,7 +70,7 @@ function generateMap() {
             if (l == 0) tag.className = "block "+ map[y][x][l];
             else tag.className = "blockfloor " +  map[y][x][l]
               tag.setAttribute("onmousedown","breakblock(this)")
-              tag.setAttribute("oncontextmenu","steve.itemInHand.useAbility(); return false")
+              //  tag.setAttribute("oncontextmenu"," return false")
               tag.setAttribute("onmouseleave","stopBreakingOnMouseLeave()")
               tag.setAttribute("onmouseenter","startBreakingOnMouseEnter(this)")
             tag.style.top = y * 5 + "vh";
@@ -293,6 +293,7 @@ function resetmaps(){
   savemap()
 }
 function goToNextMap(){
+  document.dispatchEvent(new CustomEvent("mapChange"))
   generateMap()
   changeLocation()
   recalculateStats()

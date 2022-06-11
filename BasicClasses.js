@@ -343,15 +343,16 @@ classes.mob = class {
     this.stats = {
       health: 200,
       maxhealth: 200,
-      damage: 20,
+      damage: 100,
       speed: 50,
       range: 2,
       angerrange: 10,
+      attacktime: 1000,
     }
     this.isangered = false
     this.isAlive = true
     this.respawntimer = 2000
-    this.attacktime = 400
+  
     this.state = "passive"
     this.type = "angry"
     this.attacktimer = 0
@@ -413,6 +414,7 @@ classes.mob = class {
     clearInterval(this.angerinterval)
     clearInterval(this.randominterval)
     clearInterval(this.respawntimer)
+    clearInterval(this.shottimer)
   }
   isPlayerInRange() {
     return (
@@ -478,12 +480,12 @@ classes.mob = class {
   move(vectorspeed, steveDependant = true) {
     if (this.isAlive) {
       let oldcoords = [this.y, this.x]
-      if (this.x < 0) vectorspeed[0] = this.getSpeed() * !steveDependant
-      if (this.y < 0) vectorspeed[1] = this.getSpeed() * !steveDependant
-      if (this.y > (mapH - 1) * 5)
-        vectorspeed[1] = -this.getSpeed() * !steveDependant
-      if (this.x > (mapW - 1) * 5)
-        vectorspeed[0] = -this.getSpeed() * !steveDependant
+      // if (this.x < 0) vectorspeed[0] = this.getSpeed() * !steveDependant
+      // if (this.y < 0) vectorspeed[1] = this.getSpeed() * !steveDependant
+      // if (this.y > (mapH - 1) * 5)
+      //   vectorspeed[1] = -this.getSpeed() * !steveDependant
+      // if (this.x > (mapW - 1) * 5)
+      //   vectorspeed[0] = -this.getSpeed() * !steveDependant
 
       {
         if (steve.y < this.y && steveDependant) this.y -= vectorspeed[1]
@@ -695,6 +697,7 @@ classes.mob = class {
       this.movetoplayer()
     }
   }
+ 
   randommove() {
     if (this.state != "angry" && this.isAlive) {
       playMobHowl(this.name, "step")
@@ -724,7 +727,7 @@ classes.mob = class {
       if (this.isPlayerInRange()) {
         this.attacktimer = setTimeout(
           this.attackplayer.bind(this),
-          this.attacktime
+          this.stats.attacktime || 1000
         )
       } else {
         playMobHowl(this.name, "step")
@@ -746,7 +749,7 @@ classes.mob = class {
       }
     }
   }
-  damagePlayer() {
+  dealDamage(){
     new Howl({
       src: [
         "./sounds/damage/hit" + (1 + Math.floor(Math.random() * 3)) + ".ogg",
@@ -755,6 +758,9 @@ classes.mob = class {
     steve.stats.health -=
       (this.stats.damage * steve.getDamageReduction(this.name)) >> 0
     steve.updateheathbar()
+  }
+  damagePlayer() {
+    this.dealDamage()
   }
   knockback() {
     for (let i = 0; i < 5; i++) {

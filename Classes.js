@@ -432,6 +432,7 @@ classes.zombie = class extends classes.mob {
       speed: 50,
       range: 0.4,
       angerrange: 8,
+      attacktime: 1000
     }
     this.respawntimer = 10000
     this.state = "passive"
@@ -692,7 +693,7 @@ classes.undeadsword = class extends classes.tool {
       undeadbonus: 1,
     }
     this.type = "sword"
-    this.description =
+    this.description2 = "Ability: Undead Enemy".color("yellow") +
       br + "Deals " + color("+100%", "lime") + " damage to Undead Mobs" + br
   }
 }
@@ -822,6 +823,7 @@ classes.brutezombie = class extends classes.mob {
       speed: 45,
       range: 0.5,
       angerrange: 7,
+      attacktime: 1000
     }
     this.respawntimer = 15000
     this.state = "passive"
@@ -1726,4 +1728,180 @@ classes.ironaxe = class extends classes.tool {
     }
     this.rarity = 1
   }
+}
+
+classes.projectile = class{
+  /**
+   * 
+   * @param {[x,y]} startCoords 
+   * @param {[x,y]} endCoords 
+   * @param {vh} size 
+   * @param {*} speed 
+   * @param {cssClass} className 
+   * @param {mob} sender 
+   */
+  constructor(startCoords,endCoords,size,speed,className,sender,damage = 0){
+    this.damage = damage
+   this.speed = speed
+   this.size = size
+   this.x = startCoords[0] - this.size/2,
+     this.y = startCoords[1] - this.size/2
+   
+   this.target = {
+     x: endCoords[0],
+     y: endCoords[1]
+   }
+   console.log("target",this.target)
+   this.sender = sender
+   this.className = className
+   this.destroyF = this.destroy.bind(this)
+   document.addEventListener("mapChange",this.destroyF)
+   this.create()
+  }
+  create(){
+    this.tag = document.createElement("div")
+    this.tag.style.width = this.size + "vh"
+    this.tag.style.height = this.tag.style.width
+    this.tag.style.left = this.x + "vh"
+    this.tag.style.top = this.y + "vh"
+    this.tag.className = this.className + " projectile"
+    e.map.appendChild(this.tag)
+    this.startMovingToTarget()
+  }
+  destroy(){
+    document.removeEventListener("mapChange",this.destroyF)
+    clearInterval(this.movetimer)
+    this.tag.remove()
+
+  }
+  startMovingToTarget(){
+    console.log("distance y", (this.y + this.size/2 - this.target.y))
+    let hipon = Math.sqrt((this.x + this.size/2 - this.target.x) ** 2 + (this.y + this.size/2 - this.target.y) ** 2)
+    console.log("hipon",hipon)
+    let angleSin = Math.abs(this.x + this.size/2 - this.target.x) / hipon
+    
+    /**
+     * speed [x,y]
+     */
+    let vectorspeed = [
+      +(0.2 * angleSin).toFixed(3),
+      +(0.2 * Math.cos(Math.asin(angleSin))).toFixed(3),
+    ]
+    if(this.x > this.target.x) vectorspeed[0] *= -1
+    if(this.y > this.target.y) vectorspeed[1] *= -1
+
+     console.log(vectorspeed);
+    this.movetimer =  setTimeout(this.move.bind(this), Math.ceil(2000 / this.speed), vectorspeed)
+    
+  
+  }
+  move(vectorspeed){
+    this.x += vectorspeed[0]
+    this.y += vectorspeed[1]
+    let wasHit = false
+    if(checkMapForBlock((this.y ) /5>>0,(this.x + this.size/2)/5>>0)){
+      wasHit = true
+        this.hit("wall")
+      
+
+    }else
+    if(this.sender.name == "steve"){
+       for(let i = 0 ; i < mobs.length;i++){     
+           wasHit = distnaseBetweenTargets(this.getCenterCoords(),{x: mobs[i].x +mobs[i].width/ 2,y: mobs[i].y +mobs[i].height/ 2}) < 4 && mobs[i].isAlive
+           if(wasHit){
+             this.hit(i)
+             i = 1000
+           }   
+       }
+    }
+    else{
+       wasHit = distnaseBetweenTargets(this.getCenterCoords(),{x: steve.x +steve.width/ 2,y: steve.y +steve.height/ 2}) < 2
+       if(wasHit){
+         this.hit("steve")
+       }
+
+    }
+    if(!wasHit){
+      this.tag.style.left = this.x + "vh"
+      this.tag.style.top = this.y + "vh"
+     this.movetimer = setTimeout(this.move.bind(this), Math.ceil(2000 / this.speed), vectorspeed)
+    }
+  }
+  hit(target){
+    switch (target) {
+      case "steve":
+        this.sender.dealDamage()
+        break;
+      case "wall":
+        break
+      default:
+        console.log(target)
+        steve.dealDamageToMob(target,"projectile",this.damage)
+        break;
+    }
+  
+    this.destroy()
+  }
+  getCenterCoords(){
+    return {x: this.x + this.size/2, y : this.y + this.size/2}
+  }
+
+}
+classes.bow = class extends classes.tool{
+  constructor(amount = 0) {
+    super(amount)
+    this.name = "bow"
+    this.tier = 4
+    this.type = "bow",
+    this.stats = {
+     damage: 200
+     
+    }
+    this.sellValue = 50
+  }
+  useAbility(evt){
+    const coords = getCoords(evt)
+    console.log(coords)
+    new classes.projectile(steve.getCenterCoordsArray(),[coords.x,coords.y],2,200,"redCircle",steve,25)
+  }
+}
+
+classes.skeleton = class extends classes.mob {
+  constructor(x, y, id) {
+    super(x, y, id)
+    this.lvl = 1
+    this.name = "skeleton"
+    this.mobtype = "undead"
+    this.width = 4.5
+    this.height = 4.5
+    this.xp = 50
+    this.stats = {
+      health: 200,
+      maxhealth: 200,
+      damage: 200,
+      speed: 50,
+      range: 10,
+      angerrange: 8,
+      attacktime : 1000,
+      shottime: 5000
+    }
+    this.respawntimer = 10000
+    this.state = "passive"
+    this.create()
+    this.spawn()
+    this.canshot = true
+    
+  }
+  damagePlayer() {
+if(this.canshot){
+  new classes.projectile([this.x + this.width/2,this.y + this.height/2],steve.getCenterCoordsArray(),2,300,"whiteBall",this)
+  this.canshot = false
+ this.shottimer= setTimeout(this.allowToShot.bind(this),this.stats.shottime)
+}
+  
+  }
+  allowToShot(){
+    this.canshot = true
+  }
+  
 }

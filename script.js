@@ -42,6 +42,10 @@ function LOADING() {
   window.onmousemove = function (evt) {
     timer = setTimeout(positionElement(evt), 1)
   }
+  window.oncontextmenu = function(evt){
+    steve.itemInHand.useAbility(evt)
+    return false
+  }
 
   if (session.nick == "admin") loadmapFromCloud()
   if (!isMapModeOn) {
@@ -2298,8 +2302,10 @@ function makeVillagerNameTag(name) {
  * coords are 5x
  */
 function checkMapForBlock(y, x) {
+  if( y >=  mapH || y<0 || x<0 || x>=mapW) return true
   y = y >> 0
   x = x >> 0
+ 
   return !allowedblocks.includes(currentmap[y][x][0].slice(0, 9))
 }
 function playClickSound() {
@@ -2609,3 +2615,14 @@ function notification(text,color = "red"){
 }
 
 const isS = (amount) => amount == 1? "" : "s"
+/**
+ * 
+ * @param {{x,y}} a 
+ * @param {{x,y}} b 
+ * @returns distance:number
+ */
+const distnaseBetweenTargets = (a,b) => ((a.x-b.x)**2 + (a.y - b.y)**2) **(1/2)
+function getCoords(evt) {
+return  {x: evt.x / percent  >> 0,
+y: evt.y / percent  >> 0}
+} 

@@ -19,6 +19,7 @@ function toHex0(numb) {
   if (numb > 255) return "FF"
   return numb.toString(16).toUpperCase()
 }
+
 const maxbackpackslot = 33 //size of biggest backpack
 const maxaccesoriesslots = 33 //size of maxed accessory bag
 const maxCompactorSlots = 16
@@ -38,16 +39,19 @@ function LOADING() {
   mapY = 0
   loadMode()
   loadSession()
+  generateMap()
+
+  e.map.onmousedown = onMapClick
 
   window.onmousemove = function (evt) {
     timer = setTimeout(positionElement(evt), 1)
   }
-  window.oncontextmenu = function(evt){
+  window.oncontextmenu = function (evt) {
     steve.itemInHand.useAbility(evt)
     return false
   }
 
-  if (session.nick == "admin") loadmapFromCloud()
+  //if (session.nick == "admin") loadmapFromCloud()
   if (!isMapModeOn) {
     buildaccessoryGui()
 
@@ -58,7 +62,6 @@ function LOADING() {
     addKeysEvent()
     window.addEventListener("keyup", upButtonHandler)
     window.addEventListener("wheel", ScrollHandler)
-  
 
     //window.addEventListener("mousedown", test);
     buildAccountSelector()
@@ -99,24 +102,28 @@ function LOADING() {
     selectHotbarItem(currentHotbarSlot)
     steve.addCoins(0)
     steve.addHealth(1000000)
-    goToNextMap()
+    steve.spawn()
+    // goToNextMap()
   } else {
     window.onbeforeunload = function (evt) {
-      if (isMapModeOn && session.nick == "admin") {
-        saveMapToCloud()
-      }
+      saveMap()
     }
+    window.addEventListener("keydown", downButtonHandlerMap)
+    window.addEventListener("keyup", upButtonHandlerMap)
 
     mapMode()
   }
   isLoaded = 1
-  console.log("loaded")
+  //comsole.log("loaded")
 }
 function onBeforeUnload() {
+  //comsole.log(isMapModeOn)
+  if (isMapModeOn) {
+    //   saveMap()
+  }
   if (ShouldSaveOnLeave) {
     craftingTable.dumpTable()
-    if(itemInCursor!="none")
-    dumbtoinventory([itemInCursor])
+    if (itemInCursor != "none") dumbtoinventory([itemInCursor])
     savePlayer(session.nick)
     saveSession()
   }
@@ -130,7 +137,7 @@ function positionElement(evt) {
 }
 
 function test(evt) {
-  console.log(evt)
+  //comsole.log(evt)
 }
 let movetimer
 let isShiftOn = 0
@@ -142,8 +149,8 @@ let keyStates = {}
 let currentHotbarSlot = 0
 let selectedItem
 function downButtonHandler(evt) {
-  //console.log(evt)
-  // console.log("down");
+  ////comsole.log(evt)
+  // //comsole.log("down");
   if (evt.code == "KeyE" && !keys[4] && !isSettingsOpen) {
     if (isNeiOpen) {
       toggleNei()
@@ -157,7 +164,6 @@ function downButtonHandler(evt) {
     }
   }
   if (evt.code == "KeyR" && !keys[6] && isGuiOpen) {
-
     findCraftingRecipes()
     if (RecipeGueue.length > 0) {
       if (itemInCursor == "none") {
@@ -196,7 +202,7 @@ function downButtonHandler(evt) {
     steve.sortInventory()
     if (istooltip) e.tooltip.style.display = "none"
   }
-  if(evt.code == "ShiftLeft" && !isShiftOn){
+  if (evt.code == "ShiftLeft" && !isShiftOn) {
     isShiftOn = true
     document.dispatchEvent(new CustomEvent("shiftToolTip"))
   }
@@ -241,7 +247,7 @@ function downButtonHandler(evt) {
         steve.move()
         movetimer = setInterval(function () {
           steve.move()
-        }, Math.ceil(200 / steve.getSpeed()))
+        }, 25)
       }
 
       break
@@ -267,14 +273,13 @@ function toggleNei() {
       craftingTable.dumpTable(true)
 
       ShowRecipe(0)
-      
+
       e.craftingtable.style.marginLeft = "20vh"
       e.nei.style.display = "block"
     } else {
       thismachinei = -2
       craftingTable.clear()
       e.nei.style.display = "none"
-     
     }
   }
 }
@@ -289,8 +294,7 @@ function selectHotbarItem(i) {
   )
 }
 function upButtonHandler(evt) {
-
-  if(evt.code == "ShiftLeft" && isShiftOn){
+  if (evt.code == "ShiftLeft" && isShiftOn) {
     isShiftOn = false
     document.dispatchEvent(new CustomEvent("shiftToolTip"))
   }
@@ -332,16 +336,14 @@ function random(r) {
 }
 
 function switchmode() {
-  if (isMapModeOn && nick == "admin") {
-    saveMapToCloud()
-  }
   localStorage.setItem("RPGeditmode", JSON.stringify(!isMapModeOn))
+
   window.location.reload()
 }
 
 function loadMode() {
   isMapModeOn = JSON.parse(localStorage.getItem("RPGeditmode"))
-  if (isMapModeOn == null) isMapModeOn = 1
+  if (isMapModeOn == null) isMapModeOn = 0
 }
 
 isInventoryopen = false
@@ -380,7 +382,7 @@ function toggleInventory() {
         e.inventory["slot" + i],
         e.inventory["slot" + i + "amount"]
       )
-   
+
       for (let i = 0; i < armornames.length; i++) {
         steve[armornames[i]].name == "empty"
           ? (e.armorgui[armornames[i]].className =
@@ -636,10 +638,9 @@ function RclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
           break
       }
     }
-  }else
-  {
-    downButtonHandler({code:"KeyU"})
-    upButtonHandler({code:"KeyU"})
+  } else {
+    downButtonHandler({ code: "KeyU" })
+    upButtonHandler({ code: "KeyU" })
   }
 }
 
@@ -846,7 +847,6 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
           break
       }
       if (armornames.includes(type)) {
-     
         if (steve[type].DeActivate != undefined) steve[type].DeActivate()
         steve[type] = putInCursorFull(steve[type], e.armorgui[type])
         e.armorgui[type].className = "guiSlot " + type + "gui"
@@ -1043,17 +1043,15 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
             itemInCursor.type == type ||
             itemInCursor.type == type.slice(0, -1)
           ) {
-           
-
             steve[type] = PutInSlotFull(steve[type], e.armorgui[type])
             if (steve[type].Activate != undefined) steve[type].Activate()
           }
         }
       }
     }
-  }else{
-    downButtonHandler({code:"KeyR"})
-    upButtonHandler({code:"KeyR"})
+  } else {
+    downButtonHandler({ code: "KeyR" })
+    upButtonHandler({ code: "KeyR" })
   }
 }
 
@@ -1061,13 +1059,12 @@ function saveInventory() {
   localStorage.setItem("RPGinventory", JSON.stringify(steve.inventory))
 }
 
-function blockreplacement(mapLayoutY, mapLayoutX, y, x, replacement, layer) {
-  MAP.mapLayout[mapLayoutY][mapLayoutX][y][x][layer] = replacement
-  if (mapX == mapLayoutX && mapY == mapY) {
-    maphtml[y][x][layer].classList =
-      (layer ? "blockfloor " : "block ") + replacement
-    currentmap[y][x][layer] = replacement
-  }
+function blockreplacement(y, x, layer, replacement) {
+  map.layout[y][x][layer] = replacement
+  if (replacement.includes("tree")) {
+    let tag = document.getElementById(replacement + " " + x + " " + y)
+    tag.className = replacement + " mapblock"
+  } else drawMapBlock(x, y)
 }
 function makeStatSpan(amount, statname, symbolflag = "+") {
   return (
@@ -1198,18 +1195,13 @@ function makeCollectionToolTip(item) {
       br +
       color("Rewards: ", "yellow") +
       br
-   
 
     for (const key of collections[item]) {
-      
       e.tooltip.innerHTML +=
         (steve.collectionitems[item] < key.amount
           ? color(key.amount.formate(3, 1) + ": ", "lightgray") +
             color(key.message, "lightblue")
-          : color(
-            key.amount.formate(3, 1) + ": " + key.message,
-              "lime"
-            )) + br
+          : color(key.amount.formate(3, 1) + ": " + key.message, "lime")) + br
     }
   }
 }
@@ -1304,9 +1296,10 @@ function makeToolTip(item, sellValue = true) {
         (item.sellValue != undefined && sellValue
           ? "Sell Value: " +
             (
-              (item.sellValue *
-                (session.settings.fullStackPrice ? item.amount : 1)).formateComas() +
-              " Coins"
+              (
+                item.sellValue *
+                (session.settings.fullStackPrice ? item.amount : 1)
+              ).formateComas() + " Coins"
             ).color("yellow") +
             br
           : "") +
@@ -1317,8 +1310,7 @@ function makeToolTip(item, sellValue = true) {
           " " +
           raritynames[item.rarity] +
           " " +
-          (item.type == "none" ? "" : item.type) 
-         
+          (item.type == "none" ? "" : item.type)
         )
           .toUpperCase()
           .color(raritycolors[item.rarity], 1800)
@@ -1328,57 +1320,45 @@ function makeToolTip(item, sellValue = true) {
   return false
 }
 
-function breakblock(block) {
+function breakblock(x, y) {
   keys[5] = 1
-  let clickX = (+block.style.left.slice(0, -2) / 5) >> 0
-  let clickY = (+block.style.top.slice(0, -2) / 5) >> 0
- 
-  if (clickX < mapW && clickY < mapH) {
- 
-    if (
-      classes[
-        currentmap[clickY][clickX][
-          currentmap[clickY][clickX][0] == "air" ? 1 : 0
-        ]
-      ] != undefined
-    ) {
-     
-      currentblock["block"] = new classes[
-        currentmap[clickY][clickX][
-          currentmap[clickY][clickX][0] == "air" ? 1 : 0
-        ]
-      ]()
-      currentblock["maxhardness"] = currentblock.block.hardness
-      currentblock["x"] = clickX
-      currentblock["y"] = clickY
-      currentblock["layer"] = currentmap[clickY][clickX][0] == "air" ? 1 : 0
-     
-      if (currentblock.block.isBreakable && steve.isInRange(currentblock)) {
-        console.log(currentblock.block.tier)
-        if (
-          currentblock.block.tier <= steve.getToolTier() &&
-          (!currentblock.block.restrictTool ||
-            steve.getTool().match1word(currentblock.block.tool))
-        ) {
-        
-          if (breaktimer == 0) {
-            if (steve.getMiningSpeed() >= currentblock.block.hardness) {
-              steve.breakblock(currentblock)
-            } else {
-              e.progressbar.style.display = "block"
-              e.progressbarInside.style.backgroundColor = "green"
-              e.progressbartext.innerText = ""
 
-              breaktimer = setTimeout(function () {
-                steve.breakblock(currentblock)
-              }, 100)
-            }
+  if (
+    classes[map.layout[y][x][map.layout[y][x][0] == "air" ? 1 : 0]] != undefined
+  ) {
+    currentblock["block"] = new classes[
+      map.layout[y][x][map.layout[y][x][0] == "air" ? 1 : 0]
+    ]()
+    currentblock["maxhardness"] = currentblock.block.hardness
+    currentblock["x"] = x
+    currentblock["y"] = y
+    currentblock["layer"] = map.layout[y][x][0] == "air" ? 1 : 0
+
+    if (currentblock.block.isBreakable && steve.isInRange(currentblock)) {
+      //comsole.log(currentblock.block.tier)
+      if (
+        currentblock.block.tier <= steve.getToolTier() &&
+        (!currentblock.block.restrictTool ||
+          steve.getTool().match1word(currentblock.block.tool))
+      ) {
+        if (breaktimer == 0) {
+          if (steve.getMiningSpeed() >= currentblock.block.hardness) {
+            steve.breakblock(currentblock)
+          } else {
+            e.progressbar.style.display = "block"
+            e.progressbarInside.style.backgroundColor = "green"
+            e.progressbartext.innerText = ""
+
+            breaktimer = setTimeout(function () {
+              steve.breakblock(currentblock)
+            }, 100)
           }
         }
       }
     }
   }
 }
+
 let steve = new player()
 function savePlayer(Nick) {
   players[Nick] = steve
@@ -1398,7 +1378,6 @@ function loadPlayer(Nick) {
           }
         } else if (armornames.includes(key1)) {
           steve[key1] = loadInventoryItem(pl[key1])
-       
         } else if (key1 == "machines") {
           for (let i = 0; i < 9; i++) {
             steve.machines[i] = loadInventoryItem(pl[key1][i])
@@ -1564,7 +1543,7 @@ function openMachineGui(machine, id = 0) {
         amount.setAttribute("class", "itemamount")
 
         // tag.setAttribute("oncontextmenu", "RclickOnSlot(" + i + "); return false")
-       
+
         tag.setAttribute(
           "onmouseenter",
           "makePriceToolTip(villagerTrades['" +
@@ -1716,7 +1695,6 @@ function ScrollHandler(evt) {
 }
 function give(item, amount = 1) {
   dumbtoinventory([new classes[item](amount)])
-  
 }
 function clearMobs() {
   for (let i = 0; i < mobs.length; i++) {
@@ -1797,24 +1775,21 @@ function coin(size) {
 }
 function recalculateStats() {
   let health = steve.stats.health
-  
+
   armornames.forEach((x) => {
-   
     if (steve[x].DeActivate != undefined) {
-      if(steve[x].wasActivated)
-      steve[x].DeActivate()
+      if (steve[x].wasActivated) steve[x].DeActivate()
       steve[x].Activate()
     }
-   
   })
   // steve.stats = Object.assign(
   //   Object.create(Object.getPrototypeOf(steve.basicstats)),
   //   steve.basicstats
   // )
   steve.accessorybag.addAll()
-  
 }
 function createTextures() {
+  const head = document.getElementsByTagName("head")[0]
   for (const key in classes) {
     if (!texturefilter.includes(key)) {
       let style = document.createElement("style")
@@ -1828,9 +1803,17 @@ function createTextures() {
       } else
         style.innerHTML =
           "." + key + "{ background-image: url(img/" + key + ".png); }"
-      document.getElementsByTagName("head")[0].appendChild(style)
+      head.appendChild(style)
     }
   }
+  let style = document.createElement("style")
+  style.innerHTML =
+    ".mapblock{position:absolute; width:" +
+    blocksize.px() +
+    ";height: " +
+    blocksize.px() +
+    "; background-size: 100% 100%;}"
+  head.appendChild(style)
 }
 function randomAmount(amount, chance = 100) {
   if (random100(chance)) {
@@ -1838,17 +1821,14 @@ function randomAmount(amount, chance = 100) {
   }
   return 0
 }
-function randomItem(min,max,chance){
-if(random1000(chance)){
-return randomNumber(min,max+1)
-
+function randomItem(min, max, chance) {
+  if (random1000(chance)) {
+    return randomNumber(min, max + 1)
+  }
 }
 
-
-}
-
-function random1000(chance){
-  return Math.floor(Math.random() * 1000 + 1)<= chance*10
+function random1000(chance) {
+  return Math.floor(Math.random() * 1000 + 1) <= chance * 10
 }
 function getEnchantCost(item) {
   let cost = 0
@@ -1878,7 +1858,7 @@ function getStatColor(stat) {
     case "accessorybagslots":
       return "lightblue"
     case "miningfortune":
-      return '#03fcc2'
+      return "#03fcc2"
     case "farmingfortune":
       return "#02d6a5"
     case "combatfortune":
@@ -1887,7 +1867,6 @@ function getStatColor(stat) {
       return "#059e7a"
     default:
       return "#ffd000"
-
   }
 }
 function getEnchantDescription(enchant, lvl) {
@@ -1901,95 +1880,93 @@ function getEnchantDescription(enchant, lvl) {
     case "smeltingtouch":
       return "Automatically Smelt Blocks When Mining"
     case "protection":
-      return "You get " + 2*lvl + "% less damage"
+      return "You get " + 2 * lvl + "% less damage"
     default:
       return ""
   }
 }
 
 function makeTextToolTip(text) {
-  
- 
-
   if (itemInCursor == "none") {
-    if(typeof text != "string") 
-    {
+    if (typeof text != "string") {
       text = document.toolTipText
-   
     }
-    document.removeEventListener("shiftToolTip",inner)
-    document.addEventListener("shiftToolTip",inner)
-    
+    document.removeEventListener("shiftToolTip", inner)
+    document.addEventListener("shiftToolTip", inner)
+
     document.toolTipText = text
-   
+
     e.tooltip.className = "tooltipimg"
-    if(!istooltip)
-    e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
+    if (!istooltip)
+      e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
     istooltip = true
     itemintooltip = text
     e.tooltip.style.display = "block"
-    
-    function inner(){
-      
-      if(document.toolTipText == text)
-      {
+
+    function inner() {
+      if (document.toolTipText == text) {
         e.tooltip.innerHTML = text
-      
-      if (text == "Skills") {
-        e.tooltip.innerHTML += br + (isShiftOn? "XP: " : "Levels: ") + br
-        for (const key in skillnames) {
-          e.tooltip.innerHTML +=
-            skillnames[key] +
-            ": " +
-            (isShiftOn ?
-              (steve.skillxp[key]+"/"+skilllevelxp[steve.skilllevels[key]]).color("yellow") 
-              :
-              color(steve.skilllevels[key], "yellow")  
-              )
-            +
-            " (" +
-            (
-              (steve.skillxp[key] / skilllevelxp[steve.skilllevels[key]]) *
-              100
-            ).toFixed(0) +
-            "%)" +
-            br
-        }
-      }
-      if (text.includes("Accessory")) {
-        let iter = 0
-        e.tooltip.innerHTML += br + "Currently Stores: " + br
-        steve.accessorybag.inventory.forEach((x, i) => {
-          if (x.name != "empty") {
+
+        if (text == "Skills") {
+          e.tooltip.innerHTML += br + (isShiftOn ? "XP: " : "Levels: ") + br
+          for (const key in skillnames) {
             e.tooltip.innerHTML +=
-              color(getName(x.name), raritycolors[x.rarity]) + ",  "
-            iter++
-            if (iter % 3 == 2) e.tooltip.innerHTML += br
+              skillnames[key] +
+              ": " +
+              (isShiftOn
+                ? (
+                    steve.skillxp[key] +
+                    "/" +
+                    skilllevelxp[steve.skilllevels[key]]
+                  ).color("yellow")
+                : color(steve.skilllevels[key], "yellow")) +
+              " (" +
+              (
+                (steve.skillxp[key] / skilllevelxp[steve.skilllevels[key]]) *
+                100
+              ).toFixed(0) +
+              "%)" +
+              br
           }
-        })
-        if (iter == 0) e.tooltip.innerHTML = text
-  
-        e.tooltip.innerHTML += br + br + br
-      }
-      if(text == "Collections"){
-        e.tooltip.innerHTML = "Collections".color("green") + br+br
-        for(const key in collections){
-          e.tooltip.innerHTML +=  getName(key) + ": " + steve.collectionitems[key].formateComas().color("yellow") 
-          if(isShiftOn)
-          if(collections[key][steve.collectionlevels[key]] == undefined){
-            e.tooltip.innerHTML += " (MAXED)".color("green")
-          }else
-          {
-            e.tooltip.innerHTML += " (" + (steve.collectionitems[key]/collections[key][steve.collectionlevels[key]].amount * 100 >> 0) + "%)"
+        }
+        if (text.includes("Accessory")) {
+          let iter = 0
+          e.tooltip.innerHTML += br + "Currently Stores: " + br
+          steve.accessorybag.inventory.forEach((x, i) => {
+            if (x.name != "empty") {
+              e.tooltip.innerHTML +=
+                color(getName(x.name), raritycolors[x.rarity]) + ",  "
+              iter++
+              if (iter % 3 == 2) e.tooltip.innerHTML += br
+            }
+          })
+          if (iter == 0) e.tooltip.innerHTML = text
+
+          e.tooltip.innerHTML += br + br + br
+        }
+        if (text == "Collections") {
+          e.tooltip.innerHTML = "Collections".color("green") + br + br
+          for (const key in collections) {
+            e.tooltip.innerHTML +=
+              getName(key) +
+              ": " +
+              steve.collectionitems[key].formateComas().color("yellow")
+            if (isShiftOn)
+              if (collections[key][steve.collectionlevels[key]] == undefined) {
+                e.tooltip.innerHTML += " (MAXED)".color("green")
+              } else {
+                e.tooltip.innerHTML +=
+                  " (" +
+                  (((steve.collectionitems[key] /
+                    collections[key][steve.collectionlevels[key]].amount) *
+                    100) >>
+                    0) +
+                  "%)"
+              }
+            e.tooltip.innerHTML += br
           }
-          e.tooltip.innerHTML += br
-  
-  
-  
-  
         }
       }
-    }
     }
     inner()
   }
@@ -2080,13 +2057,12 @@ Enchants = {
     cost: 100,
     conflict: "",
   },
-   protection : {
-    maxlvl : 5,
-    tool : armor,
-    cost : 100,
-   conflict: ''
-   },
-  
+  protection: {
+    maxlvl: 5,
+    tool: armor,
+    cost: 100,
+    conflict: "",
+  },
 }
 
 function givepaste(enchant, lvl = 5) {
@@ -2114,7 +2090,7 @@ let session = {
 
 function loadObject(Original, LoadOne) {
   for (const key in LoadOne) {
-    if (typeof LoadOne[key] == "object") {
+    if (typeof LoadOne[key] == "object" && !Array.isArray(LoadOne[key])) {
       Original[key] = loadObject(Original[key], LoadOne[key])
     } else {
       Original[key] = LoadOne[key]
@@ -2137,8 +2113,8 @@ function loadSession() {
   e.shopPriceCheckBox.checked = session.settings.fullStackPrice
   setFont(session.settings.font)
   setToolTipFontSize(session.settings.toolTipFontSize)
- 
-  e.body.style.backgroundColor = session.settings.bodycolor
+
+  e.mapframe.style.borderColor = session.settings.bodycolor
 }
 
 function saveSession() {
@@ -2301,12 +2277,29 @@ function makeVillagerNameTag(name) {
 /**
  * coords are 5x
  */
-function checkMapForBlock(y, x) {
-  if( y >=  mapH || y<0 || x<0 || x>=mapW) return true
-  y = y >> 0
-  x = x >> 0
- 
-  return !allowedblocks.includes(currentmap[y][x][0].slice(0, 9))
+
+function checkMapForBlock(y, x, width, height) {
+  if (y < 0 || x < 0 || y >= map.height || x >= map.width) return true
+  //comsole.log("corner 1:",map.layout[y>> 0][x >> 0])
+  //comsole.log("corner 2:",map.layout[y>> 0][x + width-0.01 >> 0])
+  //comsole.log("corner 3:",map.layout[y + height -0.01>> 0][x >> 0])
+  //comsole.log("corner 4:",map.layout[y + height -0.01>> 0][x + width - 0.01 >> 0])
+
+  return (
+    !allowedblocks.includes(map.layout[y >> 0][x >> 0][0].slice(0, 9)) ||
+    !allowedblocks.includes(
+      map.layout[(y + height - 0.01) >> 0][x >> 0][0].slice(0, 9)
+    ) ||
+    !allowedblocks.includes(
+      map.layout[y >> 0][(x + width - 0.01) >> 0][0].slice(0, 9)
+    ) ||
+    !allowedblocks.includes(
+      map.layout[(y + height - 0.01) >> 0][(x + width - 0.01) >> 0][0].slice(
+        0,
+        9
+      )
+    )
+  )
 }
 function playClickSound() {
   new Howl({
@@ -2337,7 +2330,7 @@ function playClickSound() {
 
 // }
 // let endDate = new Date()
-// console.log("Time: ",endDate - date )
+// //comsole.log("Time: ",endDate - date )
 // return end2
 
 // }
@@ -2346,7 +2339,7 @@ function playClickSound() {
 //   let date = new Date()
 //   A.sort()
 //   let endDate = new Date()
-//   console.log("Time: ",endDate - date )
+//   //comsole.log("Time: ",endDate - date )
 // }
 
 function getMobSound(mobname) {
@@ -2419,7 +2412,9 @@ function playerAgeString() {
   date.minutes -= date.hours * 60
   date.hours -= date.days * 24
   return (
-    (date.days > 0 ? date.days.color("#069c03") + " Day"+ isS(date.days) + " " : "") +
+    (date.days > 0
+      ? date.days.color("#069c03") + " Day" + isS(date.days) + " "
+      : "") +
     (date.hours > 0 || date.days > 0
       ? date.hours.color("#069c03") + " Hour" + isS(date.hours) + " "
       : "") +
@@ -2502,7 +2497,7 @@ function isInVillage() {
 function isZombie(mobName) {
   return /zombie/.test(mobName)
 }
-function isInForest(){
+function isInForest() {
   return /forest/.test(currentBiome)
 }
 
@@ -2522,7 +2517,6 @@ const staticons = {
   farmingfortune: "☘",
   combatfortune: "☘",
   foragingfortune: "☘",
-  
 }
 function getStatIcon(statname) {
   let icon = staticons[statname] || ""
@@ -2550,6 +2544,7 @@ function setFont(font) {
     item.style.fontFamily = font
   }
 }
+
 function changeFont() {
   let font = prompt("Input Font Name(Default: Minecraftia)")
   if (font != undefined) {
@@ -2557,6 +2552,7 @@ function changeFont() {
     setFont(font)
   }
 }
+
 function setToolTipFontSize(value) {
   session.settings.toolTipFontSize = value
   e.tooltip.style.fontSize = session.settings.toolTipFontSize + "vh"
@@ -2577,7 +2573,7 @@ function changeBodyColor() {
   let color = prompt("Type font color in HEX format(example: #57FA22)")
   if (color != undefined) {
     session.settings.bodycolor = color
-    e.body.style.backgroundColor = color
+    e.mapframe.style.borderColor = color
   }
 }
 function compareObjects(item, tag) {
@@ -2591,38 +2587,134 @@ function compareObjects(item, tag) {
   }
   return state
 }
-function notification(text,color = "red"){
-  if(isLoaded)
-  {
-    
-  let tag =document.createElement("div")
-  tag.style.textAlign = "center"
-  tag.className = "notification"
-  tag.innerHTML = br
-  text.forEach(x=>{
-    tag.innerHTML += x + br
-  })
-  tag.innerHTML += br
-  e.notificationbar.appendChild(tag)
-  setTimeout(function(element){
-    element.className = "notification slideright"
-    setTimeout(function(tag){
-      tag.remove()
-    },2000,element)
-  },10000,tag)
-
+function notification(text, color = "red") {
+  if (isLoaded) {
+    let tag = document.createElement("div")
+    tag.style.textAlign = "center"
+    tag.className = "notification"
+    tag.innerHTML = br
+    text.forEach((x) => {
+      tag.innerHTML += x + br
+    })
+    tag.innerHTML += br
+    e.notificationbar.appendChild(tag)
+    setTimeout(
+      function (element) {
+        element.className = "notification slideright"
+        setTimeout(
+          function (tag) {
+            tag.remove()
+          },
+          2000,
+          element
+        )
+      },
+      10000,
+      tag
+    )
+  }
 }
-}
 
-const isS = (amount) => amount == 1? "" : "s"
+const isS = (amount) => (amount == 1 ? "" : "s")
 /**
- * 
- * @param {{x,y}} a 
- * @param {{x,y}} b 
+ *
+ * @param {{x,y}} a
+ * @param {{x,y}} b
  * @returns distance:number
  */
-const distnaseBetweenTargets = (a,b) => ((a.x-b.x)**2 + (a.y - b.y)**2) **(1/2)
+const distnaseBetweenTargets = (a, b) =>
+  ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** (1 / 2)
 function getCoords(evt) {
-return  {x: evt.x / percent  >> 0,
-y: evt.y / percent  >> 0}
-} 
+  return { x: (evt.x / percent) >> 0, y: (evt.y / percent) >> 0 }
+}
+
+function onMapClick(evt,isOnMap = true) {
+  
+  let clickX = isOnMap ? (evt.offsetX / blocksize)>>0 : evt.offsetX
+  let clickY = isOnMap ? (evt.offsetY / blocksize) >> 0 : evt.offsetY
+  //comsole.log(evt)
+  if (isMapModeOn) {
+    //  if (clickX != oldclicks[1] || clickY != oldclicks[0])
+    if (clickX >= 0 && clickY >= 0) {
+      if (features[0]) {
+        fill3x3(clickY, clickX)
+      }
+      // else if (features[1]) {
+      //   fillVericalLine(clickX);
+      // } else if (features[2]) {
+      //   fillHorizontalLine(clickY);
+      // }
+      else {
+        if (map.layout[clickY] == undefined) map.layout[clickY] = new Array()
+        if (map.layout[clickY][clickX] == undefined)
+          map.layout[clickY][clickX] = ["air", "air"]
+          if (
+            map.layout[clickY][clickX][floormode].includes("tree") ||
+            map.layout[clickY][clickX][floormode].includes("mob")
+          ) {
+            let t = document.getElementById(
+              map.layout[clickY][clickX][floormode] + " " + clickX + " " + clickY
+            )
+            t.remove()
+          }
+          map.layout[clickY][clickX][floormode] = selectedblockedit
+
+        if (
+          selectedblockedit.includes("tree") ||
+          selectedblockedit.includes("mob")
+        ) {
+        
+          let tag = document.createElement("div")
+          tag.className = selectedblockedit + " mapblock"
+          tag.setAttribute("onmousedown","onMapClick({offsetY:"+ clickY +",offsetX:"+clickX +"},false)")
+          tag.id = map.layout[clickY][clickX][0] + " " + clickX + " " + clickY
+          tag.style.left = clickX.blocks().px()
+          tag.style.top = clickY.blocks().px()
+          e.mapcontainer.appendChild(tag)
+
+         
+        } else {
+         
+          mapContext.clearRect(
+            clickX * blocksize,
+            clickY * blocksize,
+            blocksize,
+            blocksize
+          )
+          if (floormode) {
+            drawfloorblock(selectedblockedit, clickX, clickY)
+            drawblock(map.layout[clickY][clickX][0], clickX, clickY)
+          } else drawblock(selectedblockedit, clickX, clickY)
+        }
+        // oldclicks = [clickY, clickX];
+      }
+    }
+  } else {
+    breakblock(clickX, clickY)
+  }
+}
+
+function isUndefined(value) {
+  return value == undefined || value == null
+}
+
+const downloadTxtFile = (text) => {
+  const element = document.createElement("a")
+  const file = new Blob([text], {
+    type: "text/plain",
+  })
+  element.href = URL.createObjectURL(file)
+  element.download = "mapfile.txt"
+  document.body.appendChild(element)
+  element.click()
+  element.remove()
+  delete element
+}
+const centerMapOnPlayer = (x, y) => {
+  e.mapcontainer.style.left = (steve.offset.x - steve.x - borderwidth)
+    .blocks()
+    .px()
+  e.mapcontainer.style.top = (steve.offset.y - steve.y - borderwidth)
+    .blocks()
+    .px()
+}

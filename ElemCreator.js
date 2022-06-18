@@ -5,12 +5,14 @@ function loadIDS() {
   for (let i = 0, n = allElements.length; i < n; i++) {
     e[allElements[i].id] = allElements[i]
   }
-  e.map.style.width = mapW * 5 + "vh"
-  e.map.style.height = mapH * 5 + "vh"
+  // e.map.style.width = mapW * 5 + "vh"
+  // e.map.style.height = mapH * 5 + "vh"
   e.guihandler.style.width = window.innerWidth - 100 + "px"
   e.guihandler.style.height = window.innerHeight - 50 + "px"
   // e.behindeveryone.style.width = window.innerWidth - 10 + "px"
   // e.behindeveryone.style.height = window.innerHeight - 130 + "px"
+  e.mapframe.style.height = window.innerHeight + "px"
+  e.mapframe.style.width = window.innerWidth + "px"
   e.furnace.slot0 = e.furnaceInput
   e.furnace.slot0amount = e.furnaceInputamount
   e.furnace.slot1 = e.furnaceFuel
@@ -148,7 +150,7 @@ let selectorblocks = [
   "grass",
   "stoneslab",
   "leavesoak",
-  "greenwool",
+  "woolcoloredgreen",
   "grassPlant",
   "bedrock",
   "logoak",
@@ -198,6 +200,26 @@ const slayerArmorMilestonesDefense = [0,20,50,90,120,150,180,200,220,240,260,280
 
 String.prototype.toUpperLetter = function() {return this[0].toUpperCase() + this.substring(1)
 }
+Number.prototype.blocks = function() {
+  return this*blocksize
+
+} 
+Number.prototype.px = function(){
+  return this + "px"
+}
+String.prototype.blocks = function() {
+  return this*blocksize
+
+} 
+String.prototype.px = function(){
+  return this + "px"
+}
+Number.prototype.fixed = function(val)
+{
+  return +this.toFixed(val)
+}
+
+  
 
 
 Array.prototype.set = function (n, l) {

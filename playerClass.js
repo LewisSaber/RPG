@@ -1,16 +1,20 @@
 class player {
   constructor() {
-    this.width = 4.6
+    this.width = 0.8
     this.height = this.width
-    this.x = 50
-    this.y = 20
+    this.x = 3
+    this.y = 0
     this.mapX = 0
     this.mapY = 0
     this.name = "steve"
     this.nick = "none"
     this.skin = "default"
-    this.diffrencex = +(5 - this.width).toFixed(2)
-    this.diffrencey = +(5 - this.height).toFixed(2)
+    this.offset = {
+      x: 7,
+      y: 7,
+    }
+    this.diffrencex = +(1 - this.width).toFixed(2)
+    this.diffrencey = +(1 - this.height).toFixed(2)
     this.inventorySlots = 36
     this.inventory = []
     this.machines = []
@@ -20,7 +24,7 @@ class player {
     this.accessorybag = new classes.accessorybag()
     this.skillstats = {
       totalDamageMultiplier: 0,
-      combatfortune:0,
+      combatfortune: 0,
       miningfortune: 0,
     }
     this.stats = {
@@ -85,18 +89,15 @@ class player {
     this.age++
   }
   createPlayer() {
-    let tag = document.createElement("p")
+    let tag = document.createElement("div")
     tag.setAttribute("id", "player")
-    tag.style.left = this.x + "vh"
-    tag.style.top = this.y + "vh"
-    tag.style.width = this.width + "vh"
-    tag.style.height = this.height + "vh"
+    
+    tag.style.width = this.width.blocks().px()
+    tag.style.height = this.height.blocks().px()
 
-    let tool = document.createElement("p")
+    let tool = document.createElement("div")
     tool.setAttribute("id", "playertool")
-
-    tool.style.left = this.x + 4 + "vh"
-    tool.style.top = this.y + 0.5 + "vh"
+   
     e["playertool"] = tool
     e["player"] = tag
   }
@@ -104,10 +105,29 @@ class player {
     for (const key in this.food) {
       this.food[key].time -= 1000
       if (this.food[key].time <= 0) {
-      
         delete this.food[key]
       }
     }
+  }
+  spawn() {
+    const toolOffset = {
+      x: 0.6,
+      y: 0.1
+      
+
+    }
+
+    e.player.style.left = this.offset.x.blocks().px()
+    e.player.style.top = this.offset.y.blocks().px()
+   
+    e.playertool.style.left = (this.offset.x.blocks() + toolOffset.x.blocks()).px()
+    e.playertool.style.top = (this.offset.y.blocks() + toolOffset.y.blocks()).px()
+
+    e.body.appendChild(e.playertool)
+    e.body.appendChild(e.player)
+
+    this.applySkin()
+    centerMapOnPlayer()
   }
   addAllFood() {
     for (const key in this.food) {
@@ -145,149 +165,155 @@ class player {
     }
   }
   move() {
+  
     let movingright = true
     let oldcoords = [this.y, this.x]
     if (!keys.slice(0, 4).includes(1)) {
       clearInterval(movetimer)
       movetimer = 0
-    } else if (
-      this.x < 0 ||
-      this.y < 0 ||
-      this.y > (mapH - 1) * 5 - 1 ||
-      this.x > (mapW - 1) * 5 - 1
-    ) {
-      // savemap();
-      if (this.x < 0) {
-        this.x = (mapW - 1.2) * 5
-        mapX--
-      }
-      if (this.y < 0) {
-        this.y = (mapH - 1.2) * 5
-        mapY--
-      }
-      if (this.y > (mapH - 1) * 5 - 1) {
-        this.y = 4
-        mapY++
-      }
-      if (this.x > (mapW - 1) * 5 - 1) {
-        this.x = 4
-        mapX++
-      }
+    }
+    // else if (
+    //   this.x < 0 ||
+    //   this.y < 0 ||
+    //   this.y > (mapH - 1) * 5 - 1 ||
+    //   this.x > (mapW - 1) * 5 - 1
+    // ) {
+    //   // savemap();
+    //   if (this.x < 0) {
+    //     this.x = (mapW - 1.2) * 5
+    //     mapX--
+    //   }
+    //   if (this.y < 0) {
+    //     this.y = (mapH - 1.2) * 5
+    //     mapY--
+    //   }
+    //   if (this.y > (mapH - 1) * 5 - 1) {
+    //     this.y = 4
+    //     mapY++
+    //   }
+    //   if (this.x > (mapW - 1) * 5 - 1) {
+    //     this.x = 4
+    //     mapX++
+    //   }
 
-      goToNextMap()
-    } else {
+    //   goToNextMap()
+    // }
+    else {
+      const speed = this.getSpeed()
       if (keys[0] != keys[2]) {
-        if (keys[0]) this.y -= 0.2
-        if (keys[2]) this.y += 0.2
+        if (keys[0]) this.y -= speed
+        if (keys[2]) this.y += speed
       }
 
       this.y = +this.y.toFixed(1)
-
-      if (oldcoords[0] > this.y) {
-        //move up
-        if (this.x % 5 >> 0 <= this.diffrencex) {
-          if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
-            this.y = oldcoords[0]
-        } else {
-          if (
-            checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
-            checkMapForBlock((this.y / 5) >> 0, (this.x / 5 + 1) >> 0)
-          )
-            this.y = oldcoords[0]
-        }
-      } else {
-        // move down
-        if (this.x % 5 >> 0 <= this.diffrencex) {
-          if (
-            checkMapForBlock(
-              (this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1,
-              (this.x / 5) >> 0
-            )
-          ) {
-            this.y = oldcoords[0]
-          }
-        } else if (
-          checkMapForBlock(
-            ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
-            (this.x / 5 + 1) >> 0
-          ) ||
-          checkMapForBlock(
-            ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
-            (this.x / 5) >> 0
-          )
-        )
-          this.y = oldcoords[0]
-      }
+      //comsole.log("y before:",this.y)
+      if(checkMapForBlock(this.y,this.x,this.width,this.height)) this.y = oldcoords[0]
+      //comsole.log("y after",this.y)
+      // if (oldcoords[0] > this.y) {
+      //   //move up
+      //   if (this.x % 5 >> 0 <= this.diffrencex) {
+      //     if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
+      //       this.y = oldcoords[0]
+      //   } else {
+      //     if (
+      //       checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
+      //       checkMapForBlock((this.y / 5) >> 0, (this.x / 5 + 1) >> 0)
+      //     )
+      //       this.y = oldcoords[0]
+      //   }
+      // } else {
+      //   // move down
+      //   if (this.x % 5 >> 0 <= this.diffrencex) {
+      //     if (
+      //       checkMapForBlock(
+      //         (this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1,
+      //         (this.x / 5) >> 0
+      //       )
+      //     ) {
+      //       this.y = oldcoords[0]
+      //     }
+      //   } else if (
+      //     checkMapForBlock(
+      //       ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
+      //       (this.x / 5 + 1) >> 0
+      //     ) ||
+      //     checkMapForBlock(
+      //       ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
+      //       (this.x / 5) >> 0
+      //     )
+      //   )
+      //     this.y = oldcoords[0]
+      // }
       if (keys[1] != keys[3]) {
-        if (keys[1]) this.x -= 0.2
-        if (keys[3]) this.x += 0.2
+        if (keys[1]) this.x -= speed
+        if (keys[3]) this.x += speed
       }
       this.x = +this.x.toFixed(1)
+       //comsole.log("x before",this.x)
+      if(checkMapForBlock(this.y,this.x,this.width,this.height)) this.x = oldcoords[1]
+      //comsole.log("x after",this.x)
+    
+
       //////
-      if (oldcoords[1] > this.x) {
-        movingright = false
-        //move left
-        if (this.y % 5 >> 0 <= this.diffrencey) {
-          if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
-            this.x = oldcoords[1]
-        } else {
-          if (
-            checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
-            checkMapForBlock((this.y / 5 + 1) >> 0, (this.x / 5) >> 0)
-          )
-            this.x = oldcoords[1]
-        }
-      } else {
-        //move right
-        movingright = true
-        if (this.y % 5 >> 0 <= this.diffrencey) {
-          if (
-            checkMapForBlock(
-              this.y / 5,
-              (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-            )
-          )
-            this.x = oldcoords[1]
-        } else if (
-          checkMapForBlock(
-            this.y / 5,
-            (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-          ) ||
-          checkMapForBlock(
-            (this.y / 5 + 1) >> 0,
-            (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-          )
-        ) {
-          this.x = oldcoords[1]
-        }
-      }
+      // if (oldcoords[1] > this.x) {
+      //   movingright = false
+      //   //move left
+      //   if (this.y % 5 >> 0 <= this.diffrencey) {
+      //     if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
+      //       this.x = oldcoords[1]
+      //   } else {
+      //     if (
+      //       checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
+      //       checkMapForBlock((this.y / 5 + 1) >> 0, (this.x / 5) >> 0)
+      //     )
+      //       this.x = oldcoords[1]
+      //   }
+      // } else {
+      //   //move right
+      //   movingright = true
+      //   if (this.y % 5 >> 0 <= this.diffrencey) {
+      //     if (
+      //       checkMapForBlock(
+      //         this.y / 5,
+      //         (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
+      //       )
+      //     )
+      //       this.x = oldcoords[1]
+      //   } else if (
+      //     checkMapForBlock(
+      //       this.y / 5,
+      //       (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
+      //     ) ||
+      //     checkMapForBlock(
+      //       (this.y / 5 + 1) >> 0,
+      //       (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
+      //     )
+      //   ) {
+      //     this.x = oldcoords[1]
+      //   }
+      // }
 
-      e.player.style.top = this.y + "vh"
-      e.player.style.left = this.x + "vh"
-      if (movingright) {
-        e.playertool.style.transform = "scale(-1,1) rotate(-90deg)"
-        e.playertool.style.left = this.x + 4 + "vh"
-      } else {
-        e.playertool.style.left = this.x - 3.6 + "vh"
+      // e.player.style.top = this.y + "vh"
+      // e.player.style.left = this.x + "vh"
+      // if (movingright) {
+      //   e.playertool.style.transform = "scale(-1,1) rotate(-90deg)"
+      //   e.playertool.style.left = this.x + 4 + "vh"
+      // } else {
+      //   e.playertool.style.left = this.x - 3.6 + "vh"
 
-        e.playertool.style.transform = "scale(1,1) rotate(-90deg)"
-      }
-      e.playertool.style.top = this.y + 0.5 + "vh"
+      //   e.playertool.style.transform = "scale(1,1) rotate(-90deg)"
+      // }
+      // e.playertool.style.top = this.y + 0.5 + "vh"
+      centerMapOnPlayer()
+      // delete oldcoords
+      // delete speed
     }
   }
 
   getSpeed() {
-    return this.getStat("speed") / 10
+    return this.getStat("speed") / 1000
   }
-  spawn() {
-    e.map.appendChild(e.playertool)
-    e.map.appendChild(e.player)
-    this.applySkin()
-    e.player.style.top = this.y + "vh"
-    e.player.style.left = this.x + "vh"
-    e.playertool.style.left = this.x + 4 + "vh"
-    e.playertool.style.top = this.y + 0.5 + "vh"
-  }
+ 
   searchForItemInInventory(item, s = 0, e = 36) {
     let itemSlots = []
     for (let i = e - 1; i >= s; i--) {
@@ -335,7 +361,6 @@ class player {
     })
     return amount
   }
-
 
   clearinventory(s = 0, end = this.inventorySlots - 1) {
     for (s; s <= end; s++) {
@@ -401,7 +426,8 @@ class player {
 
   getMiningSpeed() {
     return (
-      this.getStat("miningspeed") * (1 + (steve.getEnchant("efficiency") * 0.08 || 0))
+      this.getStat("miningspeed") *
+      (1 + (steve.getEnchant("efficiency") * 0.08 || 0))
     )
   }
   fortunes = {
@@ -414,16 +440,16 @@ class player {
 
   isInRange(target) {
     return (
-      (target.x * 5 + 2.5 - (this.x + this.width / 2)) ** 2 +
-        (target.y * 5 + 2.5 - (this.y + this.height / 2)) ** 2 <=
-      ((this.getStat("range") + 1) * 5) ** 2
+      (target.x +0.5 - (this.x + this.width / 2)) ** 2 +
+        (target.y +0.5 - (this.y + this.height / 2)) ** 2 <=
+      ((this.getStat("range") + 1) ) ** 2
     )
   }
   isMobInRange(target) {
     return (
       (target.x - (this.x + this.width / 2)) ** 2 +
         (target.y - (this.y + this.height / 2)) ** 2 <=
-      ((this.getStat("range") + 1) * 5) ** 2
+      ((this.getStat("range") + 1) ) ** 2
     )
   }
   stopBreakingBlock(cblock) {
@@ -446,7 +472,7 @@ class player {
   breakblock(cblock) {
     if (keys[5] == 0) {
       this.stopBreakingBlock(cblock)
-      console.log("stop breaking")
+      //comsole.log("stop breaking")
     } else {
       if (
         cblock.block.tool == "none" ||
@@ -456,29 +482,33 @@ class player {
       } else {
         cblock.block.hardness -= 100
       }
-      console.log("hardenss: " + cblock.block.hardness)
+      //comsole.log("hardenss: " + cblock.block.hardness)
       e.progressbarInside.style.width =
         (cblock.block.hardness / cblock.maxhardness) * 100 + "%"
       if (cblock.block.hardness <= 0) {
         e.progressbar.style.display = "none"
         e.progressbarInside.style.width = "100%"
-        console.log("block broken")
+        //comsole.log("block broken")
         clearInterval(breaktimer)
         breaktimer = 0
         dumbtoinventory(cblock.block.generateDrop())
-        maphtml[cblock.y][cblock.x][cblock.layer].classList =
-          (cblock.layer ? "blockfloor " : "block ") + cblock.block.replacement
-        currentmap[cblock.y][cblock.x][cblock.layer] = cblock.block.replacement
+        
+        map.layout[cblock.y][cblock.x][cblock.layer] = cblock.block.replacement
+        if(cblock.block.name.includes("tree"))
+        {
+          let tag = document.getElementById(cblock.block.name + " " + cblock.x + " " + cblock.y)
+          tag.className = cblock.block.replacement + " mapblock"
+        }
+        else
+        drawMapBlock(cblock.x,cblock.y)
         selectedBlock = new classes.empty()
         setTimeout(
           blockreplacement,
           4000,
-          mapY,
-          mapX,
           cblock.y,
           cblock.x,
-          cblock.block.name,
-          cblock.layer
+          cblock.layer,
+          cblock.block.name
         )
       } else
         breaktimer = setTimeout(function () {
@@ -495,49 +525,46 @@ class player {
       (1 - (steve.getEnchant("protection") >> 0) * 0.02)
     )
   }
-  getDamage(mob){
-    return   this.getStat("damage") *
-    (1 + this.getStat("strength") / 100) *
-   (random100(this.getStat('criticalchance'))
-     ? this.getStat('criticaldamage') / 100 + 1
-     : 1) *
-   (mob.mobtype == "undead"
-     ? this.getStat('undeadbonus') 
-       : 1
-      ) *
-(1 + (this.getEnchant('sharpness') * 0.1)) *
-   this.getStat('totalDamageMultiplier') >>0
+  getDamage(mob) {
+    return (
+      (this.getStat("damage") *
+        (1 + this.getStat("strength") / 100) *
+        (random100(this.getStat("criticalchance"))
+          ? this.getStat("criticaldamage") / 100 + 1
+          : 1) *
+        (mob.mobtype == "undead" ? this.getStat("undeadbonus") : 1) *
+        (1 + this.getEnchant("sharpness") * 0.1) *
+        this.getStat("totalDamageMultiplier")) >>
+      0
+    )
   }
-  getProjectileDamage(mob,initialDamage){
-  return initialDamage
+  getProjectileDamage(mob, initialDamage) {
+    return initialDamage
   }
-  dealDamageToMob(id,type = "hit",initialDamage = 0){
+  dealDamageToMob(id, type = "hit", initialDamage = 0) {
     mobs[id].knockback()
-    let damage =0
-   if(type == "hit")
-   damage = this.getDamage(mobs[id])
-   if(type == "projectile")
-   damage = this.getProjectileDamage(mobs[id],initialDamage)
-   
-     mobs[id].stats.health -= damage
-     console.log(damage)
-  
+    let damage = 0
+    if (type == "hit") damage = this.getDamage(mobs[id])
+    if (type == "projectile")
+      damage = this.getProjectileDamage(mobs[id], initialDamage)
 
-   if (mobs[id].stats.health <= 0) {
-     mobs[id].die()
-     e.progressbar.style.display = "none"
-   } else {
-     playMobHowl(mobs[id].name, "hurt")
-     makeMonsterHotbar(id)
-   }
+    mobs[id].stats.health -= damage
+    //comsole.log(damage)
+
+    if (mobs[id].stats.health <= 0) {
+      mobs[id].die()
+      e.progressbar.style.display = "none"
+    } else {
+      playMobHowl(mobs[id].name, "hurt")
+      makeMonsterHotbar(id)
+    }
   }
-  damageMob(id,) {
+  damageMob(id) {
     if (this.isMobInRange(mobs[id]) && !isBlockBetween(this, mobs[id])) {
       if (mobs[id].name == "villager") {
         openMachineGui(mobs[id])
       } else {
         this.dealDamageToMob(id)
-        
       }
     }
   }
@@ -565,7 +592,9 @@ class player {
   }
   naturalRegeneration() {
     this.addHealth(
-      (this.getStat("maxhealth") * (this.getStat('naturalregeneration') / 100)) >> 0
+      (this.getStat("maxhealth") *
+        (this.getStat("naturalregeneration") / 100)) >>
+        0
     )
   }
   addSet(item) {
@@ -626,7 +655,7 @@ class player {
 
     return amount
   }
-  getCenterCoordsArray(){
-    return [this.x + this.width/2,this.y + this.height/2]
+  getCenterCoordsArray() {
+    return [this.x + this.width / 2, this.y + this.height / 2]
   }
 }

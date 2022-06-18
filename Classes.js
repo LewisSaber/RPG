@@ -213,7 +213,7 @@ classes.furnace = class extends classes.machine {
   }
   doRecipeInternal() {
     if (this.checkvalidnes()) {
-      // console.log("recipe done")
+      // //comsole.log("recipe done")
       this.inventory.output = new classes[this.recipe[0]](
         this.inventory.output.amount + this.recipe[2]
       )
@@ -231,7 +231,7 @@ classes.furnace = class extends classes.machine {
         }
       }
       if (this.checkvalidnes()) {
-        // console.log("starting recipe")
+        // //comsole.log("starting recipe")
         this.recipetimer = setTimeout(
           this.doRecipeInternal.bind(this),
           this.recipe[3] * 20
@@ -243,7 +243,7 @@ classes.furnace = class extends classes.machine {
     if (this.inventory.fuel.burnvalue > 0) {
       this.fuel += this.inventory.fuel.burnvalue
       this.inventory.fuel = reduceStack(this.inventory.fuel, 1)
-      //console.log("Fuel reduced")
+      ////comsole.log("Fuel reduced")
       return true
     }
     return false
@@ -902,7 +902,7 @@ classes.enchantingbook = class extends classes.machine {
   }
 
   doRecipeInternal() {
-    console.log(this)
+    //comsole.log(this)
     if (
       this.inventory.input2.name == "enchantingpaste" &&
       this.inventory.input.name != "empty"
@@ -976,7 +976,7 @@ classes.enchantingbook = class extends classes.machine {
   //   if (this.inventoryslotid >= 0) {
   //     e.machines["slot" + this.inventoryslotid].className = "guiSlot furnace";
   //   }
-  //   console.log("Recipe stopped");
+  //   //comsole.log("Recipe stopped");
   // }
 }
 
@@ -1751,7 +1751,7 @@ classes.projectile = class{
      x: endCoords[0],
      y: endCoords[1]
    }
-   console.log("target",this.target)
+   //comsole.log("target",this.target)
    this.sender = sender
    this.className = className
    this.destroyF = this.destroy.bind(this)
@@ -1775,9 +1775,9 @@ classes.projectile = class{
 
   }
   startMovingToTarget(){
-    console.log("distance y", (this.y + this.size/2 - this.target.y))
+    //comsole.log("distance y", (this.y + this.size/2 - this.target.y))
     let hipon = Math.sqrt((this.x + this.size/2 - this.target.x) ** 2 + (this.y + this.size/2 - this.target.y) ** 2)
-    console.log("hipon",hipon)
+    //comsole.log("hipon",hipon)
     let angleSin = Math.abs(this.x + this.size/2 - this.target.x) / hipon
     
     /**
@@ -1790,7 +1790,7 @@ classes.projectile = class{
     if(this.x > this.target.x) vectorspeed[0] *= -1
     if(this.y > this.target.y) vectorspeed[1] *= -1
 
-     console.log(vectorspeed);
+     //comsole.log(vectorspeed);
     this.movetimer =  setTimeout(this.move.bind(this), Math.ceil(2000 / this.speed), vectorspeed)
     
   
@@ -1835,7 +1835,7 @@ classes.projectile = class{
       case "wall":
         break
       default:
-        console.log(target)
+        //comsole.log(target)
         steve.dealDamageToMob(target,"projectile",this.damage)
         break;
     }
@@ -1861,7 +1861,7 @@ classes.bow = class extends classes.tool{
   }
   useAbility(evt){
     const coords = getCoords(evt)
-    console.log(coords)
+    //comsole.log(coords)
     new classes.projectile(steve.getCenterCoordsArray(),[coords.x,coords.y],2,200,"redCircle",steve,25)
   }
 }

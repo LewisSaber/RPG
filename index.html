@@ -9,7 +9,13 @@
   <body id="body" >
    
     <div id="progressbar"><p id="progressbartext"><div id="progressbarInside"></div></p></div>
-<div id="map"></div>
+    <div id="mapframe"></div>
+  <div id="mapcontainer">
+    <canvas id="map" width="5000" height="5000"></canvas>
+  </div>
+
+
+
 <div id="tooltip" ></div>
 
 <div id="hotbar"></div>
@@ -106,22 +112,22 @@
 <div id="mapsGui" ></div>
 
 <div id="blocksSelector"><button id="fill3x3" class="blockselector" onclick="turnButton(this.id,0)"></button>
-   <button id="fillVericalLine" class="blockselector" onclick="turnButton(this.id,1)"></button>
-       <button id="fillHorizontalLine" class="blockselector" onclick="turnButton(this.id,2)"></button>
-       </div>
+   <!-- <button id="fillVericalLine" class="blockselector" onclick="turnButton(this.id,1)"></button>
+       <button id="fillHorizontalLine" class="blockselector" onclick="turnButton(this.id,2)"></button> -->
+       </div> 
        <button id="floormode" onclick="floormode = +!floormode;  this.style.backgroundColor = floormode ? 'green' : 'red'  ">F</button>
        <button id="randomfill" onclick="randomfill(this)">100%</button>
       
     <select  id="biomes" onchange="setBiome()">   
     </select>
-       <button id="selectLocation" onclick="setLocation()" onmouseenter="currentmap.location == null ? '' :makeTextToolTip(currentmap.location)" onmouseleave =
-       "leaveElement()">L</button>
+       <!-- <button id="selectLocation" onclick="setLocation()" onmouseenter="currentmap.location == null ? '' :makeTextToolTip(currentmap.location)" onmouseleave =
+       "leaveElement()">L</button> -->
        <button id="saveMap" onclick='
-        saveMapToCloud()'>Save</button>
-       <button id="openMaps" onclick="OpenMapGui()">M</button>
+        saveMap()'>Save</button>
+       <!-- <button id="openMaps" onclick="OpenMapGui()">M</button>  -->
      
 </div>
-<button id="switchmode" onclick="switchmode()">Switch</button>
+<!-- <button id="switchmode" onclick="switchmode()">Switch</button> -->
 <div id="Location"></div>
 <div id="notificationbar"></div>
     <!-- <script>window.addEventListener("error", handleError, true);
@@ -149,7 +155,7 @@
     <script src="villagerTrades.js"></script>
    
 
-
+<!-- <script>LOADING()</script> -->
     <script>loadmap()</script>
   
   </body>

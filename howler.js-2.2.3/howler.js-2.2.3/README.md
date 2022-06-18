@@ -126,7 +126,7 @@ var sound = new Howl({
   loop: true,
   volume: 0.5,
   onend: function() {
-    console.log('Finished!');
+    //comsole.log('Finished!');
   }
 });
 ```
@@ -159,7 +159,7 @@ sound.once('load', function(){
 
 // Fires when the sound finishes playing.
 sound.on('end', function(){
-  console.log('Finished!');
+  //comsole.log('Finished!');
 });
 ```
 

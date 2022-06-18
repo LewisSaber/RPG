@@ -234,29 +234,29 @@ function giveSkillReward(skill, lvl, l = 0) {
               [3, 0, 3, 3, 3, 3, 3, 3, 3]
             )
 
-            addShapedRecipe(
-              [
-                "leather",
-                "leather",
-                "leather",
-                "leather",
-                "empty",
-                "leather",
-                "leather",
-                "empty",
-                "leather",
-              ],
-              "leatherleggings",
-              1,
-              [3, 3, 3, 3, 0, 3, 3, 0, 3]
-            )
+            // addShapedRecipe(
+            //   [
+            //     "leather",
+            //     "leather",
+            //     "leather",
+            //     "leather",
+            //     "empty",
+            //     "leather",
+            //     "leather",
+            //     "empty",
+            //     "leather",
+            //   ],
+            //   "leatherleggings",
+            //   1,
+            //   [3, 3, 3, 3, 0, 3, 3, 0, 3]
+            // )
 
-            addShapedRecipe(
-              ["leather", "empty", "leather", "leather", "empty", "leather"],
-              "leatherboots",
-              1,
-              [3, 0, 3, 3, 0, 3]
-            )
+            // addShapedRecipe(
+            //   ["leather", "empty", "leather", "leather", "empty", "leather"],
+            //   "leatherboots",
+            //   1,
+            //   [3, 0, 3, 3, 0, 3]
+            // )
           }
           break
 

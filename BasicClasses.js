@@ -467,7 +467,7 @@ classes.mob = class {
       (this.lvl > steve.getStat("intimidationlevel") ||
         this.stats.health != this.stats.maxhealth)
     ) {
-      console.log("ID", this.id, this.name, "got Angry")
+      //comsole.log("ID", this.id, this.name, "got Angry")
       clearInterval(this.angerinterval)
       this.angerinterval = 0
       this.state = "angry"

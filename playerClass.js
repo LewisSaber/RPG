@@ -452,7 +452,7 @@ class player {
       ((this.getStat("range") + 1) ) ** 2
     )
   }
-  stopBreakingBlock(cblock) {
+  stopBreakingBlock() {
     clearInterval(breaktimer)
     breaktimer = 0
     e.progressbar.style.display = "none"
@@ -525,6 +525,7 @@ class player {
       (1 - (steve.getEnchant("protection") >> 0) * 0.02)
     )
   }
+  
   getDamage(mob) {
     return (
       (this.getStat("damage") *

@@ -42,7 +42,7 @@ function LOADING() {
   generateMap()
 
   e.map.onmousedown = onMapClick
-
+  
   window.onmousemove = function (evt) {
     timer = setTimeout(positionElement(evt), 1)
   }
@@ -50,9 +50,12 @@ function LOADING() {
     steve.itemInHand.useAbility(evt)
     return false
   }
+  
 
   //if (session.nick == "admin") loadmapFromCloud()
   if (!isMapModeOn) {
+   e.map.onmousemove = cursorMoveOnMap
+    
     buildaccessoryGui()
 
     loadPlayer(session.nick)
@@ -2115,6 +2118,7 @@ function loadSession() {
   setToolTipFontSize(session.settings.toolTipFontSize)
 
   e.mapframe.style.borderColor = session.settings.bodycolor
+  e.body.style.backgroundColor = session.settings.bodycolor
 }
 
 function saveSession() {
@@ -2574,8 +2578,10 @@ function changeBodyColor() {
   if (color != undefined) {
     session.settings.bodycolor = color
     e.mapframe.style.borderColor = color
+    e.body.style.backgroundColor = color
   }
 }
+
 function compareObjects(item, tag) {
   let state = true
   for (const key in tag) {
@@ -2587,6 +2593,7 @@ function compareObjects(item, tag) {
   }
   return state
 }
+
 function notification(text, color = "red") {
   if (isLoaded) {
     let tag = document.createElement("div")
@@ -2622,11 +2629,19 @@ const isS = (amount) => (amount == 1 ? "" : "s")
  * @param {{x,y}} b
  * @returns distance:number
  */
+
 const distnaseBetweenTargets = (a, b) =>
   ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** (1 / 2)
+
 function getCoords(evt) {
   return { x: (evt.x / percent) >> 0, y: (evt.y / percent) >> 0 }
 }
+let cursorCoordsOnMap = {
+  x: 0,
+  y:0
+}
+
+
 
 function onMapClick(evt,isOnMap = true) {
   
@@ -2710,11 +2725,27 @@ const downloadTxtFile = (text) => {
   element.remove()
   delete element
 }
-const centerMapOnPlayer = (x, y) => {
+const centerMapOnPlayer = () => {
   e.mapcontainer.style.left = (steve.offset.x - steve.x - borderwidth)
     .blocks()
     .px()
   e.mapcontainer.style.top = (steve.offset.y - steve.y - borderwidth)
     .blocks()
     .px()
+}
+let cursorLocationOnMap = {
+  x: 0,
+  y:0,
+}
+function cursorMoveOnMap(evt){
+    const x = evt.offsetX/blocksize >> 0
+    const y = evt.offsetY/blocksize >> 0
+if(cursorLocationOnMap.x != x || cursorLocationOnMap.y != y){
+  steve.stopBreakingBlock()
+  if(keys[5] == 1){
+    breakblock(x,y)
+  }
+}
+
+cursorLocationOnMap = {x:x,y:y}
 }

@@ -379,26 +379,29 @@ float: none;
 #progressbar {
     display: none;
   width: 60vh;
-  border: solid 0.2vh black;
-  height: 2vh;
+  border: solid 0.3vh black;
+  background: none;
+  height: 4vh;
   top: 81vh;
   left: 60.3vh;
   position: absolute;
+  z-index: 20;
 
 }
 #progressbarInside {
-  width: 0%;
+  width: 100%;
   height: 100%;
   background-color: green;
   display: inline;
   position: absolute;
-  z-index: 20;
+ 
 }
 
 #progressbartext{
   display: inline;
   font-size: 2.4vh;
- margin: 1.1vh;
+  margin: 0;
+ /* margin: 1.1vh; */
   position: absolute;
   width: 100%;
   text-align: center;
@@ -623,6 +626,7 @@ float: none;
   left: 20vh;
   background-color: gray;
   border-radius: 10px;
+  z-index: 10;
 }
 #healthbarinside{
   width: 100%;
@@ -1505,7 +1509,7 @@ z-index: 10;
   border-left-width: 5vh;
   border-top-width: 5vh;
   border-right-width: 40vh;
-  border-bottom-width:15vh ;
+  border-bottom-width:20vh ;
   pointer-events: none;
   z-index: 10;
 

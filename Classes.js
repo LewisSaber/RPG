@@ -403,18 +403,18 @@ classes.largebackpack = class extends classes.backpack {
     this.buildinventory()
   }
 }
-classes.forward = class extends classes.item {
-  constructor(amount = 0) {
-    super(amount)
-    this.name = "forward"
-    this.description = "Начальника"
-    this.type = "helmet"
-    this.stats = {
-      damage: 69,
-      speed: 420,
-    }
-  }
-}
+// classes.forward = class extends classes.item {
+//   constructor(amount = 0) {
+//     super(amount)
+//     this.name = "forward"
+//     this.description = "Начальника"
+//     this.type = "helmet"
+//     this.stats = {
+//       damage: 69,
+//       speed: 420,
+//     }
+//   }
+// }
 
 classes.zombie = class extends classes.mob {
   constructor(x, y, id) {

@@ -381,7 +381,6 @@ function loadrecipes() {
   )
   addShapedRecipe(["ironingot","ironingot","ironingot",empty,"steeleafhandle",empty,empty,"steeleafhandle",empty],"ironpickaxe",1,[4,4,4])
   addShapedRecipe(["ironingot","ironingot",empty,"ironingot","steeleafhandle",empty,empty,"steeleafhandle",empty],"ironaxe",1,[4,4,0,4])
-  addShapedRecipe(["ironblock", "leather"], "forward", 1, [64, 64])
   addFurnaceRecipe("beef", "steak", 100)
   addFurnaceRecipe("rawchicken", "cookedchicken", 80)
   addShapedRecipe(

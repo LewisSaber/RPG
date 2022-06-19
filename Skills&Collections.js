@@ -66,7 +66,7 @@ const collections = {
    {
       message: "Stone Furnace Recipe",
       reward:
-        "addShapedRecipe(['cobblestone','cobblestone','cobblestone','cobblestone','empty','cobblestone','cobblestone','cobblestone','cobblestone'],'furnace',1,[].set(16, 9).put(1, 4))",
+        "addShapedRecipe(['cobblestone','cobblestone','cobblestone','cobblestone','empty','cobblestone','cobblestone','cobblestone','cobblestone'],'furnace',1,[].set(16, 9).put(0, 4))",
       amount: 200
     },
   ],

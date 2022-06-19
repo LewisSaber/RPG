@@ -16,7 +16,7 @@ class player {
     this.nick = "none"
     this.skin = "default"
     this.offset = {
-      x: 7,
+      x: 15,
       y: 7,
     }
     this.diffrencex = +(1 - this.width).toFixed(2)

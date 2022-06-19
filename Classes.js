@@ -422,8 +422,6 @@ classes.zombie = class extends classes.mob {
     this.lvl = 1
     this.name = "zombie"
     this.mobtype = "undead"
-    this.width = 4.5
-    this.height = 4.5
     this.xp = 10
     this.stats = {
       health: 200,
@@ -436,8 +434,7 @@ classes.zombie = class extends classes.mob {
     }
     this.respawntimer = 10000
     this.state = "passive"
-    this.create()
-    this.spawn()
+    
   }
 }
 classes.rottenflesh = class extends classes.item {
@@ -471,8 +468,8 @@ classes.cow = class extends classes.mob {
     this.lvl = 1
     this.type = "passive"
     this.name = "cow"
-    this.width = 4.5
-    this.height = 4.5
+    this.width = 0.75
+    this.height = 0.75
     this.xp = 3
     this.stats = {
       health: 50,
@@ -481,8 +478,7 @@ classes.cow = class extends classes.mob {
     }
     this.respawntimer = 16000
     this.state = "passive"
-    this.create()
-    this.spawn()
+   
   }
 }
 classes.carrot = class extends classes.consumable {
@@ -550,8 +546,8 @@ classes.chicken = class extends classes.mob {
     this.lvl = 1
     this.type = "passive"
     this.name = "chicken"
-    this.width = 2.2
-    this.height = 2.2
+    this.width = 0.5
+    this.height = 0.5
     this.xp = 2
     this.stats = {
       health: 30,
@@ -560,8 +556,7 @@ classes.chicken = class extends classes.mob {
     }
     this.respawntimer = 12000
     this.state = "passive"
-    this.create()
-    this.spawn()
+   
   }
 }
 
@@ -806,15 +801,15 @@ classes.string = class extends classes.item {
     this.name = "string"
   }
 }
-selectorblocks.push("mobmobmob brutezombie")
+selectorblocks.push("mob brutezombie")
 classes.brutezombie = class extends classes.mob {
   constructor(x, y, id) {
     super(x, y, id)
     this.lvl = 5
     this.name = "brutezombie"
     this.mobtype = "undead"
-    this.width = 4.5
-    this.height = 4.5
+    this.width = 0.9
+    this.height = 0.9
     this.xp = 50
     this.stats = {
       health: 600,
@@ -827,8 +822,7 @@ classes.brutezombie = class extends classes.mob {
     }
     this.respawntimer = 15000
     this.state = "passive"
-    this.create()
-    this.spawn()
+    
   }
 }
 selectorblocks.push("netherrack")
@@ -1376,7 +1370,7 @@ classes.supercompactor9000 = class extends classes.supercompactor {
   }
 }
 
-selectorblocks.push("mobmobmob villager")
+selectorblocks.push("mob villager")
 classes.villager = class extends classes.mob {
   constructor(x, y, id, name) {
     super(x, y, id)
@@ -1385,8 +1379,6 @@ classes.villager = class extends classes.mob {
     this.mobtype = "villager"
     this.type = "passive"
     this.villagerName = name
-    this.width = 4.5
-    this.height = 4.5
     this.xp = 0
     this.stats = {
       health: 1e6,
@@ -1398,8 +1390,7 @@ classes.villager = class extends classes.mob {
     }
     this.respawntimer = 10000
     this.state = "passive"
-    this.create()
-    this.spawn()
+  
   }
   generateDrop() {
     let drops = []
@@ -1872,8 +1863,7 @@ classes.skeleton = class extends classes.mob {
     this.lvl = 1
     this.name = "skeleton"
     this.mobtype = "undead"
-    this.width = 4.5
-    this.height = 4.5
+   
     this.xp = 50
     this.stats = {
       health: 200,

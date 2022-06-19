@@ -11,8 +11,8 @@ function loadIDS() {
   e.guihandler.style.height = window.innerHeight - 50 + "px"
   // e.behindeveryone.style.width = window.innerWidth - 10 + "px"
   // e.behindeveryone.style.height = window.innerHeight - 130 + "px"
-  e.mapframe.style.height = window.innerHeight + "px"
-  e.mapframe.style.width = window.innerWidth + "px"
+  // e.mapframe.style.height = window.innerHeight + "px"
+  // e.mapframe.style.width = window.innerWidth + "px"
   e.furnace.slot0 = e.furnaceInput
   e.furnace.slot0amount = e.furnaceInputamount
   e.furnace.slot1 = e.furnaceFuel
@@ -40,7 +40,7 @@ function loadIDS() {
 const codeAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"//abcdefghijklmnopqrstuvwxyz"]
  const keywords = ["helmet","leggings","chestplate","boots","charm","relic","talisman","artifact","fortune","planks","pickaxe","axe","sword"]
 // const keywords = /helmet|leggings|chestplate|boots|charm|relic|talisman|artifact/
-const texturefilter = ["empty", "item", "block", "stonetype","tool","projectile"]
+const texturefilter = ["empty", "item", "block", "stonetype","tool","projectile","mob"]
 const raritycolors = [
   "white",
   "lime",
@@ -157,10 +157,10 @@ let selectorblocks = [
   "treeoak",
   "sand",
   "dirt",
-  "mobmobmob zombie",
-  "mobmobmob cow",
-  "mobmobmob chicken",
-  "mobmobmob skeleton",
+  "mob zombie",
+  "mob cow",
+  "mob chicken",
+  "mob skeleton",
   "dandelion",
 ]
 

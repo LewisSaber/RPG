@@ -21,8 +21,8 @@
 <div id="hotbar"></div>
 <div id="healthbar"><div id="healthbarinside"></div><div id="healthbartext"></div></div>
 <span id="guihandler" > f<div id="gui" ><div id="nei">
-  <button id="neileft" onclick="ShowRecipe(CurrentRecipeI-1)">&lt;</button>
-  <div id="neiText"></div><button id="neiright" onclick="ShowRecipe(CurrentRecipeI+1)"> &gt;</button>
+  <button id="neileft" onclick="ShowRecipe(CurrentRecipeI-1)">⇦</button>
+  <div id="neiText"></div><button id="neiright" onclick="ShowRecipe(CurrentRecipeI+1)">⇨</button>
 </div>
 <div id="craftingtable"><div id="craftingarrow"></div></div>
 <div id="inventory"></div>
@@ -116,14 +116,21 @@
        <button id="fillHorizontalLine" class="blockselector" onclick="turnButton(this.id,2)"></button> -->
        </div> 
        <button id="floormode" onclick="floormode = +!floormode;  this.style.backgroundColor = floormode ? 'green' : 'red'  ">F</button>
+       <select id="fillwidthselector">
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="7">7</option>
+        <option value="9">9</option>
+        <option value="11">11</option>
+       </select>
        <button id="randomfill" onclick="randomfill(this)">100%</button>
       
-    <select  id="biomes" onchange="setBiome()">   
+    <select  id="biomes" style="display:none" onchange="setBiome()">   
     </select>
        <!-- <button id="selectLocation" onclick="setLocation()" onmouseenter="currentmap.location == null ? '' :makeTextToolTip(currentmap.location)" onmouseleave =
        "leaveElement()">L</button> -->
        <button id="saveMap" onclick='
-        saveMap()'>Save</button>
+        saveMap()'>S</button>
        <!-- <button id="openMaps" onclick="OpenMapGui()">M</button>  -->
      
 </div>

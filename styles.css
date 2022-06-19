@@ -182,6 +182,7 @@ float: none;
   display: none;
   float: right;
   border: solid red 1px;
+  background-color: #686868;
   position: relative;
   z-index: 20;
 }
@@ -244,6 +245,18 @@ float: none;
   font-size: 5vh;
   background-color: red;
 }
+#fillwidthselector{
+  margin: 0;
+  padding: 0;
+  width: 10vh;
+  height: 10vh;
+  display: block;
+  float: left;
+  text-align: center;
+  font-size: 4vh;
+}
+
+
 #randomfill {
   margin: 0;
   padding: 0;
@@ -608,7 +621,8 @@ float: none;
   height: 5vh;
   width: 5vh;
   top: 2vh;
-  font-size: 4vh;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 3vh;
 }
 #neiright{
   position: absolute;
@@ -616,7 +630,8 @@ float: none;
   height: 5vh;
   width: 5vh;
   top: 2vh;
-  font-size: 4vh;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 3vh;
 }
 #healthbar{
   position: absolute;
@@ -972,8 +987,7 @@ float: none;
 }
 
 .mob{
-  position: absolute;
-background-image: url(img/apple.png);
+position: absolute;
 z-index: 100;
 background-size: 100% 100%;
 margin: 0;
@@ -1500,17 +1514,22 @@ z-index: 10;
 }
 #mapframe{
   position: absolute;
-  background: none;
-  box-sizing: border-box;
+  /* background: none; */
+ background-color: #000000;
+ bottom: 0%;
  left: 0%;
- top: 0%;
- border-style: solid;
+ height: 20vh;
+ width: 100vw;
+ z-index: 10; 
+ pointer-events: none;
+ /* border-style: solid;
  border-color: white;
   border-left-width: 5vh;
   border-top-width: 5vh;
   border-right-width: 40vh;
   border-bottom-width:20vh ;
-  pointer-events: none;
-  z-index: 10;
+  
+ */
+ 
 
 }

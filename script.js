@@ -1,7 +1,6 @@
-let currentmap
+
 let isLoaded = 0
 let isMapModeOn
-let mobtospawn = ""
 let mobs = []
 let caneat = true
 let currethowl
@@ -42,7 +41,7 @@ function LOADING() {
   generateMap()
 
   e.map.onmousedown = onMapClick
-  
+
   window.onmousemove = function (evt) {
     timer = setTimeout(positionElement(evt), 1)
   }
@@ -50,12 +49,11 @@ function LOADING() {
     steve.itemInHand.useAbility(evt)
     return false
   }
-  
 
   //if (session.nick == "admin") loadmapFromCloud()
   if (!isMapModeOn) {
-   e.map.onmousemove = cursorMoveOnMap
-    
+    e.map.onmousemove = cursorMoveOnMap
+
     buildaccessoryGui()
 
     loadPlayer(session.nick)
@@ -115,6 +113,7 @@ function LOADING() {
     window.addEventListener("keyup", upButtonHandlerMap)
 
     mapMode()
+    centerMapOnPlayer()
   }
   isLoaded = 1
   //comsole.log("loaded")
@@ -122,7 +121,7 @@ function LOADING() {
 function onBeforeUnload() {
   //comsole.log(isMapModeOn)
   if (isMapModeOn) {
-    //   saveMap()
+     saveMap()
   }
   if (ShouldSaveOnLeave) {
     craftingTable.dumpTable()
@@ -2117,7 +2116,7 @@ function loadSession() {
   setFont(session.settings.font)
   setToolTipFontSize(session.settings.toolTipFontSize)
 
-  e.mapframe.style.borderColor = session.settings.bodycolor
+  e.mapframe.style.backgroundColor = session.settings.bodycolor
   e.body.style.backgroundColor = session.settings.bodycolor
 }
 
@@ -2282,26 +2281,19 @@ function makeVillagerNameTag(name) {
  * coords are 5x
  */
 
-function checkMapForBlock(y, x, width, height) {
+function checkMapForBlock(y, x, width = 0, height = 0) {
   if (y < 0 || x < 0 || y >= map.height || x >= map.width) return true
-  //comsole.log("corner 1:",map.layout[y>> 0][x >> 0])
-  //comsole.log("corner 2:",map.layout[y>> 0][x + width-0.01 >> 0])
-  //comsole.log("corner 3:",map.layout[y + height -0.01>> 0][x >> 0])
-  //comsole.log("corner 4:",map.layout[y + height -0.01>> 0][x + width - 0.01 >> 0])
+  // console.log("corner 1:",map.layout[y>> 0][x >> 0])
+  // console.log("corner 2:",map.layout[y>> 0][x + width-0.01 >> 0])
+  // console.log("corner 3:",map.layout[y + height -0.01>> 0][x >> 0])
+  // console.log("corner 4:",map.layout[y + height -0.01>> 0][x + width - 0.01 >> 0])
 
   return (
-    !allowedblocks.includes(map.layout[y >> 0][x >> 0][0].slice(0, 9)) ||
+    !allowedblocks.includes(map.layout[y >> 0][x >> 0][0]) ||
+    !allowedblocks.includes(map.layout[(y + height - 0.01) >> 0][x >> 0][0]) ||
+    !allowedblocks.includes(map.layout[y >> 0][(x + width - 0.01) >> 0][0]) ||
     !allowedblocks.includes(
-      map.layout[(y + height - 0.01) >> 0][x >> 0][0].slice(0, 9)
-    ) ||
-    !allowedblocks.includes(
-      map.layout[y >> 0][(x + width - 0.01) >> 0][0].slice(0, 9)
-    ) ||
-    !allowedblocks.includes(
-      map.layout[(y + height - 0.01) >> 0][(x + width - 0.01) >> 0][0].slice(
-        0,
-        9
-      )
+      map.layout[(y + height - 0.01) >> 0][(x + width - 0.01) >> 0][0]
     )
   )
 }
@@ -2373,12 +2365,12 @@ function playMobHowl(mobname, type, random = 2) {
 }
 function isBlockBetween(target1, target2) {
   let center1 = {
-    x: target1.x + (target1.width / 2 || 2.5),
-    y: target1.y + (target1.height / 2 || 2.5),
+    x: target1.x + (target1.width / 2 || 0.5),
+    y: target1.y + (target1.height / 2 || 0.5),
   }
   let center2 = {
-    x: target2.x + (target2.width / 2 || 2.5),
-    y: target2.y + (target2.height / 2 || 2.5),
+    x: target2.x + (target2.width / 2 || 0.5),
+    y: target2.y + (target2.height / 2 || 0.5),
   }
   let hipon = Math.sqrt(
     (center1.x - center2.x) ** 2 + (center1.y - center2.y) ** 2
@@ -2386,13 +2378,13 @@ function isBlockBetween(target1, target2) {
   let angleSin = Math.abs(center1.x - center2.x) / hipon
 
   let vectorspeed = [
-    +(5 * angleSin).toFixed(2),
-    +(5 * Math.cos(Math.asin(angleSin))).toFixed(2),
+    +angleSin.toFixed(2),
+    +Math.cos(Math.asin(angleSin)).toFixed(2),
   ]
   if (center1.x > center2.x) vectorspeed[0] *= -1
   if (center1.y > center2.y) vectorspeed[1] *= -1
-  for (let i = 0; i < Math.round(hipon) / 5; i++) {
-    if (checkMapForBlock(center1.y / 5, center1.x / 5)) return true
+  for (let i = 0; i < Math.round(hipon); i++) {
+    if (checkMapForBlock(center1.y, center1.x)) return true
     center1.x += vectorspeed[0]
     center1.y += vectorspeed[1]
   }
@@ -2577,7 +2569,7 @@ function changeBodyColor() {
   let color = prompt("Type font color in HEX format(example: #57FA22)")
   if (color != undefined) {
     session.settings.bodycolor = color
-    e.mapframe.style.borderColor = color
+    e.mapframe.style.backgroundColor = color
     e.body.style.backgroundColor = color
   }
 }
@@ -2638,17 +2630,15 @@ function getCoords(evt) {
 }
 let cursorCoordsOnMap = {
   x: 0,
-  y:0
+  y: 0,
 }
 
-
-
-function onMapClick(evt,isOnMap = true) {
-  
-  let clickX = isOnMap ? (evt.offsetX / blocksize)>>0 : evt.offsetX
+function onMapClick(evt, isOnMap = true, id) {
+  let clickX = isOnMap ? (evt.offsetX / blocksize) >> 0 : evt.offsetX
   let clickY = isOnMap ? (evt.offsetY / blocksize) >> 0 : evt.offsetY
   //comsole.log(evt)
   if (isMapModeOn) {
+    console.log("x:",clickX,"y:",clickY)
     //  if (clickX != oldclicks[1] || clickY != oldclicks[0])
     if (clickX >= 0 && clickY >= 0) {
       if (features[0]) {
@@ -2663,43 +2653,69 @@ function onMapClick(evt,isOnMap = true) {
         if (map.layout[clickY] == undefined) map.layout[clickY] = new Array()
         if (map.layout[clickY][clickX] == undefined)
           map.layout[clickY][clickX] = ["air", "air"]
-          if (
-            map.layout[clickY][clickX][floormode].includes("tree") ||
-            map.layout[clickY][clickX][floormode].includes("mob")
-          ) {
-            let t = document.getElementById(
-              map.layout[clickY][clickX][floormode] + " " + clickX + " " + clickY
-            )
-            t.remove()
-          }
-          map.layout[clickY][clickX][floormode] = selectedblockedit
+        if (map.layout[clickY][clickX][floormode].includes("tree")) {
+          let t = document.getElementById(
+            map.layout[clickY][clickX][floormode] + " " + clickX + " " + clickY
+          )
+          t.remove()
+        }
+        if (!isUndefined(id)) {
+          mobs[id].destroy()
 
-        if (
-          selectedblockedit.includes("tree") ||
-          selectedblockedit.includes("mob")
-        ) {
-        
+          delete map.mobs[id]
+        }
+
+        map.layout[clickY][clickX][floormode] = selectedblockedit
+        if (selectedblockedit.includes("tree")) {
           let tag = document.createElement("div")
           tag.className = selectedblockedit + " mapblock"
-          tag.setAttribute("onmousedown","onMapClick({offsetY:"+ clickY +",offsetX:"+clickX +"},false)")
+          tag.setAttribute(
+            "onmousedown",
+            "onMapClick({offsetY:" + clickY + ",offsetX:" + clickX + "},false)"
+          )
           tag.id = map.layout[clickY][clickX][0] + " " + clickX + " " + clickY
           tag.style.left = clickX.blocks().px()
           tag.style.top = clickY.blocks().px()
           e.mapcontainer.appendChild(tag)
-
-         
+        } else if (selectedblockedit.includes("mob")) {
+          let mobi = 0
+          for (let i = 0; i < 10000; i++) {
+            if (isUndefined(map.mobs[i])) {
+              mobi = i
+              i = 10001
+              map.mobs[mobi] = {
+                name: selectedblockedit.substring(4),
+                x: clickX,
+                y: clickY,
+              }
+            }
+          }
+          let mob
+          if (selectedblockedit.includes("villager")) {
+            mob = new classes.villager(
+              clickX,
+              clickY,
+              mobi,
+              selectedblockedit.substring(13)
+            )
+          } else
+            mob = new classes[selectedblockedit.substring(4)](
+              clickX,
+              clickY,
+              mobi
+            )
+          mob.create()
+          mob.spawn()
+          map.layout[clickY][clickX][floormode] = "air"
         } else {
-         
           mapContext.clearRect(
             clickX * blocksize,
             clickY * blocksize,
             blocksize,
             blocksize
           )
-          if (floormode) {
-            drawfloorblock(selectedblockedit, clickX, clickY)
-            drawblock(map.layout[clickY][clickX][0], clickX, clickY)
-          } else drawblock(selectedblockedit, clickX, clickY)
+          drawMapBlock(clickX, clickY)
+         
         }
         // oldclicks = [clickY, clickX];
       }
@@ -2735,17 +2751,17 @@ const centerMapOnPlayer = () => {
 }
 let cursorLocationOnMap = {
   x: 0,
-  y:0,
+  y: 0,
 }
-function cursorMoveOnMap(evt){
-    const x = evt.offsetX/blocksize >> 0
-    const y = evt.offsetY/blocksize >> 0
-if(cursorLocationOnMap.x != x || cursorLocationOnMap.y != y){
-  steve.stopBreakingBlock()
-  if(keys[5] == 1){
-    breakblock(x,y)
+function cursorMoveOnMap(evt) {
+  const x = (evt.offsetX / blocksize) >> 0
+  const y = (evt.offsetY / blocksize) >> 0
+  if (cursorLocationOnMap.x != x || cursorLocationOnMap.y != y) {
+    steve.stopBreakingBlock()
+    if (keys[5] == 1) {
+      breakblock(x, y)
+    }
   }
-}
 
-cursorLocationOnMap = {x:x,y:y}
+  cursorLocationOnMap = { x: x, y: y }
 }

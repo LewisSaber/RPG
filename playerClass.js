@@ -1,9 +1,15 @@
+const spawnCoords ={
+  x: 50,
+  y:56
+}
+
+
 class player {
   constructor() {
     this.width = 0.8
     this.height = this.width
-    this.x = 3
-    this.y = 0
+    this.x = spawnCoords.x
+    this.y = spawnCoords.y
     this.mapX = 0
     this.mapY = 0
     this.name = "steve"
@@ -111,7 +117,7 @@ class player {
   }
   spawn() {
     const toolOffset = {
-      x: 0.6,
+      x: 0.72,
       y: 0.1
       
 
@@ -525,7 +531,7 @@ class player {
       (1 - (steve.getEnchant("protection") >> 0) * 0.02)
     )
   }
-  
+
   getDamage(mob) {
     return (
       (this.getStat("damage") *
@@ -658,5 +664,14 @@ class player {
   }
   getCenterCoordsArray() {
     return [this.x + this.width / 2, this.y + this.height / 2]
+  }
+  tp(x,y){
+    if(!isUndefined(x))
+    this.x = x
+    if(!isUndefined(y))
+    this.y = y
+    
+    centerMapOnPlayer()
+
   }
 }

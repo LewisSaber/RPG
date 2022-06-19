@@ -1,4 +1,8 @@
 let classes = {}
+const freezetimer = 5000
+const freezeRange = 20
+
+
 classes.empty = class {
   constructor(amount = 0) {
     this.name = "empty"
@@ -45,7 +49,7 @@ classes.block = class extends classes.empty {
     this.restrictTool = false
     this.tier = 0
     this.replacement = "bedrock"
-  
+
     this.xp = {
       amount: 0,
       type: "mining",
@@ -53,36 +57,28 @@ classes.block = class extends classes.empty {
   }
   generateDrop() {
     let drops = []
-    if(LootTable[this.name])
-    {
+    if (LootTable[this.name]) {
       for (const key of LootTable[this.name]) {
-      
         if (steve.getTool().match1word(key.tool) && key.condition()) {
-        
           let name = key.item
-          if ((key.smeltsInto != "none" && steve.getEnchant("smeltingtouch")))
+          if (key.smeltsInto != "none" && steve.getEnchant("smeltingtouch"))
             name = key.smeltsInto
           const amount =
             (randomItem(key.min, key.max, key.chance) *
               steve.fortunes[key.type]()) >>
             0
-          if(amount)
-          {
+          if (amount) {
             drops.push(new classes[name](amount))
-            addCollectionItem(key.collection,amount)
+            addCollectionItem(key.collection, amount)
           }
-
         }
       }
-    }
-    else
-    drops.push(new classes[this.name](1))
-    
+    } else drops.push(new classes[this.name](1))
+
     if (drops.length) addSkillXP(this.xp.type, this.xp.amount)
 
     return drops
   }
-  
 }
 classes.item = class extends classes.empty {
   constructor(amount = 0) {
@@ -98,7 +94,6 @@ classes.stonetype = class extends classes.block {
 
     this.restrictTool = true
     this.replacement = "bedrock"
-  
   }
 }
 classes.tool = class extends classes.item {
@@ -106,7 +101,6 @@ classes.tool = class extends classes.item {
     super(amount)
     this.name = "tool"
     this.maxStackSize = 1
-    
   }
 }
 classes.tree = class extends classes.block {
@@ -116,9 +110,8 @@ classes.tree = class extends classes.block {
     this.tool = "axe shears"
     this.logs = 0
     this.xp = 0
-    
   }
-  
+
   // generateDrop() {
   //   let drops = []
   //   if (steve.stats.tool.match1word("shears")) {
@@ -304,7 +297,6 @@ classes.consumable = class extends classes.empty {
     if (caneat) {
       caneat = false
 
-     
       steve.inventory[currentHotbarSlot] = reduceStack(
         steve.inventory[currentHotbarSlot],
         1
@@ -325,15 +317,14 @@ classes.consumable = class extends classes.empty {
       }, 1000)
     }
   }
-
 }
 classes.mob = class {
   constructor(x, y, id) {
     this.name = "mob"
     this.mobtype = "none"
-    this.width = 4
+    this.width = 0.8
     this.id = id
-    this.height = 4
+    this.height = 0.8
     this.sx = x
     this.sy = y
     this.xp = 0
@@ -352,41 +343,72 @@ classes.mob = class {
     this.isangered = false
     this.isAlive = true
     this.respawntimer = 2000
-  
+
     this.state = "passive"
     this.type = "angry"
     this.attacktimer = 0
     this.angerinterval = 0
+    this.isFrozen = false
+    setInterval(this.checkForFreeze.bind(this),freezetimer)
   }
+  checkForFreeze(){
+    if(distnaseBetweenTargets({x:steve.x, y:steve.y},{x:this.x,y:this.y}) > freezeRange){
+      if(!this.isFrozen) {
+        this.freze()
+      }
+    }else if(this.isFrozen){
+      this.unfreze()
+    }
+
+  }
+
   create() {
     this.diffrencex = +(5 - this.width).toFixed(2)
     this.diffrencey = +(5 - this.height).toFixed(2)
-    let tag = document.createElement("p")
+    let tag = document.createElement("div")
     tag.className = "mob " + this.name
-    e.map.appendChild(tag)
+
     tag.style.display = "none"
-    tag.style.width = this.width + "vh"
-    tag.style.height = this.height + "vh"
-    tag.setAttribute("onclick", "steve.damageMob(" + this.id + ")")
-    tag.setAttribute("onmouseenter", "makeMonsterHotbar(" + this.id + ")")
+    tag.style.width = this.width.blocks().px()
+    tag.style.height = this.height.blocks().px()
+    if (isMapModeOn) {
+      tag.setAttribute(
+        "onclick",
+        "onMapClick({offsetX:" +
+          this.x +
+          ",offsetY:" +
+          this.y +
+          "},false," +
+          this.id +
+          ")"
+      )
+    } else {
+      tag.setAttribute("onclick", "steve.damageMob(" + this.id + ")")
+      tag.setAttribute("onmouseenter", "makeMonsterHotbar(" + this.id + ")")
+    }
+    tag.id = "mob" + this.id
+    e.mapcontainer.appendChild(tag)
     e["mob" + this.id] = tag
     mobs[this.id] = this
+
   }
   spawn() {
     this.x = this.sx
     this.y = this.sy
     this.isAlive = true
     e["mob" + this.id].style.display = "block"
-    e["mob" + this.id].style.left = this.x + this.diffrencex / 2 + "vh"
-    e["mob" + this.id].style.top = this.y + this.diffrencey / 2 + "vh"
-    if (this.type == "angry") {
-      this.getAngry()
-      this.angerinterval = setInterval(this.getAngry.bind(this), 1000)
+    e["mob" + this.id].style.left = this.x.blocks().px()
+    e["mob" + this.id].style.top = this.y.blocks().px()
+    if (!isMapModeOn && !this.isFrozen) {
+      if (this.type == "angry") {
+        this.getAngry()
+        this.angerinterval = setInterval(this.getAngry.bind(this), 1000)
+      }
+      this.randominterval = setTimeout(
+        this.randommove.bind(this),
+        randomNumber(2000, 10000)
+      )
     }
-    this.randominterval = setTimeout(
-      this.randommove.bind(this),
-      randomNumber(2000, 10000)
-    )
   }
   die() {
     playMobHowl(this.name, "death", 0)
@@ -408,46 +430,64 @@ classes.mob = class {
     e["mob" + this.id].style.display = "none"
     this.respawntimer = setTimeout(this.spawn.bind(this), this.respawntimer)
   }
+  freze() {
+    this.isFrozen = true
+    this.state = "passive"
+    clearInterval(this.attacktimer)
+    clearInterval(this.angerinterval)
+    clearInterval(this.randominterval)
+    clearInterval(this.shottimer)
+  }
+  unfreze() {
+  
+    this.isFrozen = false
+    if (!isMapModeOn) {
+      if (this.type == "angry") {
+        this.getAngry()
+        this.angerinterval = setInterval(this.getAngry.bind(this), 1000)
+      }
+      this.randominterval = setTimeout(
+        this.randommove.bind(this),
+        randomNumber(2000, 10000)
+      )
+    }
+  }
   destroy() {
-    e["mob" + this.id].style.display = "none"
-    this.isAlive = false
     clearInterval(this.angerinterval)
     clearInterval(this.randominterval)
     clearInterval(this.respawntimer)
     clearInterval(this.shottimer)
+    this.isAlive = false
+
+    e["mob" + this.id].style.display = "none"
   }
   isPlayerInRange() {
     return (
       (steve.x - (this.x + this.width / 2)) ** 2 +
         (steve.y - (this.y + this.height / 2)) ** 2 <=
-      ((this.stats.range + 1) * 5) ** 2
+      ((this.stats.range + 1)) ** 2
     )
   }
   generateDrop() {
     let drops = []
-    if(LootTable[this.name])
-    {
+    if (LootTable[this.name]) {
       for (const key of LootTable[this.name]) {
-   
         if (steve.getTool().match1word(key.tool)) {
-      
           let name = key.item
-          if ((key.smeltsInto != "none" && steve.enchants.smeltingtouch))
+          if (key.smeltsInto != "none" && steve.enchants.smeltingtouch)
             name = key.smeltsInto
           const amount =
             (randomItem(key.min, key.max, key.chance) *
               steve.fortunes[key.type]()) >>
             0
-            if(amount)
-            {
-              drops.push(new classes[name](amount))
-              addCollectionItem(key.collection,amount)
-            }
+          if (amount) {
+            drops.push(new classes[name](amount))
+            addCollectionItem(key.collection, amount)
+          }
         }
       }
     }
-   
-    
+
     if (drops.length) addSkillXP("combat", this.xp)
 
     return drops
@@ -456,7 +496,7 @@ classes.mob = class {
     return (
       (steve.x - (this.x + this.width / 2)) ** 2 +
         (steve.y - (this.y + this.height / 2)) ** 2 <=
-      ((this.stats.angerrange + 1) * 5) ** 2
+      ((this.stats.angerrange + 1)) ** 2
     )
   }
   getAngry() {
@@ -475,216 +515,28 @@ classes.mob = class {
     }
   }
   getSpeed() {
-    return this.stats.speed / 200
+    return this.stats.speed / 1000
   }
-  move(vectorspeed, steveDependant = true) {
+  move(vectorspeed) {
     if (this.isAlive) {
       let oldcoords = [this.y, this.x]
-      // if (this.x < 0) vectorspeed[0] = this.getSpeed() * !steveDependant
-      // if (this.y < 0) vectorspeed[1] = this.getSpeed() * !steveDependant
-      // if (this.y > (mapH - 1) * 5)
-      //   vectorspeed[1] = -this.getSpeed() * !steveDependant
-      // if (this.x > (mapW - 1) * 5)
-      //   vectorspeed[0] = -this.getSpeed() * !steveDependant
-
       {
-        if (steve.y < this.y && steveDependant) this.y -= vectorspeed[1]
-        else this.y += vectorspeed[1]
+        
+        this.y += vectorspeed[1]
+        this.y = this.y.fixed(2)
+       // console.log("y1",this.y)
+        if(checkMapForBlock(this.y,this.x,this.width,this.height)) 
+        this.y = oldcoords[0]
+        //console.log("y2",this.y)
+        
+        this.x += vectorspeed[0]
+        this.x = this.x.fixed(2)
+        if(checkMapForBlock(this.y,this.x,this.width,this.height)) this.x = oldcoords[1]
 
-        this.y = +this.y.toFixed(2)
+     
 
-        // if (oldcoords[0] > this.y) {
-        //   //move up
-        //   if (+(this.x % 5).toFixed(1) <= this.diffrencex) {
-        //     if (
-        //       !allowedblocks.includes(
-        //         currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0, 9)
-        //       )
-        //     ) {
-        //       this.y = oldcoords[0]
-        //     }
-        //   } else {
-        //     if (
-        //       !allowedblocks.includes(
-        //         currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0, 9)
-        //       ) ||
-        //       !allowedblocks.includes(
-        //         currentmap[(this.y / 5) >> 0][(this.x / 5 + 1) >> 0][0].slice(
-        //           0,
-        //           9
-        //         )
-        //       )
-        //     )
-        //       this.y = oldcoords[0]
-        //   }
-        // } else {
-        //   // move down
-        //   if (+(this.x % 5).toFixed(1) <= this.diffrencex) {
-        //     if (
-        //       !allowedblocks.includes(
-        //         currentmap[
-        //           ((this.y - vectorspeed[1] - this.diffrencey + 0.0001) / 5 +
-        //             1) >>
-        //             0
-        //         ][(this.x / 5) >> 0][0].slice(0, 9)
-        //       )
-        //     ) {
-        //       this.y = oldcoords[0]
-        //     }
-        //   } else if (
-        //     !allowedblocks.includes(
-        //       currentmap[
-        //         ((this.y - vectorspeed[1] - this.diffrencey + 0.0001) / 5 + 1) >>
-        //           0
-        //       ][(this.x / 5) >> 0][0].slice(0, 9)
-        //     ) ||
-        //     !allowedblocks.includes(
-        //       currentmap[
-        //         ((this.y - vectorspeed[1] - this.diffrencey + 0.0001) / 5 + 1) >>
-        //           0
-        //       ][(this.x / 5 + 1) >> 0][0].slice(0, 9)
-        //     )
-        //   )
-        //     this.y = oldcoords[0]
-        // }
-
-        // if (steve.x < this.x && steveDependant) this.x -= vectorspeed[0]
-        // else this.x += vectorspeed[0]
-
-        // this.x = +this.x.toFixed(2)
-        // //////
-        // if (oldcoords[1] > this.x) {
-        //   //move left
-        //   if (+(this.y % 5).toFixed(1) <= this.diffrencey) {
-        //     if (
-        //       !allowedblocks.includes(
-        //         currentmap[(this.y / 5) >> 0][(this.x / 5) >> 0][0].slice(0, 9)
-        //       )
-        //     )
-        //       this.x = oldcoords[1]
-        //   } else {
-        //     if (
-        //       !allowedblocks.includes(
-        //         currentmap[(this.y / 5 + 0.0001) >> 0][
-        //           (this.x / 5 + 0.0001) >> 0
-        //         ][0].slice(0, 9)
-        //       ) ||
-        //       !allowedblocks.includes(
-        //         currentmap[(this.y / 5 + 1 + 0.0001) >> 0][
-        //           (this.x / 5 + 0.0001) >> 0
-        //         ][0].slice(0, 9)
-        //       )
-        //     )
-        //       this.x = oldcoords[1]
-        //   }
-        // } else {
-        //   //move right
-
-        //   if (+(this.y % 5).toFixed(1) <= this.diffrencey) {
-        //     if (
-        //       !allowedblocks.includes(
-        //         currentmap[(this.y / 5) >> 0][
-        //           ((this.x - vectorspeed[0] - this.diffrencex + 0.0001) / 5 +
-        //             1) >>
-        //             0
-        //         ][0].slice(0, 9)
-        //       )
-        //     )
-        //       this.x = oldcoords[1]
-        //   } else if (
-        //     !allowedblocks.includes(
-        //       currentmap[(this.y / 5) >> 0][
-        //         ((this.x - vectorspeed[0] - this.diffrencex + 0.0001) / 5 + 1) >>
-        //           0
-        //       ][0].slice(0, 9)
-        //     ) ||
-        //     !allowedblocks.includes(
-        //       currentmap[(this.y / 5 + 1) >> 0][
-        //         ((this.x - vectorspeed[0] - this.diffrencex + 0.0001) / 5 + 1) >>
-        //           0
-        //       ][0].slice(0, 9)
-        //     )
-        //   )
-        //     this.x = oldcoords[1]
-        // }
-        if (oldcoords[0] > this.y) {
-          //move up
-          if (this.x % 5 >> 0 <= this.diffrencex) {
-            if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
-              this.y = oldcoords[0]
-          } else {
-            if (
-              checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
-              checkMapForBlock((this.y / 5) >> 0, (this.x / 5 + 1) >> 0)
-            )
-              this.y = oldcoords[0]
-          }
-        } else {
-          // move down
-          if (this.x % 5 >> 0 <= this.diffrencex) {
-            if (
-              checkMapForBlock(
-                (this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1,
-                (this.x / 5) >> 0
-              )
-            ) {
-              this.y = oldcoords[0]
-            }
-          } else if (
-            checkMapForBlock(
-              ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
-              (this.x / 5 + 1) >> 0
-            ) ||
-            checkMapForBlock(
-              ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
-              (this.x / 5) >> 0
-            )
-          )
-            this.y = oldcoords[0]
-        }
-        if (steve.x < this.x && steveDependant) this.x -= vectorspeed[0]
-        else this.x += vectorspeed[0]
-
-        this.x = +this.x.toFixed(2)
-        if (oldcoords[1] > this.x) {
-          //move left
-          if (this.y % 5 >> 0 <= this.diffrencey) {
-            if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
-              this.x = oldcoords[1]
-          } else {
-            if (
-              checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
-              checkMapForBlock((this.y / 5 + 1) >> 0, (this.x / 5) >> 0)
-            )
-              this.x = oldcoords[1]
-          }
-        } else {
-          //move right
-
-          if (this.y % 5 >> 0 <= this.diffrencey) {
-            if (
-              checkMapForBlock(
-                this.y / 5,
-                (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-              )
-            )
-              this.x = oldcoords[1]
-          } else if (
-            checkMapForBlock(
-              this.y / 5,
-              (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-            ) ||
-            checkMapForBlock(
-              (this.y / 5 + 1) >> 0,
-              (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-            )
-          ) {
-            this.x = oldcoords[1]
-          }
-        }
-
-        e["mob" + this.id].style.top = this.y + "vh"
-        e["mob" + this.id].style.left = this.x + "vh"
+        e["mob" + this.id].style.top = this.y.blocks().px()
+        e["mob" + this.id].style.left = this.x.blocks().px()
       }
     }
   }
@@ -697,30 +549,30 @@ classes.mob = class {
       this.movetoplayer()
     }
   }
- 
+
   randommove() {
     if (this.state != "angry" && this.isAlive) {
       playMobHowl(this.name, "step")
       let vectorspeed = [
         +(
-          (randomNumber(this.stats.speed * 0.85, this.stats.speed * 1.15) /
-            200) *
+          (randomNumber(this.getSpeed() * 8500, this.getSpeed() * 11500) /
+          10000) *
           randomPlusMinus()
         ).toFixed(2),
         +(
-          (randomNumber(this.stats.speed * 0.85, this.stats.speed * 1.15) /
-            200) *
+          (randomNumber(this.getSpeed() * 8500, this.getSpeed() * 11500) /
+          10000) *
           randomPlusMinus()
         ).toFixed(2),
       ]
-
+ 
       for (let i = 1; i < randomNumber(25, 50); i++) {
-        setTimeout(this.move.bind(this), i * 50, vectorspeed, false)
+        setTimeout(this.move.bind(this), i * 25, vectorspeed)
       }
     }
-    let timer = randomNumber(5000, 20000)
+    const timer = randomNumber(5000, 20000)
 
-    setTimeout(this.randommove.bind(this), timer)
+    this.randominterval=  setTimeout(this.randommove.bind(this), timer)
   }
   movetoplayer() {
     if (this.attacktimer == 0 && this.isAlive) {
@@ -736,11 +588,17 @@ classes.mob = class {
         let angleSin = Math.abs(this.x - steve.x) / hipon
         //vectorspeed[deltax,deltay]
         let vectorspeed = [
-          +(this.getSpeed() * angleSin).toFixed(2),
-          +(this.getSpeed() * Math.cos(Math.asin(angleSin))).toFixed(2),
+          +(this.getSpeed() * angleSin * (steve.x > this.x ? 1 : -1)).toFixed(
+            2
+          ),
+          +(
+            this.getSpeed() *
+            Math.cos(Math.asin(angleSin)) *
+            (steve.y > this.y ? 1 : -1)
+          ).toFixed(2),
         ]
-        for (let i = 1; i < 21; i++) {
-          setTimeout(this.move.bind(this), i * 50, vectorspeed)
+        for (let i = 1; i < 41; i++) {
+          setTimeout(this.move.bind(this), i * 25, vectorspeed)
         }
 
         if (this.state == "angry" && this.isAlive) {
@@ -749,7 +607,7 @@ classes.mob = class {
       }
     }
   }
-  dealDamage(){
+  dealDamage() {
     new Howl({
       src: [
         "./sounds/damage/hit" + (1 + Math.floor(Math.random() * 3)) + ".ogg",
@@ -764,7 +622,19 @@ classes.mob = class {
   }
   knockback() {
     for (let i = 0; i < 5; i++) {
-      setTimeout(this.move.bind(this), i * 25, [-0.5, -0.5])
+      let hipon = Math.sqrt((this.x - steve.x) ** 2 + (this.y - steve.y) ** 2)
+      let angleSin = Math.abs(this.x - steve.x) / hipon
+      let vectorspeed = [
+        +(this.getSpeed()*4 * angleSin * (steve.x > this.x ? -1 : 1)).toFixed(
+          2
+        ),
+        +(
+          this.getSpeed()*4 *
+          Math.cos(Math.asin(angleSin)) *
+          (steve.y > this.y ? -1 : 1)
+        ).toFixed(2),
+      ]
+      setTimeout(this.move.bind(this), i * 25, vectorspeed)
     }
   }
 }
@@ -780,7 +650,6 @@ classes.accessorybag = class {
     if (slot == undefined) slot = this.getEmptyInventorySlot()
     if (slot != undefined && item.type == "accessory") {
       if (!this.searchForFamily(item.family)) {
-      
         item.activate()
       }
       this.inventory[slot] = Object.assign(
@@ -822,7 +691,6 @@ classes.accessorybag = class {
     )
 
     if (item.wasActivated) {
-    
       item.deactivate()
     }
 
@@ -843,12 +711,11 @@ classes.accessorybag = class {
     return is
   }
   addAll() {
-  
     this.inventory.forEach((x) => {
-    if(x.wasActivated){
-      x.deactivate()
-      x.activate()
-    }
+      if (x.wasActivated) {
+        x.deactivate()
+        x.activate()
+      }
     })
   }
 }
@@ -863,7 +730,9 @@ class Loot {
     smeltsInto = "none",
     tool = "",
     collection = item,
-    condition = function(){return true}
+    condition = function () {
+      return true
+    }
   ) {
     return {
       item: item,
@@ -873,8 +742,8 @@ class Loot {
       chance: chance,
       smeltsInto: smeltsInto,
       tool: tool,
-      collection:collection,
-      condition:condition
+      collection: collection,
+      condition: condition,
     }
   }
 }

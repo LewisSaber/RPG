@@ -4,11 +4,13 @@ let map = {
   width: 200,
   height: 200,
   layout: [[]],
+  mobs: []
 }
 
 const borderwidth = 1
 const floorTransparency = 0.6
-const blocksize = ((window.innerHeight / 100) * 6.5).fixed(4)
+const pixelPerBlock = 6.5
+const blocksize = ((window.innerHeight / 100) * pixelPerBlock).fixed(4)
 let mapContext
 
 function generateMap() {
@@ -41,6 +43,16 @@ function generateMap() {
       }
     }
   }
+  map.mobs.forEach((x,i) =>{
+    if(!isUndefined(x))
+    {
+        let mob = x.name.includes("villager") ? new classes.villager(x.x,x.y,i,x.name.substring(9)) : new classes[x.name](x.x,x.y,i)
+      
+      mob.create()
+      mob.spawn()
+    }
+  
+  })
 }
 function downloadMap() {
   const url = e.map.toDataURL("image/png")
@@ -73,7 +85,7 @@ const biomes = ["plains", "forest", "cave", "desert"]
 
 let allowedblocks = [
   "air",
-  "grassPlan",
+  "grassPlant",
   "treeoak",
   "empty",
   "mobmobmob",
@@ -113,7 +125,8 @@ let selectedblockedit = "stone"
 function loadselectedblockedits() {
   selectorblocks.forEach((x) => {
     let tag = document.createElement("button")
-
+    if(x.includes("mob")) tag.className = x.substring(4) + " blockselector"
+    else
     tag.className = "blockselector " + (x != "treeoak" ? x : x + "small")
     //  if(x.slice(0,9) == "mobmobmob")
     //  tag.setAttribute("onclick", "selectedblockedit='"+ x+ "'" );
@@ -121,7 +134,7 @@ function loadselectedblockedits() {
     if (x.includes("villager")) {
       tag.setAttribute(
         "onclick",
-        "selectedblockedit='mobmobmob villager ' + prompt('name villager') "
+        "selectedblockedit='mob villager ' + prompt('name villager') "
       )
     } else tag.setAttribute("onclick", "selectedblockedit='" + x + "'")
     e.blocksSelector.appendChild(tag)
@@ -285,42 +298,35 @@ function randomfill(button) {
 }
 
 function fill3x3(clickY, clickX) {
-  clickY--
-  clickX--
-  for (let y = 0; y < 3; y++) {
+  const width = e.fillwidthselector.value
+  clickX -= width /2 >> 0
+  clickY -= width /2 >> 0
+
+  for (let y = 0; y < width; y++) {
     if (clickY + y >= 0) {
       if (isUndefined(map.layout[clickY + y]))
         map.layout[clickY + y] = new Array()
     }
-    for (let x = 0; x < 3; x++) {
+    for (let x = 0; x < width; x++) {
       if (clickX + x >= 0 && random(100 / randomfillamount)) {
         if (isUndefined(map.layout[clickY + y][clickX + x]))
           map.layout[clickY + y][clickX + x] = ["air", "air"]
         map.layout[clickY + y][clickX + x][floormode] = selectedblockedit
-        mapContext.clearRect(
-          (clickX + x) * blocksize,
-          (clickY + y) * blocksize,
-          blocksize,
-          blocksize
-        )
-        if (floormode) {
-          drawfloorblock(selectedblockedit, clickX + x, clickY + y)
-          drawblock(
-            map.layout[clickY + y][clickX + x][0],
-            clickX + x,
-            clickY + y
-          )
-        } else drawblock(selectedblockedit, clickX + x, clickY + y)
+       drawMapBlock(clickX + x, clickY + y)
+       
       }
     }
   }
 }
 
 function drawblock(blockname, x, y, alpha = 1) {
-  const img = new Image()
+  
+   const img = new Image()
   img.src = "img/" + blockname + ".png"
   img.alpha = alpha
   img.onload = function () {
+    if(alpha != 1)
+    mapContext.clearRect(x.blocks(),y.blocks(),blocksize,blocksize)
     mapContext.globalAlpha = img.alpha
     mapContext.drawImage(
       img,
@@ -336,7 +342,8 @@ function drawfloorblock(blockname, x, y) {
   drawblock(blockname, x, y, floorTransparency)
 }
 function drawMapBlock(x,y){
-  mapContext.clearRect(x.blocks(),y.blocks(),blocksize,blocksize)
+  //mapContext.clearRect(x.blocks(),y.blocks(),blocksize,blocksize)
+  
   drawfloorblock(map.layout[y][x][1],x,y)
   drawblock(map.layout[y][x][0],x,y)
 }
@@ -351,10 +358,14 @@ function renderMapFromVariable(width, height, xoffset = 0, yoffset = 0) {
   )
   for (let i = yoffset; i < height + yoffset; i++) {
     for (let j = xoffset; j < width + xoffset; j++) {
-      drawfloorblock(map.layout[i][j][1], j, i)
-      drawblock(map.layout[i][j][0], j, i)
+      if(!map.layout[i][j][0].includes("tree")){
+
+        drawfloorblock(map.layout[i][j][1], j, i)
+        drawblock(map.layout[i][j][0], j, i)
+      }
     }
   }
+  console.log("finished")
 }
 
 let mapMovingTimer = 0

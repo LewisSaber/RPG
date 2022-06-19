@@ -93,7 +93,9 @@ let craftingTable = {
         this.output
       )
       Out.amount = 0
+      if(isShiftOn ||(itemInCursor == "none" ||( itemInCursor.name == Out.name &&itemInCursor.getEmpty() >=this.recipe.outputAmount )))
       do {
+
         if (Out.getEmpty() >= this.recipe.outputAmount) {
           Out.amount += this.recipe.outputAmount
           for (let i = 0; i < this.shapedrecipeindexes.length; i++) {

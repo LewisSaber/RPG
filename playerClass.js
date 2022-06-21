@@ -133,7 +133,7 @@ class player {
     e.body.appendChild(e.player)
 
     this.applySkin()
-    centerMapOnPlayer()
+   // centerMapOnPlayer()
   }
   addAllFood() {
     for (const key in this.food) {
@@ -211,7 +211,7 @@ class player {
         if (keys[2]) this.y += speed
       }
 
-      this.y = +this.y.toFixed(1)
+      this.y = +this.y.toFixed(3)
       //comsole.log("y before:",this.y)
       if(checkMapForBlock(this.y,this.x,this.width,this.height)) this.y = oldcoords[0]
       //comsole.log("y after",this.y)
@@ -254,7 +254,7 @@ class player {
         if (keys[1]) this.x -= speed
         if (keys[3]) this.x += speed
       }
-      this.x = +this.x.toFixed(1)
+      this.x = +this.x.toFixed(3)
        //comsole.log("x before",this.x)
       if(checkMapForBlock(this.y,this.x,this.width,this.height)) this.x = oldcoords[1]
       //comsole.log("x after",this.x)
@@ -432,9 +432,12 @@ class player {
 
   getMiningSpeed() {
     return (
-      this.getStat("miningspeed") *
-      (1 + (steve.getEnchant("efficiency") * 0.08 || 0))
+      this.getStat("miningspeed")  + steve.getEnchant("efficiency") * 25
+      
     )
+  }
+  getScavengerBonus(moblvl){
+    return this.getEnchant("scavenger") * SCPMLPLOE * moblvl
   }
   fortunes = {
     combat: () => (this.getStat("combatfortune") + 100) / 100,
@@ -527,8 +530,7 @@ class player {
     if (isZombie(mobName)) defense += this.getStat("zombiedefense")
 
     return (
-      +(1 - defense / (defense + 100)).toFixed(2) *
-      (1 - (steve.getEnchant("protection") >> 0) * 0.02)
+      +(1 - defense / (defense + 100)).toFixed(2) 
     )
   }
 
@@ -595,7 +597,8 @@ class player {
   }
   addCoins(amount) {
     this.coins += amount
-    e.coinstext.innerText = this.coins.formate()
+    e.coinstext.innerText = session.settings.KcoinsNotation ? this.coins.formate() : this.coins.formateComas()
+   
   }
   naturalRegeneration() {
     this.addHealth(
@@ -673,5 +676,8 @@ class player {
     
     centerMapOnPlayer()
 
+  }
+  getDefense(){
+    return this.getStat("defence") + this.getEnchant("protection") * 3
   }
 }

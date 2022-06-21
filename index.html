@@ -9,9 +9,9 @@
   <body id="body" >
    
     <div id="progressbar"><p id="progressbartext"><div id="progressbarInside"></div></p></div>
-    <div id="mapframe"></div>
-  <div id="mapcontainer">
+    <div id="mapframe" style="display:none;"></div>
     <canvas id="map" width="5000" height="5000"></canvas>
+  <div id="mapcontainer">
   </div>
 
 
@@ -28,7 +28,7 @@
 <div id="inventory"></div>
 <div class="player " id="playerStats"  onmouseenter="makeSteveToolTip()" onmouseleave =
 "leaveElement()"></div>
-<div id="coins"><div id="coinspicture"></div><p id="coinstext"></p></div>
+<div  id="coins" onmouseenter="if(session.settings.KcoinsNotation)makeTextToolTip('Coins: ' + steve.coins.formateComas().color('yellow') )" onmouseleave="leaveElement()"><div id="coinspicture"></div><p id="coinstext"></p></div>
 <div id="backpacks"> <p id="backpacks0">Backpacks</p><input id="backpackSeach" onfocus="removeKeysEvent();formBackPackContains()" onblur="addKeysEvent()" oninput="highLightBackPacks()" onclick="playClickSound()" oncontextmenu="wipeInput(this); backpackContains.set('',backPacksInGui);   highLightBackPacks(); return false"></div>
 <div id="armorgui"></div>
 <div id="skills" style="display: none;"></div>
@@ -84,9 +84,16 @@
   <div onclick="changeNick()" class="settingsblock button">Change Your Nickname</div>
  
   <div class="settingsblockbig">
-    Shop Settings<br>
-    <input type="checkbox" id="shopPriceCheckBox" name="shopPrice" onchange="if(this.checked) session.settings.fullStackPrice = true; else session.settings.fullStackPrice = false;  ">
+  
+    <input type="checkbox" class="settingsCheckBox" id="shopPriceCheckBox" name="shopPrice" onchange="if(this.checked) session.settings.fullStackPrice = true; else session.settings.fullStackPrice = false;  ">
     <label for="shopPrice">Show Price Of Full Stack</label>
+    <br>
+    <input type="checkbox" class="obitainedCheckBox" id="coinsNotationCheckbox" name="coinsNotation" onchange="if(this.checked) session.settings.KcoinsNotation = true; else session.settings.KcoinsNotation = false; steve.addCoins(0)  ">
+    <label for="coinsNotation">Change Coins Notation</label>
+    <br>
+    <input type="checkbox" class="obitainedCheckBox" id="obitainedCheckBox" name="obitainedCheckBox" onchange="if(this.checked) session.settings.obitained = true; else session.settings.obitained = false; ">
+    <label for="obitainedCheckBox">Show when item was obitained</label>
+   
     
     
   </div>
@@ -100,7 +107,13 @@
     <input type="range" min="0" max="100" value="50" class="slider" id="musicRange" oninput="setVolume(this.value)">
 
   </div>
-  <div class="settingsblock">
+  <div class="settingsblockMedium" onmouseleave="leaveElement()"
+  onmouseenter="makeTextToolTip('After how many enchants <br>description will be hidden')">
+    <p id="enchDesc">Enchant Description Limit : 4</p>
+    <input type="range" min="0" max="10" value="4" class="slider" id="enchDescRange" oninput="session.settings.enchDescLimit = this.value;e.enchDesc.innerHTML = 'Enchant Description Limit : ' + this.value">
+
+  </div>
+  <div class="settingsblock" >
     <p id="fontExample">ToolTip FontSize: 25</p>
     <input type="range" min="10" max="50" value="25" class="slider" id="fontRange" oninput="setToolTipFontSize(this.value/10)" onmouseenter="makeTextToolTip('example<br>Defense: 20')" onmouseleave =
     "leaveElement()">

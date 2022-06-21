@@ -1,5 +1,5 @@
 let classes = {}
-const freezetimer = 5000
+const freezetimer = 4000
 const freezeRange = 20
 
 
@@ -101,6 +101,7 @@ classes.tool = class extends classes.item {
     super(amount)
     this.name = "tool"
     this.maxStackSize = 1
+    this.obitained = new Date()
   }
 }
 classes.tree = class extends classes.block {
@@ -153,6 +154,7 @@ classes.machine = class extends classes.empty {
     this.maxStackSize = 1
     this.recipetimer = -1
     this.inventory = {}
+    this.obitained = new Date()
   }
   doRecipe() {}
   stoprecipe() {}
@@ -242,6 +244,7 @@ classes.backpack = class extends classes.empty {
     this.name = "backpack"
     this.type = "backpack"
     this.maxStackSize = 1
+    this.obitained = new Date()
 
     this.inventory = {}
     this.inventorySlots = 0
@@ -419,6 +422,7 @@ classes.mob = class {
     )
 
     steve.kills++
+
     dumbtoinventory(this.generateDrop())
     e["mob" + this.id].style.opacity = 1
     this.stats.health = this.stats.maxhealth
@@ -429,17 +433,19 @@ classes.mob = class {
     addSkillXP("combat", this.xp)
     e["mob" + this.id].style.display = "none"
     this.respawntimer = setTimeout(this.spawn.bind(this), this.respawntimer)
+    steve.addCoins(steve.getScavengerBonus(this.lvl))
   }
   freze() {
     this.isFrozen = true
     this.state = "passive"
+    e["mob" + this.id].style.display = "none"
     clearInterval(this.attacktimer)
     clearInterval(this.angerinterval)
     clearInterval(this.randominterval)
     clearInterval(this.shottimer)
   }
   unfreze() {
-  
+    e["mob" + this.id].style.display = "block"
     this.isFrozen = false
     if (!isMapModeOn) {
       if (this.type == "angry") {

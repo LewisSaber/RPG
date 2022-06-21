@@ -1,32 +1,56 @@
 // let MAP = createEmptyMapVariable()
 
+
+const canvasWidth = 40
+const canvasHeight = 20
+const borderwidth = 0
+const floorTransparency = 0.6
+const pixelPerBlock = 6.5
+const blocksize = ((window.innerHeight / 100) * pixelPerBlock).
+fixed(4)
+
 let map = {
   width: 200,
   height: 200,
   layout: [[]],
-  mobs: []
+  mobs: [],
+  blocksize: blocksize
 }
-
-const borderwidth = 1
-const floorTransparency = 0.6
-const pixelPerBlock = 6.5
-const blocksize = ((window.innerHeight / 100) * pixelPerBlock).fixed(4)
 let mapContext
-
+let mapimg
 function generateMap() {
   e.mapcontainer.style.width = map.width.blocks().px()
   e.mapcontainer.style.height = map.height.blocks().px()
   e.mapcontainer.style.borderWidth = borderwidth.blocks().px()
+  //
   e.map.width = map.width.blocks()
-  e.map.height = map.height.blocks()
+e.map.height = map.height.blocks()
+  // if(!isMapModeOn){//
+
+  //   e.map.width = map.width.blocks()
+  //   e.map.height = map.height.blocks()
+  // }
+  // else
+  // {
+  //   e.map.width = canvasWidth.blocks()
+  //   e.map.height =canvasHeight.blocks()
+  // }
   mapContext = document.getElementById("map").getContext("2d")
   mapContext.webkitImageSmoothingEnabled = false
   mapContext.mozImageSmoothingEnabled = false
   mapContext.imageSmoothingEnabled = false
-  const img = new Image()
-  img.src = "map.png"
-  img.onload = function () {
-    mapContext.drawImage(img, 0, 0, map.width.blocks(), map.height.blocks())
+  mapimg = new Image()
+  mapimg.src = "map.png"
+  mapimg.onload = function () {
+    mapContext.drawImage(mapimg, 0, 0, map.width.blocks(), map.height.blocks())
+    // if(!isMapModeOn){//
+    //   mapContext.drawImage(mapimg, 0, 0, map.width.blocks(), map.height.blocks())
+    //   // mapContext.drawImage(img, steve.x - steve.offset.x, steve.y - steve.offset.y, canvasWidth.blocks(), canvasHeight.blocks(),0,0,canvasWidth.blocks(),canvasHeight.blocks())
+    //   centerMapOnPlayer()//
+    // }
+    // else 
+    centerMapOnPlayer()
+
   }
   for (let i = 0; i < map.height; i++) {
     for (let j = 0; j < map.width; j++) {
@@ -141,140 +165,6 @@ function loadselectedblockedits() {
   })
 }
 
-// let maphtml = [];
-// function generateMap() {
-//   clearMobs()
-//   let spawneriter = 0
-//   let map = MAP.mapLayout[mapY][mapX]
-//   currentmap =  MAP.mapLayout[mapY][mapX]
-//   currentmap.biome = MAP.biomes[mapY][mapX]
-//   currentmap.location = MAP.locations[mapY][mapX]
-//   e.map.innerText = "";
-//   for (let y = 0; y < mapH; y++) {
-//     maphtml[y] = new Array();
-//     for (let x = 0; x < mapW; x++) {
-//       maphtml[y][x] = new Array();
-//       for (let l = 0; l < 2; l++) {
-//         if (map[y][x][l] != "air") {
-//          // //comsole.log(map[y][x][l])
-//           if(map[y][x][l].includes("mobmobmob"))
-//           {
-//            if(map[y][x][l].includes("villager") ){
-//             new classes.villager(x * 5,y*5,spawneriter, map[y][x][l].slice(19))
-//            }
-//      else
-//      new classes[map[y][x][l].slice(10)](x * 5,y*5,spawneriter)
-//         spawneriter++
-
-//           }
-//           else
-//           {
-//             let tag = document.createElement("div");
-//             if (l == 0) tag.className = "block "+ map[y][x][l];
-//             else tag.className = "blockfloor " +  map[y][x][l]
-//               tag.setAttribute("onmousedown","breakblock(this)")
-//               //  tag.setAttribute("oncontextmenu"," return false")
-//               tag.setAttribute("onmouseleave","stopBreakingOnMouseLeave()")
-//               tag.setAttribute("onmouseenter","startBreakingOnMouseEnter(this)")
-//             tag.style.top = y * 5 + "vh";
-//             tag.style.left = x * 5 + "vh";
-//              maphtml[y][x][l] = tag
-//             e.map.appendChild(tag);
-//           }
-
-//         }
-//       }
-//     }
-//   }
-//   changeLocation()
-// }
-// function generateDebugMap() {
-//   maphtml  =[]
-//   e.map.innerText = "";
-//   for (let y = 0; y < mapH; y++) {
-//     maphtml[y] = new Array();
-//     for (let x = 0; x < mapW; x++) {
-//       maphtml[y][x] = new Array();
-//       for (let l = 0; l < 2; l++) {
-//         let tag = document.createElement("div");
-//         if (l == 0) tag.classList.add("block", "air");
-//         else tag.classList.add("blockfloor");
-
-//         tag.style.top = y * 5 + "vh";
-//         tag.style.left = x * 5 + "vh";
-//         maphtml[y][x][l] = tag;
-//         e.map.appendChild(tag);
-//       }
-//     }
-//   }
-//   return generateEmptyMap();
-// }
-// function editmap() {
-//   window.removeEventListener("mousedown", onMapModeClick);
-//   window.addEventListener("mousedown", onMapModeClick);
-//   e.map.style.display ="block"
-// e.mapsGui.style.display =  "none"
-// if(MAP.mapLayout[mapY] == undefined)
-// {
-
-//   MAP.mapLayout[mapY]  = new Array()
-//   MAP.biomes[mapY] = new Array()
-//   MAP.locations[mapY] = new Array()
-// }
-
-//   if (MAP.mapLayout[mapY][mapX] == undefined){ currentmap =  generateDebugMap();
-
-//   currentmap.biome = "none"
-//   currentmap.location = "none"
-//   saveCurrentMap()
-//    // generateMap()
-//   }
-//   else {
-
-// let map = MAP.mapLayout[mapY][mapX]
-//     e.map.innerText = "";
-//     for (let y = 0; y < mapH; y++) {
-//       maphtml[y] = new Array();
-//       for (let x = 0; x < mapW; x++) {
-//         maphtml[y][x] = new Array();
-//         for (let l = 0; l < 2; l++) {
-//           let tag = document.createElement("div");
-//           if (l == 0)
-//             tag.className =
-//               "block " +
-//               map[y][x][l]
-
-//           else tag.className = "blockfloor " +map[y][x][l]
-
-//           tag.style.top = y * 5 + "vh";
-//           tag.style.left = x * 5 + "vh";
-//           maphtml[y][x][l] = tag;
-//           e.map.appendChild(tag);
-//         }
-//       }
-//     }
-
-//     currentmap  = map
-//     if(MAP.biomes[mapY][mapX] != undefined)
-//     {
-
-//       currentmap.biome =  MAP.biomes[mapY][mapX]
-//       currentmap.location =  MAP.locations[mapY][mapX]
-//     }
-//     else
-//     {
-//       currentmap.biome =  "none"
-//       currentmap.location = "none"
-//     }
-
-//   }
-//   e.biomes.value = currentmap.biome
-
-// }
-
-// //[r][c] - R-rows; C-columns
-// let percent = window.innerHeight / 100;
-
 function mapMode() {
   e.editmode.style.display = "block"
   loadselectedblockedits()
@@ -319,7 +209,7 @@ function fill3x3(clickY, clickX) {
   }
 }
 
-function drawblock(blockname, x, y, alpha = 1) {
+function drawblock(blockname, x, y, alpha = 1, ondrawn = function(){},) {
   
    const img = new Image()
   img.src = "img/" + blockname + ".png"
@@ -336,16 +226,15 @@ function drawblock(blockname, x, y, alpha = 1) {
       blocksize
     )
     mapContext.globalAlpha = 1
+    ondrawn()
   }
 }
-function drawfloorblock(blockname, x, y) {
-  drawblock(blockname, x, y, floorTransparency)
-}
+
 function drawMapBlock(x,y){
   //mapContext.clearRect(x.blocks(),y.blocks(),blocksize,blocksize)
   
-  drawfloorblock(map.layout[y][x][1],x,y)
-  drawblock(map.layout[y][x][0],x,y)
+  drawblock(map.layout[y][x][1], x, y, floorTransparency,function(){drawblock(map.layout[y][x][0], x, y)})
+  
 }
 
 
@@ -385,26 +274,53 @@ function downButtonHandlerMap(evt) {
 }
 
 function movemap(evt){
-  if (evt.code == "KeyW")
+  if (evt.code == "KeyW"){
+
     e.mapcontainer.style.top =
-      +e.mapcontainer.style.top.slice(0, -2) +
-      (isShiftOn ? 2 * mapMovingSpeed : mapMovingSpeed).blocks() +
-      "px"
+    +e.mapcontainer.style.top.slice(0, -2) +
+    (isShiftOn ? 2 * mapMovingSpeed : mapMovingSpeed).blocks() +
+    "px"
+    e.map.style.top =
+    +e.map.style.top.slice(0, -2) +
+    (isShiftOn ? 2 * mapMovingSpeed : mapMovingSpeed).blocks() +
+    "px"
+  }
 if (evt.code == "KeyS")
-    e.mapcontainer.style.top =
-      +e.mapcontainer.style.top.slice(0, -2) +
-      (isShiftOn ? -2 * mapMovingSpeed : -1 * mapMovingSpeed).blocks() +
-      "px"
+{
+
+  e.mapcontainer.style.top =
+  +e.mapcontainer.style.top.slice(0, -2) +
+  (isShiftOn ? -2 * mapMovingSpeed : -1 * mapMovingSpeed).blocks() +
+  "px"
+  e.map.style.top =
+  +e.map.style.top.slice(0, -2) +
+  (isShiftOn ? -2 * mapMovingSpeed : -1 * mapMovingSpeed).blocks() +
+  "px"
+}
 if (evt.code == "KeyA")
-    e.mapcontainer.style.left =
-      +e.mapcontainer.style.left.slice(0, -2) +
-      (isShiftOn ? 2 * mapMovingSpeed : mapMovingSpeed).blocks() +
-      "px"
+{
+  
+  e.mapcontainer.style.left =
+  +e.mapcontainer.style.left.slice(0, -2) +
+  (isShiftOn ? 2 * mapMovingSpeed : mapMovingSpeed).blocks() +
+  "px"
+  e.map.style.left =
+  +e.map.style.left.slice(0, -2) +
+  (isShiftOn ? 2 * mapMovingSpeed : mapMovingSpeed).blocks() +
+  "px"
+}
   if (evt.code == "KeyD")
+  {
+
     e.mapcontainer.style.left =
-      +e.mapcontainer.style.left.slice(0, -2) +
-      (isShiftOn ? -2 * mapMovingSpeed : -1*mapMovingSpeed).blocks() +
-      "px"
+    +e.mapcontainer.style.left.slice(0, -2) +
+    (isShiftOn ? -2 * mapMovingSpeed : -1*mapMovingSpeed).blocks() +
+    "px"
+    e.map.style.left =
+    +e.map.style.left.slice(0, -2) +
+    (isShiftOn ? -2 * mapMovingSpeed : -1*mapMovingSpeed).blocks() +
+    "px"
+  }
 }
 
 function upButtonHandlerMap(evt) {
@@ -447,9 +363,9 @@ function turnButton(id, loc) {
 }
 
 function saveMap() {
-  downloadMap()
-  // saveMapToClipBoard()
-  downloadTxtFile(btoa(JSON.stringify(map)))
+  // downloadMap()
+  // // saveMapToClipBoard()
+  // downloadTxtFile(btoa(JSON.stringify(map)))
 }
 
 function saveMapToClipBoard() {

@@ -678,6 +678,24 @@ classes.diamondsword = class extends classes.tool {
     this.type = "sword"
   }
 }
+
+classes.leathersword = class extends classes.tool {
+  constructor(amount = 0) {
+    super(amount)
+    
+    this.name = "leathersword"
+    this.stats = {
+      damage: 69,
+      strength: 420,
+     
+    }
+    this.rarity = 4
+    this.type = "sword"
+    this.description2 = "Ability: Gachi-Muchi".color("yellow") + br+"Summons Dungeon Master"
+  }
+}
+
+
 classes.undeadsword = class extends classes.tool {
   constructor(amount = 0) {
     super(amount)
@@ -841,6 +859,7 @@ classes.enchantingpaste = class extends classes.item {
     this.name = "enchantingpaste"
     this.enchants = {}
     this.maxStackSize = 1
+    
   }
 }
 selectorblocks.push("sugarcane")
@@ -1101,6 +1120,7 @@ classes.accessory = class extends classes.item {
     this.wasActivated = false
     this.tier = 0
     this.maxStackSize = 1
+    this.obitained = new Date()
   }
   activate() {
     this.wasActivated = true

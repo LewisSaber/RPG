@@ -70,7 +70,7 @@
 /* #villagergui > div{
 float: none;
 } */
-
+.settingsblockMedium,
 .settingsblockbig,
 .settingsblock{
   display: table-cell;
@@ -85,6 +85,9 @@ float: none;
   
   vertical-align: middle;
 
+}
+.settingsblockMedium{
+  height: 15vh;
 }
 .settingsblockbig{
  
@@ -120,7 +123,8 @@ float: none;
 .button:hover{
  background-color: #8f8d8d;
 }
-#shopPriceCheckBox{
+.settingsCheckBox
+{
   transform:scale(2,2);
 }
 .block {
@@ -199,14 +203,17 @@ float: none;
 }
 #mapcontainer{
   position: absolute;
-  background-color: black;
+  background: none;
   z-index: 1;
   border: solid gray 2vh;
+  pointer-events: none;
   
 }
 #map {
   position: absolute;
- 
+  left: 0%;
+  top:0%;
+  z-index: 1;
   background-color: black;
  
 }
@@ -427,6 +434,7 @@ float: none;
 }
 
 #tooltip {
+
   line-height: 3.2vh;
   display: none;
   position: absolute;
@@ -992,6 +1000,7 @@ z-index: 100;
 background-size: 100% 100%;
 margin: 0;
 opacity: 1;
+pointer-events: all;
 
 }
 

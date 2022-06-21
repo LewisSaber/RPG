@@ -258,6 +258,16 @@ String.prototype.color = function (Color,weight){
 Number.prototype.color = function (Color,weight){
   return color(this,Color,weight)
 }
+Date.prototype.toString = function(){
+  return this
+}
+Date.prototype.toMyFormat = function(){
+return (this.getDay()+1).toDayDate() + "." + (this.getMonth()+1).toDayDate()+"."+this.getFullYear()
+}
+Number.prototype.toDayDate = function(){
+  return ("0" + this).slice(-2)
+}
+
 function buildHotbar() {
   e.hotbar.style.display = "block"
   e.hotbar.innerText = ""

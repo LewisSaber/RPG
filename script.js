@@ -1,4 +1,3 @@
-
 let isLoaded = 0
 let isMapModeOn
 let mobs = []
@@ -113,7 +112,7 @@ function LOADING() {
     window.addEventListener("keyup", upButtonHandlerMap)
 
     mapMode()
-    centerMapOnPlayer()
+    centerMap()
   }
   isLoaded = 1
   //comsole.log("loaded")
@@ -121,7 +120,7 @@ function LOADING() {
 function onBeforeUnload() {
   //comsole.log(isMapModeOn)
   if (isMapModeOn) {
-     saveMap()
+    saveMap()
   }
   if (ShouldSaveOnLeave) {
     craftingTable.dumpTable()
@@ -468,37 +467,36 @@ function putInCursor() {
   if (itemInCursor.name == "empty") {
     itemInCursor = "none"
     e.tooltip.className = ""
-  } else {
-    if (
-      istooltip &&
-      (e.tooltip.className == "" ||
-        e.tooltip.className == "tooltipimg" ||
-        e.tooltip.className == itemInCursor.name)
-    ) {
-      e.tooltip.style.top =
-        +e.tooltip.style.top.slice(0, -2) + 90 - session.tooltipYOffset + "px"
-      e.tooltip.style.width = "7vh"
-      e.tooltip.style.height = "7vh"
-      e.tooltip.style.padding = "0vh"
-    }
-
-    if (
-      !istooltip &&
-      !(e.tooltip.className == "" || e.tooltip.className == "tooltipimg") &&
-      itemInCursor == "none"
-    ) {
-      e.tooltip.style.top =
-        +e.tooltip.style.top.slice(0, -2) - 90 + session.tooltipYOffset + "px"
-      e.tooltip.style.width = "auto"
-      e.tooltip.style.height = "auto"
-      e.tooltip.style.padding = " 1.2vh 2vh"
-    }
-
-    e.tooltip.className = itemInCursor.name
-
-    istooltip = false
-    e.tooltip.innerText = ""
   }
+  if (
+    istooltip &&
+    (e.tooltip.className == "" ||
+      e.tooltip.className == "tooltipimg" ||
+      e.tooltip.className == itemInCursor.name)
+  ) {
+    e.tooltip.style.top =
+      +e.tooltip.style.top.slice(0, -2) + 90 - session.tooltipYOffset + "px"
+    e.tooltip.style.width = "7vh"
+    e.tooltip.style.height = "7vh"
+    e.tooltip.style.padding = "0vh"
+  }
+
+  if (
+    itemInCursor == "none" ||
+    (!istooltip &&
+      !(e.tooltip.className == "" || e.tooltip.className == "tooltipimg"))
+  ) {
+    e.tooltip.style.top =
+      +e.tooltip.style.top.slice(0, -2) - 90 + session.tooltipYOffset + "px"
+    e.tooltip.style.width = "auto"
+    e.tooltip.style.height = "auto"
+    e.tooltip.style.padding = " 1.2vh 2vh"
+  }
+
+  e.tooltip.className = itemInCursor.name
+
+  istooltip = false
+  e.tooltip.innerText = ""
 }
 
 function putInCursorFull(slot, codeslot, codeamount) {
@@ -1035,6 +1033,8 @@ function LclickOnSlot(i, type = "inventory", key = "none", slotid = 0) {
           } else {
             if (itemInCursor.type == "accessory")
               itemInCursor = steve.accessorybag.addToInventory(itemInCursor)
+            //   leaveElement()
+
             putInCursor()
           }
           break
@@ -1139,23 +1139,43 @@ function makeConsumable(item) {
   }
   return str
 }
+/**
+ * creates String like:
+ * Protection V
+ * Sharpness V
+ */
+const enchantTooltip = (enchant, lvl) =>
+  getName(enchant) + " " + RomanNumerals.toRoman(lvl)
+const enchantsColorInToolTip = "#1df700"
 function makeEnchants(item) {
   let str = ""
   if (item.enchants != undefined) {
-    if (item.name == "enchantingpaste") {
+    str = br
+    if (
+      item.name == "enchantingpaste" ||
+      Object.keys(item.enchants).length <= session.settings.enchDescLimit
+    ) {
       for (const key in item.enchants) {
         str +=
-          br +
-          color(
-            (Names[key] || key[0].toUpperCase() + key.slice(1)) +
-              " " +
-              RomanNumerals.toRoman(item.enchants[key]),
-            "lightblue"
+          enchantTooltip(key, item.enchants[key]).color(
+            enchantsColorInToolTip
           ) +
           br +
-          getEnchantDescription(key, item.enchants[key]) +
+          Enchants[key].getDescriprion(item.enchants[key]) +
           br
+        // br +
+        // color(
+        //   (Names[key] || key[0].toUpperCase() + key.slice(1)) +
+        //     " " +
+        //     RomanNumerals.toRoman(item.enchants[key]),
+        //   "lightblue"
+        // ) +
+        // br +
+        // Enchants[key].getDescriprion(item.enchants[key])
+        // +
+        // br
       }
+      str += br
     } else {
       str = br
       let iter = 0
@@ -1173,8 +1193,10 @@ function makeEnchants(item) {
       }
       if (iter % 2 == 1) str += br
       str += br
+      if (iter == 0) str = ""
     }
   }
+
   return str
 }
 
@@ -1284,12 +1306,12 @@ function makeToolTip(item, sellValue = true) {
         (item.burnvalue > 0
           ? color("Burn Time: " + item.burnvalue + " ticks", "gray") + br
           : "") +
-        makeEnchants(item) +
         (item.family == undefined
           ? ""
           : "Talisman Family: " + color(getName(item.family), "magenta") + br) +
-        makeinventory(item) +
         makestats(item) +
+        makeEnchants(item) +
+        makeinventory(item) +
         makeConsumable(item) +
         (item.description2 == ""
           ? ""
@@ -1308,6 +1330,10 @@ function makeToolTip(item, sellValue = true) {
         (thismachinei == -4 && item.sellValue != undefined && sellValue
           ? "Hold Shift to Sell" + br
           : "") +
+         (item.obitained && session.settings.obitained ? "Obitained on: "+item.obitained.toMyFormat().color("#fa4646")+br:"")
+        +
+
+
         (
           " " +
           raritynames[item.rarity] +
@@ -1426,6 +1452,7 @@ function loadInventoryItem(item) {
   let result = new classes[item.name](item.amount)
   result.Rname = item.Rname
   result.customcolor = item.customcolor
+  if(result.obitained && item.obitained) result.obitained = new Date(item.obitained)
   if (item.kills != undefined) result.kills = item.kills
   if (item.enchants != undefined) result.enchants = item.enchants
   if (item.inventory != undefined) {
@@ -1657,7 +1684,7 @@ function reduceStack(input, amount) {
   input.amount -= amount
   return input.amount <= 0 ? new classes.empty() : input
 }
-
+const scrollingSpeed = 12
 function ScrollHandler(evt) {
   if (isNeiOpen) {
     if (evt.deltaY < 0) ShowRecipe(CurrentRecipeI - 1)
@@ -1675,20 +1702,24 @@ function ScrollHandler(evt) {
   } else {
     if (evt.deltaY < 0 && istooltip) {
       if (isShiftOn) {
-        e.tooltip.style.left = +e.tooltip.style.left.slice(0, -2) - 6 + "px"
-        session.tooltipXOffset += -6
+        e.tooltip.style.left =
+          +e.tooltip.style.left.slice(0, -2) - scrollingSpeed + "px"
+        session.tooltipXOffset += -scrollingSpeed
       } else {
-        e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 6 + "px"
-        session.tooltipYOffset += -6
+        e.tooltip.style.top =
+          +e.tooltip.style.top.slice(0, -2) - scrollingSpeed + "px"
+        session.tooltipYOffset += -scrollingSpeed
       }
     }
     if (evt.deltaY > 0 && istooltip) {
       if (isShiftOn) {
-        e.tooltip.style.left = +e.tooltip.style.left.slice(0, -2) + 6 + "px"
-        session.tooltipXOffset += 6
+        e.tooltip.style.left =
+          +e.tooltip.style.left.slice(0, -2) + scrollingSpeed + "px"
+        session.tooltipXOffset += scrollingSpeed
       } else {
-        e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) + 6 + "px"
-        session.tooltipYOffset += 6
+        e.tooltip.style.top =
+          +e.tooltip.style.top.slice(0, -2) + scrollingSpeed + "px"
+        session.tooltipYOffset += scrollingSpeed
       }
     }
   }
@@ -1814,7 +1845,7 @@ function createTextures() {
     blocksize.px() +
     ";height: " +
     blocksize.px() +
-    "; background-size: 100% 100%;}"
+    "; background-size: 100% 100%;  pointer-events: all;}"
   head.appendChild(style)
 }
 function randomAmount(amount, chance = 100) {
@@ -1869,22 +1900,6 @@ function getStatColor(stat) {
       return "#059e7a"
     default:
       return "#ffd000"
-  }
-}
-function getEnchantDescription(enchant, lvl) {
-  switch (enchant) {
-    case "sharpness":
-      return "+" + 10 * lvl + "% Damage to mobs"
-    case "smite":
-      return "+" + 12 * lvl + "% Damage to  Undead mobs"
-    case "efficiency":
-      return "You mine " + 8 * lvl + "% faster"
-    case "smeltingtouch":
-      return "Automatically Smelt Blocks When Mining"
-    case "protection":
-      return "You get " + 2 * lvl + "% less damage"
-    default:
-      return ""
   }
 }
 
@@ -2033,6 +2048,18 @@ function enchantsConflict(item, enchantToAdd) {
 const armor = "helmet chestplate leggins boots"
 const harvestingTools = "pickaxe axe shears"
 const combatTools = "sword"
+/**
+ * Scavenger
+ * Coins
+ * Per
+ * Mob
+ * Lvl
+ * Per
+ * Level
+ * Of
+ * Enchant
+ */
+const SCPMLPLOE = 0.3
 
 Enchants = {
   sharpness: {
@@ -2040,30 +2067,46 @@ Enchants = {
     tool: combatTools,
     cost: 100,
     conflict: "smite",
+    getDescriprion: (lvl) => "+" + 10 * lvl + "% Damage to mobs",
   },
   smite: {
     maxlvl: 5,
     tool: combatTools,
     cost: 100,
     conflict: "sharpness",
+    getDescriprion: (lvl) => "+" + 12 * lvl + "% Damage to  Undead mobs",
   },
   smeltingtouch: {
     maxlvl: 1,
     tool: harvestingTools,
     cost: 500,
     conflict: "",
+    getDescriprion: (lvl) => "Automatically Smelt Blocks When Mining",
   },
   efficiency: {
     maxlvl: 5,
     tool: harvestingTools,
     cost: 100,
     conflict: "",
+    getDescriprion: (lvl) =>
+      makeStatSpan(lvl * 25, "miningspeed") + " Mining Speed",
   },
   protection: {
     maxlvl: 5,
     tool: armor,
     cost: 100,
     conflict: "",
+    getDescriprion: (lvl) => makeStatSpan(lvl * 3, "defense") + " Defense",
+  },
+  scavenger: {
+    maxlvl: 5,
+    tool: combatTools,
+    cost: 200,
+    conflict: "",
+    getDescriprion: (lvl) =>
+      "Enemies Drop " +
+      (SCPMLPLOE * lvl + " coins").color("yellow") +
+      " per Mob Level",
   },
 }
 
@@ -2085,6 +2128,9 @@ let session = {
     font: "Minecraftia",
     toolTipFontSize: 2,
     bodycolor: "white",
+    KcoinsNotation: false,
+    enchDescLimit: 4,
+    obitained:false,
   },
   tooltipYOffset: 0,
   tooltipXOffset: 0,
@@ -2110,9 +2156,16 @@ function loadSession() {
   }
 
   loadObject(session, cSession)
+  e.enchDescRange.value = session.settings.enchDescLimit
+  e.enchDesc.innerHTML =
+    "Enchant Description Limit : " + session.settings.enchDescLimit
   e.musicRange.value = session.settings.volume
+
   setVolume(session.settings.volume)
   e.shopPriceCheckBox.checked = session.settings.fullStackPrice
+  e.coinsNotationCheckbox.checked = session.settings.KcoinsNotation
+  e.obitainedCheckBox.checked = session.settings.obitained
+
   setFont(session.settings.font)
   setToolTipFontSize(session.settings.toolTipFontSize)
 
@@ -2638,7 +2691,7 @@ function onMapClick(evt, isOnMap = true, id) {
   let clickY = isOnMap ? (evt.offsetY / blocksize) >> 0 : evt.offsetY
   //comsole.log(evt)
   if (isMapModeOn) {
-    console.log("x:",clickX,"y:",clickY)
+    console.log("x:", clickX, "y:", clickY)
     //  if (clickX != oldclicks[1] || clickY != oldclicks[0])
     if (clickX >= 0 && clickY >= 0) {
       if (features[0]) {
@@ -2715,7 +2768,6 @@ function onMapClick(evt, isOnMap = true, id) {
             blocksize
           )
           drawMapBlock(clickX, clickY)
-         
         }
         // oldclicks = [clickY, clickX];
       }
@@ -2742,12 +2794,26 @@ const downloadTxtFile = (text) => {
   delete element
 }
 const centerMapOnPlayer = () => {
+  centerMap()
+  //   e.mapcontainer.style.left = (steve.offset.x - steve.x - borderwidth)
+  //   .blocks()
+  //   .px()
+  // e.mapcontainer.style.top = (steve.offset.y - steve.y - borderwidth)
+  //   .blocks()
+  //   .px()
+  //   //void ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+  //   mapContext.clearRect(0,0,canvasWidth.blocks(),canvasHeight.blocks())
+  //    mapContext.drawImage(mapimg, (steve.x - steve.offset.x).blocks(), (steve.y - steve.offset.y).blocks(), canvasWidth.blocks(), canvasHeight.blocks(),0,0,canvasWidth.blocks(),canvasHeight.blocks())
+}
+const centerMap = function () {
   e.mapcontainer.style.left = (steve.offset.x - steve.x - borderwidth)
     .blocks()
     .px()
   e.mapcontainer.style.top = (steve.offset.y - steve.y - borderwidth)
     .blocks()
     .px()
+  e.map.style.left = (steve.offset.x - steve.x - borderwidth).blocks().px()
+  e.map.style.top = (steve.offset.y - steve.y - borderwidth).blocks().px()
 }
 let cursorLocationOnMap = {
   x: 0,

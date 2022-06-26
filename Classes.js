@@ -1928,3 +1928,17 @@ if(this.canshot){
   }
   
 }
+selectorblocks.push('grass')
+classes.grass = class extends classes.block{
+constructor(amount = 0){
+ super(amount)
+ this.name = 'grass'
+this.tool='shovel'
+this.hardness=250
+this.xp={
+  type:"mining",
+  amount:1,
+}
+}
+
+}

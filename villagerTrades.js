@@ -59,8 +59,12 @@ const villagerTrades = {
    brutezombie: [
     new Loot("rottenflesh",100,"combat",4,8),
     new Loot("zombiefang",60,"combat",2,4),
+   ],
+   grass:[
+    new Loot("dirt",100,"mining")
    ]
 
 
 
   }
+

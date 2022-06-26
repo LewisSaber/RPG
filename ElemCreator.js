@@ -150,7 +150,6 @@ let selectorblocks = [
   "coalore",
   "diamondore",
   "redstoneore",
-  "grass",
   "stoneslab",
   "leavesoak",
   "woolcoloredgreen",
@@ -178,7 +177,7 @@ const armornames = [
   "belt",
   "boots",
 ]
-const toload = [
+const toSave = [
   "customcolor",
   "age",
   "kills",

@@ -1119,9 +1119,10 @@ function makeinventory(item) {
     if (str != "") str = br + color("Inventory: ", "lime") + br + str
     str += "<br>"
   }
+  console.log(str)
   return str
 }
-function makeConsumable(item) {
+function wmakeConsumable(item) {
   let str = ""
   if (item.addedstats != undefined) {
     str +=
@@ -1288,6 +1289,27 @@ str+=
   makeTextToolTip(str)
 }
 
+function makeConsumable(item) {
+  let str = ""
+  if (item.addedstats != undefined) {
+    str +=
+      "<br>" +
+      color(
+        "Effects(Other Then Health)<br>Lasts For " +
+          HumanReadibleTime(item.effectLength) +
+          "<br>",
+        "lime"
+      )
+    for (const key in item.addedstats) {
+      str +=
+        color(getName(key) + ": ", "lightgray") +
+        makeStatSpan(item.addedstats[key], key, "+") +
+        br
+    }
+  }
+  return str
+}
+
 function makeToolTip(item, sellValue = true) {
   document.toolTipText = ""
   if (itemInCursor == "none") {
@@ -1398,7 +1420,13 @@ function breakblock(x, y) {
 
 let steve = new player()
 function savePlayer(Nick) {
+
   players[Nick] = steve
+  for(const key in players[Nick]){
+    if(!toSave.includes(key)){
+      delete players[Nick][key]
+    }
+  }
   localStorage.setItem("RPGPlayer", JSON.stringify(players))
 }
 let players
@@ -1408,7 +1436,7 @@ function loadPlayer(Nick) {
   if (players[Nick.toLowerCase()] != undefined) {
     pl = players[Nick.toLowerCase()]
     for (const key1 in pl) {
-      if (toload.includes(key1)) {
+      if (toSave.includes(key1)) {
         if (key1 == "inventory") {
           for (let i = 0; i < pl.inventorySlots; i++) {
             steve.inventory[i] = loadInventoryItem(pl[key1][i])

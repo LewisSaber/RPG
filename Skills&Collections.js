@@ -9,40 +9,7 @@ const skilllevelxp = [
   111672425, 2000000000,
 ]
 
-const RomanNumbers = [
-  "0",
-  "I",
-  "II",
-  "III",
-  "IV",
-  "V",
-  "VI",
-  "VII",
-  "VIII",
-  "IX",
-  "X",
-  "XI",
-  "XII",
-  "XIII",
-  "XIV",
-  "XV",
-  "XVI",
-  "XVII",
-  "XVIII",
-  "XIX",
-  "XX",
-  "XXI",
-  "XXII",
-  "XXIII",
-  "XXIV",
-  "XXV",
-  "XXVI",
-  "XXVII",
-  "XXVIII",
-  "XXIX",
-  "XXX",
-  "XXXI",
-]
+
 
 // const collections = ["cobblestone","logoak","rottenflesh","sugarcane","cactus","coal","ironingot","leather"]
 const collections = {
@@ -164,9 +131,10 @@ function levelUpSkill(skill) {
       steve.skilllevels[skill]
     )
     if (isLoaded) {
-      steve.addCoins((steve.skilllevels[skill] * 100) >> 0)
+      notifySkillLvLUp(steve.skilllevels[skill],skill)
+      steve.addCoins(skillCoins[lvl])
       updateSkillXp(skill)
-    
+      
      // recalculateStats()
     }
     giveSkillReward(skill, steve.skilllevels[skill])
@@ -196,17 +164,60 @@ function updateSkillXp(skill) {
 
 
 
+
+
+
 function addSkillXP(skill, a) {
   steve.skillxp[skill] += a
   levelUpSkill(skill)
 }
 
+
+function notifySkillLvLUp(lvl,skill){
+  let text = "Skill Level UP!".center().assemble("p")+
+  getName(skill).color("#169c9d")+" "+
+  RomanNumerals.toRoman(lvl-1).color("gray") + " -> " + RomanNumerals.toRoman(lvl).color("#169c9d") + br+
+  "REWARDS".color("lime")+br
+  switch (skill) {
+    case "mining":
+      text += "+"+(skillRewardsPerLevel.miningfortune * (lvl-1) + "->").color("gray") + makeStatSpan(skillRewardsPerLevel.miningfortune * lvl,"miningfortune","")+ " Mining Fortune"+ br+"+"+
+      makeStatSpan(skillRewardsPerLevel.defense,"defense","") + " Defense"+br
+    
+      break;
+    
+  
+      case "combat":
+      text += "+"+(skillRewardsPerLevel.totalDamageMultiplier*100 * (lvl-1) + "->").color("gray") +(skillRewardsPerLevel.totalDamageMultiplier*100 * (lvl) + "%").color("lime") + " More Damage To Monsters"+ br+
+      "+"+(skillRewardsPerLevel.combatfortune * (lvl-1) + "->").color("gray") + makeStatSpan(skillRewardsPerLevel.combatfortune * lvl,"combatfortune","")+ " Combat Fortune"+ br+
+      "+" + makeStatSpan(skillRewardsPerLevel.accessorybagslots,"accessorybagslots","") + " Accessory Bag Slot" + isS(skillRewardsPerLevel.accessorybagslots)+br
+      break;
+
+  }
+  text += "+"+(skillCoins[lvl].formateComas() + " Coins").color("yellow")
+  $.notify(text,"skill")
+  }
+  
+  const skillCoins = [0]
+  for(let i = 0; i < 70;i++){
+    skillCoins.push((i%10+1) * 100 * 10** (i/10>>0))
+  }
+  const skillRewardsPerLevel = {
+    totalDamageMultiplier: 0.04,
+    combatfortune:5,
+    miningfortune:5,
+    defense: 3,
+    accessorybagslots:1,
+    magicfind:0.1,
+  }
+  
+  
+
 function giveSkillReward(skill, lvl, l = 0) {
   switch (skill) {
     case "combat":
-      steve.skillstats.totalDamageMultiplier +=  0.04
-      
-      steve.skillstats.combatfortune += 5
+      steve.skillstats.totalDamageMultiplier +=  skillRewardsPerLevel.totalDamageMultiplier
+      steve.skillstats.accessorybagslots+= skillRewardsPerLevel.accessorybagslots
+      steve.skillstats.combatfortune += skillRewardsPerLevel.combatfortune
       switch (lvl) {
         case 2:
           if (l == 0) {
@@ -267,7 +278,8 @@ function giveSkillReward(skill, lvl, l = 0) {
       break
 
     case "mining":
-      steve.skillstats.miningfortune += 10
+      steve.skillstats.miningfortune += skillRewardsPerLevel.miningfortune
+      steve.skillstats.defense += skillRewardsPerLevel.defense
       break
     default:
       break

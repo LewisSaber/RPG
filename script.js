@@ -30,6 +30,7 @@ const AccesoryBagDesc =
   color("ONLY 1", "red") +
   " Accessory Of Each Family<br> will be active at time<br>"
 
+
 function LOADING() {
   loadIDS()
   createTextures()
@@ -1071,10 +1072,11 @@ function blockreplacement(y, x, layer, replacement) {
 function makeStatSpan(amount, statname, symbolflag = "+") {
   return (
     (amount >= 0 ? symbolflag : "") +
-    amount +
+    amount.formateComas(0) +
     getStatIcon(statname)
   ).color(getStatColor(statname))
 }
+
 function makestats(item, plus = "+") {
   let str = ""
   for (const key in item.stats) {
@@ -1257,26 +1259,33 @@ function getName(name) {
   return str
 }
 function makeSteveToolTip() {
-  if (itemInCursor == "none") {
-    e.tooltip.className = "tooltipimg"
-    itemintooltip = "steve"
-    istooltip = true
-    //  e.tooltip.style.top = +e.tooltip.style.top.slice(0, -2) - 100 + "px"
-    e.tooltip.style.display = "block"
-    e.tooltip.innerHTML =
-      steve.nick +
-      br +
-      br +
-      br +
-      makestats(steve, "") +
-      br +
-      "Total kills: " +
+  let str = steve.nick + br.repeat(3) 
+  +
+  "Health: " +makeStatSpan(steve.getMaxHealth(),"maxhealth","") + br+
+  "Defense: " + makeStatSpan(steve.getDefense(""),"defense","") + br+
+  "Strength: " + makeStatSpan(steve.getStat("strength"),"strength","") + br+
+  "Speed: " + makeStatSpan(steve.getStat("speed"),"speed","") + br+
+  "Crit Chance: " + makeStatSpan(steve.getStat("criticalchance"),"criticalchance","") + br+
+  "Crit Damage: " + makeStatSpan(steve.getCriticalDamage(""),"criticaldamage","") + br+
+  "Mining Speed: " + makeStatSpan(steve.getMiningSpeed(""),"miningspeed","") + br
+
+  for(const key in steve.fortunes){
+    if(key != "none"){
+      str += getName(key) + " Fortune: " +makeStatSpan(steve.fortunes[key]()*100 ,key+"fortune","")  + br
+    }
+  }
+  str += "Magic Find: " + makeStatSpan(steve.getStat("magicfind"),"magicfind","") + br
+
+ 
+str+=
+  "Total kills: " +
       (steve.kills + "💀").color("red") +
       br +
       "Playtime: " +
       playerAgeString() +
       br
-  }
+
+  makeTextToolTip(str)
 }
 
 function makeToolTip(item, sellValue = true) {
@@ -1445,6 +1454,11 @@ function loadPlayer(Nick) {
     steve.nick = Nick
     players[Nick.toLowerCase()] = steve
   }
+  armornames.forEach((x) => {
+    if(steve[x].Activate != undefined)
+    steve[x]?.Activate()
+  }
+)
   steve.createPlayer()
   session.nick = session.nick.toLowerCase()
 }
@@ -1553,9 +1567,10 @@ function openMachineGui(machine, id = 0) {
           "leaveElement()"
         )
       })
+      const slots = steve.getStat("accessorybagslots")
       for (let i = 0; i < maxaccesoriesslots; i++) {
         e.accessorybag["slot" + i].style.display =
-          i < steve.stats.accessorybagslots ? "block" : "none"
+          i < slots ? "block" : "none"
       }
     } else if (machine.name == "villager") {
       lastmachine = "villagergui"
@@ -1806,21 +1821,7 @@ function coin(size) {
     "vh;display:inline;' src = 'img/coin.png'>"
   )
 }
-function recalculateStats() {
-  let health = steve.stats.health
 
-  armornames.forEach((x) => {
-    if (steve[x].DeActivate != undefined) {
-      if (steve[x].wasActivated) steve[x].DeActivate()
-      steve[x].Activate()
-    }
-  })
-  // steve.stats = Object.assign(
-  //   Object.create(Object.getPrototypeOf(steve.basicstats)),
-  //   steve.basicstats
-  // )
-  steve.accessorybag.addAll()
-}
 function createTextures() {
   const head = document.getElementsByTagName("head")[0]
   for (const key in classes) {
@@ -1898,6 +1899,8 @@ function getStatColor(stat) {
       return "#02c799"
     case "foragingfortune":
       return "#059e7a"
+    case "magicfind":
+      return "#00ddff"
     default:
       return "#ffd000"
   }
@@ -1948,6 +1951,7 @@ function makeTextToolTip(text) {
         }
         if (text.includes("Accessory")) {
           let iter = 0
+          e.tooltip.innerHTML += br + "Capacity: " + (steve.getStat("accessorybagslots") + " Slots").color("lime")
           e.tooltip.innerHTML += br + "Currently Stores: " + br
           steve.accessorybag.inventory.forEach((x, i) => {
             if (x.name != "empty") {
@@ -2108,6 +2112,25 @@ Enchants = {
       (SCPMLPLOE * lvl + " coins").color("yellow") +
       " per Mob Level",
   },
+  critical: {
+    maxlvl: 5,
+    tool: combatTools,
+    cost: 1000,
+    conflict: "",
+    getDescriprion: (lvl) =>
+      "	Increases critical damage by " + makeStatSpan(10*lvl,"criticaldamage") 
+     
+  },
+  growth: {
+    maxlvl: 5,
+    tool: armor,
+    cost: 500,
+    conflict: "",
+    getDescriprion: (lvl) =>
+      "Grants " + makeStatSpan(15*lvl,"health") + " Health" 
+     
+  },
+
 }
 
 function givepaste(enchant, lvl = 5) {
@@ -2566,6 +2589,7 @@ const staticons = {
   farmingfortune: "☘",
   combatfortune: "☘",
   foragingfortune: "☘",
+  magicfind: "✯"
 }
 function getStatIcon(statname) {
   let icon = staticons[statname] || ""
@@ -2639,31 +2663,10 @@ function compareObjects(item, tag) {
   return state
 }
 
-function notification(text, color = "red") {
+function notification(text) {
+
   if (isLoaded) {
-    let tag = document.createElement("div")
-    tag.style.textAlign = "center"
-    tag.className = "notification"
-    tag.innerHTML = br
-    text.forEach((x) => {
-      tag.innerHTML += x + br
-    })
-    tag.innerHTML += br
-    e.notificationbar.appendChild(tag)
-    setTimeout(
-      function (element) {
-        element.className = "notification slideright"
-        setTimeout(
-          function (tag) {
-            tag.remove()
-          },
-          2000,
-          element
-        )
-      },
-      10000,
-      tag
-    )
+    $.notify(text,"recipe");
   }
 }
 
@@ -2831,3 +2834,34 @@ function cursorMoveOnMap(evt) {
 
   cursorLocationOnMap = { x: x, y: y }
 }
+/**
+    (1-5]% - RARE drop;
+    (0,1%-1%] - Legendary drop;
+    (inf - 0,1%] - IMPOSSIBLE DROP} dropname ;
+   * @param {string} dropname 
+ * @param {number} chance 
+ */
+function notifyRareDrop(dropname,chance){
+  if(chance <= 5){
+    let str = ""
+    if(chance <= 0.1){
+      str += "IMPOSSIBLE drop".color("red")
+      
+    }
+    else
+    if(chance <= 1){
+      str += "LEGENDARY drop".color("yellow")
+    }
+    else
+    str += "RARE drop".color("blue")
+    str += br + getName(dropname) + br
+    let magicfind = steve.getStat("magicfind")
+    if(magicfind){
+      str += ("+" +magicfind.formateComas() +"% "+getName("magicfind")).color(getStatColor("magicfind"))
+    }
+   
+    $.notify(str,"drop")
+
+
+  }
+} 

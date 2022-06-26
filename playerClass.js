@@ -32,6 +32,8 @@ class player {
       totalDamageMultiplier: 0,
       combatfortune: 0,
       miningfortune: 0,
+      accessorybagslots:0,
+      defense:0
     }
     this.stats = {
       maxhealth: 100,
@@ -55,7 +57,7 @@ class player {
       healthmultiplier: 1,
 
       range: 3,
-      accessorybagslots: 9,
+      accessorybagslots: 2,
     }
     this.enchants = {
       smeltingtouch: 0,
@@ -578,12 +580,12 @@ class player {
     }
   }
   updateheathbar() {
-    let maxhealth = this.getStat("maxhealth")
+    let maxhealth = this.getMaxHealth()
     e.healthbarinside.style.width = (this.stats.health / maxhealth) * 100 + "%"
     e.healthbartext.innerText = this.stats.health + " / " + maxhealth
   }
   addHealth(amount) {
-    let maxhealth = this.getStat("maxhealth")
+    let maxhealth = this.getMaxHealth()
     let multiplier = this.getStat("healthmultiplier")
     this.stats.health =
       this.stats.health + amount * multiplier < maxhealth
@@ -602,7 +604,7 @@ class player {
   }
   naturalRegeneration() {
     this.addHealth(
-      (this.getStat("maxhealth") *
+      (this.getMaxHealth() *
         (this.getStat("naturalregeneration") / 100)) >>
         0
     )
@@ -680,4 +682,17 @@ class player {
   getDefense(){
     return this.getStat("defence") + this.getEnchant("protection") * 3
   }
+  getCriticalDamage(){
+    return this.getStat("criticaldamage") + this.getEnchant("critical") * 10
+  }
+  getMaxHealth(){
+    return this.getStat("maxhealth") + this.getEnchant("growth") * 15
+  }
+  getMagicFindMultiplier(){
+    return this.getStat("magicfind") /100 + 1
+  }
+  getMagicFindChance(chance){
+    return this.getMagicFindMultiplier() * chance
+  }
+
 }

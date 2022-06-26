@@ -1,5 +1,7 @@
 let e = {}
 
+$.notify.defaults({ className: "info", position:"top right", style: 'bootstrap', autoHideDelay: 10000});
+
 function loadIDS() {
   var allElements = document.querySelectorAll("*[id]")
   for (let i = 0, n = allElements.length; i < n; i++) {
@@ -89,6 +91,7 @@ const Names = {
   beef: "Raw Beef Meat",
   rawchicken: "Raw Chicken Meat",
   cookedchicken: "Cooked Chicken Meat",
+  magicfind: "Magic Find",
   // leatherhelmet: "Leather Helmet",
   // leatherchestplate: "Leather Chestplate",
   // leatherboots: "Leather Boots",
@@ -262,11 +265,25 @@ Date.prototype.toString = function(){
   return this
 }
 Date.prototype.toMyFormat = function(){
-return (this.getDay()+1).toDayDate() + "." + (this.getMonth()+1).toDayDate()+"."+this.getFullYear()
+return this.getDate().toDayDate() + "." + (this.getMonth()+1).toDayDate()+"."+this.getFullYear()
 }
 Number.prototype.toDayDate = function(){
   return ("0" + this).slice(-2)
 }
+String.prototype.tocolor = function(color){
+  this.colored = color
+  return this
+}
+String.prototype.center = function(color){
+  this.textalign = "center"
+  return this
+}
+String.prototype.assemble = function(type = "span"){
+
+  return "<"+type+" style ='" +(this.colored?"color:"+this.colored+";":"") +(this.textalign?"text-align:"+this.textalign+";":"") +  "'>" + this + "</"+type +">"
+}
+
+
 
 function buildHotbar() {
   e.hotbar.style.display = "block"
@@ -605,3 +622,18 @@ function buildAccountSelector() {
   e.accounts.appendChild(option)
   e.accounts.value = session.nick
 }
+
+$.notify.addStyle('recipe', {
+  html: "<div><span data-notify-text/></div>",
+  classes: {
+    base: {
+      "white-space": "nowrap",
+      "background-color": "lightblue",
+      "padding": "5px"
+    },
+    superblue: {
+      "color": "white",
+      "background-color": "blue"
+    }
+  }
+});

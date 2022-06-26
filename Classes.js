@@ -1142,6 +1142,19 @@ classes.wolfpaw = class extends classes.accessory {
     }
   }
 }
+classes.kekw = class extends classes.accessory {
+  constructor(amount = 0) {
+    super(amount)
+    this.name = "kekw"
+    this.type = "accessory"
+    this.family = "admin"
+    this.tier = 4
+    this.rarity = 4
+    this.stats = {
+      magicfind: 10000,
+    }
+  }
+}
 classes.lewisrelic = class extends classes.accessory {
   constructor(amount = 0) {
     super(amount)

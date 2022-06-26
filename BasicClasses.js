@@ -64,12 +64,13 @@ classes.block = class extends classes.empty {
           if (key.smeltsInto != "none" && steve.getEnchant("smeltingtouch"))
             name = key.smeltsInto
           const amount =
-            (randomItem(key.min, key.max, key.chance) *
+            (randomItem(key.min, key.max, steve.getMagicFindChance(key.chance)) *
               steve.fortunes[key.type]()) >>
             0
           if (amount) {
             drops.push(new classes[name](amount))
             addCollectionItem(key.collection, amount)
+            notifyRareDrop(name,key.chance)
           }
         }
       }
@@ -483,7 +484,7 @@ classes.mob = class {
           if (key.smeltsInto != "none" && steve.enchants.smeltingtouch)
             name = key.smeltsInto
           const amount =
-            (randomItem(key.min, key.max, key.chance) *
+            (randomItem(key.min, key.max, steve.getMagicFindChance(key.chance)) *
               steve.fortunes[key.type]()) >>
             0
           if (amount) {

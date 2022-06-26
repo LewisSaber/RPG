@@ -260,22 +260,22 @@ function addShapedRecipe(
     outputAmount: amount,
   })
   notification([
-    "New Recipe Unlocked!",
-    (getName(output) + " recipe").color("green"),
+    "New Recipe Unlocked!<br>",
+    (getName(output)).color("green"),
   ])
 }
 function addFurnaceRecipe(input, output, time, amount = 1, inputamount = 1) {
   furnacerecipes[input] = [output, inputamount, amount, time]
   notification([
-    "New Recipe Unlocked!",
-    (getName(output) + " recipe").color("green"),
+    "New Recipe Unlocked!<br>",
+    (getName(output)).color("green"),
   ])
 }
 function addGlitchRecipe(input, inputamount = 160, amount = 1) {
   glitchrecipes[input] = ["glitched" + input, inputamount, amount]
   notification([
-    "New Recipe Unlocked!",
-    (getName("glitched" + input) + " recipe").color("green"),
+    "New Recipe Unlocked!<br>",
+    (getName("glitched" + input)).color("green"),
   ])
 }
 

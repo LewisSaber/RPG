@@ -505,13 +505,15 @@ class player {
         dumbtoinventory(cblock.block.generateDrop())
         
         map.layout[cblock.y][cblock.x][cblock.layer] = cblock.block.replacement
+        drawMapBlock(cblock.x,cblock.y)
         if(cblock.block.name.includes("tree"))
         {
           let tag = document.getElementById(cblock.block.name + " " + cblock.x + " " + cblock.y)
           tag.className = cblock.block.replacement + " mapblock"
+        
         }
-        else
-        drawMapBlock(cblock.x,cblock.y)
+       
+       
         selectedBlock = new classes.empty()
         setTimeout(
           blockreplacement,

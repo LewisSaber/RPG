@@ -112,6 +112,7 @@ classes.tree = class extends classes.block {
     this.tool = "axe shears"
     this.logs = 0
     this.xp = 0
+    this.replacement = "air"
   }
 
   // generateDrop() {

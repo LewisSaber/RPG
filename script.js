@@ -121,7 +121,7 @@ function onBeforeUnload() {
   }
   if (ShouldSaveOnLeave) {
     craftingTable.dumpTable()
-    dumbtoinventory(cursor.getItem())
+    dumbtoinventory([cursor.getItem()])
     savePlayer(session.nick)
     saveSession()
   }

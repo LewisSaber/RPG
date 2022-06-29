@@ -407,6 +407,7 @@ function makeEnchants(item) {
       item.name == "enchantingpaste" ||
       Object.keys(item.enchants).length <= session.settings.enchDescLimit
     ) {
+      let iter = 0
       for (const key in item.enchants) {
         str +=
           enchantTooltip(key, item.enchants[key]).color(
@@ -426,8 +427,10 @@ function makeEnchants(item) {
         // Enchants[key].getDescriprion(item.enchants[key])
         // +
         // br
+        iter++
       }
       str += br
+      if (iter == 0) str = ""
     } else {
       str = br
       let iter = 0
@@ -445,7 +448,7 @@ function makeEnchants(item) {
       }
       if (iter % 2 == 1) str += br
       str += br
-      if (iter == 0) str = ""
+     
     }
   }
 
@@ -645,6 +648,7 @@ function makeToolTip(item, sellValue = true) {
         (item.burnvalue > 0
           ? color("Burn Time: " + item.burnvalue + " ticks", "gray") + br
           : "") +
+          
         (item.family == undefined
           ? ""
           : "Talisman Family: " + color(getName(item.family), "magenta") + br) +
@@ -654,8 +658,8 @@ function makeToolTip(item, sellValue = true) {
         makeConsumable(item) +
         (item.description2 == ""
           ? ""
-          : "<p>" + item.description2 + br + "</p>") +
-        "<br><br>" +
+          : item.description2 + br) +
+        br +
         (item.sellValue != undefined && sellValue
           ? "Sell Value: " +
             (
@@ -681,6 +685,7 @@ function makeToolTip(item, sellValue = true) {
         )
           .toUpperCase()
           .color(raritycolors[item.rarity], 1800)
+          
     }
     return true
   }
@@ -1274,6 +1279,8 @@ function getStatColor(stat) {
       return "#059e7a"
     case "magicfind":
       return "#00ddff"
+    case "emotionaldamage":
+      return "#f59842"
     default:
       return "#ffd000"
   }

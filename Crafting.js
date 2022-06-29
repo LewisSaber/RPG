@@ -303,6 +303,7 @@ function loadrecipes() {
       efficiency: 5,
     },
   })
+  addShapedRecipe(["tyrant","lewissaber","colen","repolainen","dreammaster","boubou","cinobi","runakai","alastor"],"gtnh")
 
   // addShapedRecipe(
   //   [

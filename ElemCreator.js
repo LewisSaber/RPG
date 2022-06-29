@@ -55,7 +55,7 @@ const raritynames = [
   "Epic",
   "Legendary",
   "Mythic",
-  "Bloody",
+  "Bloody"
 ]
 const Names = {
   // revenantchestplate: "Revenant Chestplate",
@@ -66,6 +66,7 @@ const Names = {
   // lewisrelic: "Lewis Relic",
   furnace: "Stone Furnace",
   steeleaf: "Very Sharp Leaf",
+  gtnh:"GTNH",
   // combatfortune:"Combat Fortune",
   // farmingfortune: "Farming Fortune",
   accessorybagslots: "Accessory Bag Slots",
@@ -88,6 +89,9 @@ const Names = {
   rawchicken: "Raw Chicken Meat",
   cookedchicken: "Cooked Chicken Meat",
   magicfind: "Magic Find",
+  emotionaldamage:"Emotional Damage",
+  lewissaber: "LewisSaber",
+  dreammaster: "DreamMasterXXL",
   // leatherhelmet: "Leather Helmet",
   // leatherchestplate: "Leather Chestplate",
   // leatherboots: "Leather Boots",

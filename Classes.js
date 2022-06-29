@@ -2016,5 +2016,104 @@ constructor(amount = 0){
 }
  this.description2 = "Never Touched Grass"
 }
-
 }
+classes.alastor = class extends classes.item{
+  constructor(amount = 0){
+   super(amount)
+   this.name = 'alastor'
+   this.rarity = 5
+   this.type = "magikman"
+   this.stats = {
+     magicfind:10
+  }
+   this.description = "Wand Foci Go BRR".color("yellow")
+  }
+  }
+  classes.lewissaber = class extends classes.item{
+    constructor(amount = 0){
+     super(amount)
+     this.name = 'lewissaber'
+     this.rarity = 2
+     this.type = "jerk"
+     this.stats = {
+       emotionaldamage:10
+    }
+     this.description = "Crops Ew".color("lime")
+    }
+    }
+    classes.colen = class extends classes.item{
+      constructor(amount = 0){
+       super(amount)
+       this.name = 'colen'
+       this.rarity = 3
+       this.type = "mod"
+       this.stats = {
+         cuteness:100
+      }
+       this.description = "Cute Twink".color("lime")
+      }
+      }
+      classes.dreammaster = class extends classes.item{
+        constructor(amount = 0){
+         super(amount)
+         this.name = 'dreammaster'
+         this.rarity = 4
+         this.type = "guy"
+        
+         this.description = "Notable Scuba Driver".color("lime")
+        }
+        }
+        classes.cinobi = class extends classes.item{
+          constructor(amount = 0){
+           super(amount)
+           this.name = 'cinobi'
+           this.rarity = 3
+           this.type = "mod"
+           this.stats = {
+             banhammer:100
+          }
+          }
+        }
+        classes.boubou = class extends classes.item{
+          constructor(amount = 0){
+           super(amount)
+           this.name = 'boubou'
+           this.rarity = 4
+           this.type = "bro"
+          }
+        }
+        classes.repolainen = class extends classes.item{
+          constructor(amount = 0){
+           super(amount)
+           this.name = 'repolainen'
+           this.rarity = 3
+           this.type = "dev"
+          }
+        }
+        classes.minecraft7771 = class extends classes.item{
+          constructor(amount = 0){
+           super(amount)
+           this.name = 'minecraft7771'
+           this.rarity = 1
+           this.type = "guy"
+          }
+          }
+          classes.gtnh = class extends classes.item{
+            constructor(amount = 0){
+             super(amount)
+             this.name = 'gtnh'
+             this.rarity = 5
+             this.type = "modpack"
+            }
+            }
+            classes.runakai = class extends classes.item{
+              constructor(amount = 0){
+               super(amount)
+               this.name = 'runakai'
+               this.rarity = 1
+               this.type = "offended man"
+              }
+              }
+        
+  
+

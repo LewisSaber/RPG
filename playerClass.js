@@ -104,7 +104,7 @@ class player {
         emptyClass: x + "gui",
       }) //filter here
     })
-    this.itemInHand = new classes.empty()
+    
     this.skillxp = {}
     this.skilllevels = {}
     this.collectionitems = {}
@@ -121,6 +121,9 @@ class player {
   }
   addAge() {
     this.age++
+  }
+  getItemInHand(){
+    return steve.inventory[currentHotbarSlot].getItem()
   }
   createPlayer() {
     let tag = document.createElement("div")
@@ -329,7 +332,7 @@ class player {
           }
         }
 
-        if (itemslots[i] == currentHotbarSlot) selectHotbarItem(itemslots[i])
+    
       }
     if (item.amount > 0) {
       let nextempty = this.searchForFirstEmpty(s, end)
@@ -339,8 +342,6 @@ class player {
         )
         item = reduceStack(item, item.amount)
         this.inventory[nextempty].updateSlot()
-
-        if (nextempty == currentHotbarSlot) selectHotbarItem(nextempty)
       }
     }
 
@@ -557,7 +558,7 @@ class player {
       amount += this.food[key2].stats[key] >> 0
     }
 
-    amount += this.itemInHand.stats[key] >> 0
+    amount += this.getItemInHand().stats[key] >> 0
     amount += this.skillstats[key] || 0
     armornames.forEach((x) => {
       amount += this.armor[x].getItem().stats[key] >> 0
@@ -571,18 +572,18 @@ class player {
       }
     }
 
-    return amount
+    return amount >> 0
   }
   getTool() {
-    return this.itemInHand.type || ""
+    return this.getItemInHand().type || ""
   }
   getToolTier() {
-    return this.itemInHand.tier || 0
+    return this.getItemInHand().tier || 0
   }
   getEnchant(key) {
     let amount = 0
 
-    amount += this.itemInHand.enchants[key] >> 0
+    amount += this.getItemInHand().enchants[key] >> 0
 
     armornames.forEach((x) => {
       amount += this.armor[x].getItem().enchants[key] >> 0

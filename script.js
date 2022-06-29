@@ -46,7 +46,7 @@ function LOADING() {
     timer = setTimeout(cursor.position(evt), 1)
   }
   window.oncontextmenu = function (evt) {
-    steve.itemInHand.useAbility(evt)
+    steve.getItemInHand().useAbility(evt)
     return false
   }
 
@@ -95,7 +95,7 @@ function LOADING() {
     }
     )
     steve.inventory[currentHotbarSlot].select()
-    selectHotbarItem(currentHotbarSlot)
+    
     steve.addCoins(0)
     steve.addHealth(1000000)
     steve.spawn()
@@ -246,22 +246,13 @@ function downButtonHandler(evt) {
     steve.inventory[currentHotbarSlot].unSelect()
     currentHotbarSlot = key
     steve.inventory[currentHotbarSlot].select()
-    selectHotbarItem(key)
+    
   }
 }
 isNeiOpen = false
 
 
-function selectHotbarItem(i) {
-  selectedItem = steve.inventory[i].getItem()
-  steve.itemInHand = selectedItem
-  e.playertool.className = selectedItem.name
-  // putItemInslot(
-  //   steve.inventory[i],
-  //   e.inventory["slot" + i],
-  //   e.inventory["slot" + i + "amount"]
-  // )
-}
+
 function upButtonHandler(evt) {
   if (evt.code == "ShiftLeft" && isShiftOn) {
     isShiftOn = false
@@ -323,7 +314,7 @@ const inventoryGui = new Gui("inventory",[
 ],undefined,{
   onopen: function(){craftingTable.dumpTable()}
 })
-const mapGui = new Gui("map",[$("#hotbar")[0],$("#healthbar")[0]],undefined,{needsHandler:false,movesHotbar:false})
+const mapGui = new Gui("map",[$("#hotbar")[0],$("#healthbar")[0]],undefined,{needsHandler:false,movesHotbar:false,onopen: function(){ e.playertool.className = steve.getItemInHand().name}})
 const collectionGui = new Gui("collections",[$("#collections")[0]],undefined,{ movesHotbar:false})
 const skillGui = new Gui("skills",[$("#skills")[0]],undefined,{ movesHotbar:false})
 let activeGui = mapGui
@@ -1121,7 +1112,7 @@ function ScrollHandler(evt) {
     if (currentHotbarSlot > 8) currentHotbarSlot = 0
     if (currentHotbarSlot < 0) currentHotbarSlot = 8
     steve.inventory[currentHotbarSlot].select()
-    selectHotbarItem(currentHotbarSlot)
+    
   } else {
     if (evt.deltaY < 0 && cursor.isToolTip) {
       if (isShiftOn) {

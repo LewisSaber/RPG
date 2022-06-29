@@ -363,7 +363,6 @@ classes.consumable = class extends classes.empty {
         time: this.effectLength * 1000,
         stats: bottleneck,
       }
-      selectHotbarItem(currentHotbarSlot)
 
       setTimeout(function () {
         caneat = true

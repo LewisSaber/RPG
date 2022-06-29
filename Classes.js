@@ -134,7 +134,7 @@ classes.treeoak = class extends classes.tree {
   generateDrop() {
     let drop = super.generateDrop()
     drop.forEach((x, i) => {
-      if (x.name == "logoak" && steve.itemInHand.name == "efficientaxe") {
+      if (x.name == "logoak" && steve.getItemInHand().name == "efficientaxe") {
         drop[i] = new classes.planksoak(x.amount * 5)
       }
     })

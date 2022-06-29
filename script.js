@@ -558,7 +558,6 @@ function makeTextToolTip(text) {
     document.toolTipText = text
 
     function inner() {
-      console.log("executed")
       if (document.toolTipText == text) {
         e.tooltip.innerHTML = text
 
@@ -1478,7 +1477,7 @@ function loadSession() {
   e.shopPriceCheckBox.checked = session.settings.fullStackPrice
   e.coinsNotationCheckbox.checked = session.settings.KcoinsNotation
   e.obitainedCheckBox.checked = session.settings.obitained
-
+  e.fontRange.value = session.settings.toolTipFontSize * 10
   setFont(session.settings.font)
   setToolTipFontSize(session.settings.toolTipFontSize)
 

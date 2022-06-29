@@ -98,6 +98,7 @@ classes.bedrock = class extends classes.block {
   }
 }
 
+
 classes.woodpickaxe = class extends classes.tool {
   constructor(amount = 0) {
     super(amount)
@@ -2000,6 +2001,20 @@ this.xp={
   type:"mining",
   amount:1,
 }
+}
+
+}
+
+classes.tyrant = class extends classes.item{
+constructor(amount = 0){
+ super(amount)
+ this.name = 'tyrant'
+ this.rarity = 4
+ this.type = "toxic"
+ this.stats = {
+   iq:-2
+}
+ this.description2 = "Never Touched Grass"
 }
 
 }

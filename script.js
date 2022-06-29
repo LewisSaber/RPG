@@ -121,7 +121,7 @@ function onBeforeUnload() {
   }
   if (ShouldSaveOnLeave) {
     craftingTable.dumpTable()
-    if (itemInCursor != "none") dumbtoinventory([itemInCursor])
+    dumbtoinventory(cursor.getItem())
     savePlayer(session.nick)
     saveSession()
   }
@@ -1112,6 +1112,7 @@ function ScrollHandler(evt) {
     if (currentHotbarSlot > 8) currentHotbarSlot = 0
     if (currentHotbarSlot < 0) currentHotbarSlot = 8
     steve.inventory[currentHotbarSlot].select()
+    e.playertool.className = steve.getItemInHand().name
     
   } else {
     if (evt.deltaY < 0 && cursor.isToolTip) {

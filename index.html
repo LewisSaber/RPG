@@ -66,7 +66,12 @@
 <div id="trashcan" class="guiSlot" onclick="deleteItemInCursor()" onmouseenter="makeTextToolTip(color('Trashcan','green') + br + color('WARNING','red') + ', removed items can`t be restored')" onmouseleave =
 "leaveElement()"></div>
 </div></span>
-<button id="settingsButton" onclick="settingsGui.open(); isGuiOpen = true; playClickSound()" onmouseenter="makeTextToolTip('Settings')" onmouseleave =
+<button id="settingsButton" onclick="if(activeGui.name =='settings'){
+mapGui.open(); isGuiOpen = false;
+}else
+{
+  settingsGui.open(); isGuiOpen = true;
+} playClickSound()" onmouseenter="makeTextToolTip('Settings')" onmouseleave =
 "leaveElement()"></button>
 
 <div id="settings">

@@ -95,7 +95,7 @@ function LOADING() {
     }
     )
     steve.inventory[currentHotbarSlot].select()
-    
+    e.playertool.className = steve.getItemInHand().name
     steve.addCoins(0)
     steve.addHealth(1000000)
     steve.spawn()
@@ -246,7 +246,7 @@ function downButtonHandler(evt) {
     steve.inventory[currentHotbarSlot].unSelect()
     currentHotbarSlot = key
     steve.inventory[currentHotbarSlot].select()
-    
+    e.playertool.className = steve.getItemInHand().name
   }
 }
 isNeiOpen = false

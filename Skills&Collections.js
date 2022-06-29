@@ -87,7 +87,7 @@ const collections = {
     {
       
       message: "Enchanting Book Recipe",
-      reward: 'addShapedRecipe([empty,"glitchedredstone",empty,"string","book","string"],"enchantingbook",1,[0,2,0,32,1,32])',
+      reward: '',//addShapedRecipe([empty,"glitchedredstone",empty,"string","book","string"],"enchantingbook",1,[0,2,0,32,1,32])
       amount: 256
     }
   ],
@@ -132,7 +132,7 @@ function levelUpSkill(skill) {
     )
     if (isLoaded) {
       notifySkillLvLUp(steve.skilllevels[skill],skill)
-      steve.addCoins(skillCoins[lvl])
+      steve.addCoins(skillCoins[steve.skilllevels[skill]])
       updateSkillXp(skill)
       
      // recalculateStats()
@@ -314,53 +314,8 @@ function levelUpCollection(item) {
 function giveCollectionReward(item, lvl) {
   if (collections[item][lvl] != undefined){
     eval(collections[item][lvl].reward)
-   
-    // notification([getName(item)+ " Collection", "Level UP!","Reward",collections[item][lvl].message])
-
   } 
     
-
-  // switch (item) {
-  //   case "cobblestone":
-  //     switch (lvl) {
-  //       case 1:
-  //         // addShapedRecipe(['cobblestone', 'cobblestone', 'cobblestone', 'empty', 'stick', 'empty', 'empty', 'stick', 'empty'],"stonepickaxe")
-  //         break;
-  //       case 2:
-  //
-  //         break
-  //     }
-  //     break;
-  //       case "rottenflesh":
-  //     switch (lvl) {
-  //       case 1:
-  //         addShapedRecipe(['empty', 'rottenflesh', 'empty', 'empty', 'rottenflesh', 'empty', 'ironingot', 'stick', 'ironingot'],"undeadsword")
-  //         break;
-  //     }
-
-  //     break;
-
-  //     case "logoak":
-  //     switch (lvl) {
-  //       case 2:
-  //         addShapedRecipe(["logoak","logoak","planksoak","logoak","stick",empty,empty,"ironingot"],"efficientaxe",1,[16,16,16,16,8,0,0,4,0])
-  //         break;
-  //     }
-
-  //     break;
-
-  //     /*
-  //     case "cobblestone":
-  //     switch (lvl) {
-  //       case 1:
-
-  //         break;
-  //     }
-
-  //     break;
-  //     */
-
-  // }
 }
 
 function loadCollections() {

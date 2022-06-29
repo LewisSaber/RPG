@@ -33,16 +33,9 @@
 <div id="armorgui"></div>
 <div id="skills" style="display: none;"></div>
 <div id="collections" style="display: none;"><h1 style="text-align: center;">Collections</h1></div>
-<div id = "machines"></div><div id="furnace" >
- <div id="furnaceInput" class="guiSlot empty"><div id="furnaceInputamount" class="itemamount"></div></div>
- <div id="furnaceFuel"  class="guiSlot empty"><div id="furnaceFuelamount" class="itemamount"></div></div>
- <div id="furnaceOutput" class="guiSlot empty"><div id="furnaceOutputamount" class="itemamount"></div></div>
- <div id="furnacearrow" ></div>
- 
+<div id = "machines"></div>
 
-  </div>
-<div id="supercompactor"></div>
-<div id="glitchcompactor"><div id="glitchcompactorinputs"></div></div>
+
 <div id="enchantingbook"><button id="enchantingbookbutton" onclick="steve.machines[thismachinei].doRecipeInternal()">Apply</button></div>
 
 <div id="anvil">
@@ -60,20 +53,20 @@
   <div id="anviloutput" class="guiSlot empty"><div id="anvilOutputamount" class="itemamount"></div></div>
 </div>
 <div id="guibuttons">
-  <button id="collectionsbutton" onclick="openNoInventoryGui('collections');playClickSound()" onmouseenter="makeTextToolTip(CollectionsDesc)" onmouseleave =
+  <button id="collectionsbutton" onclick="collectionGui.open();playClickSound()" onmouseenter="makeTextToolTip(CollectionsDesc)" onmouseleave =
   "leaveElement()"></button>
-<button id="skillsbutton" onclick="openNoInventoryGui('skills');playClickSound()" onmouseenter="makeTextToolTip(SkillsDesc)" onmouseleave =
+<button id="skillsbutton" onclick="skillGui.open();playClickSound()" onmouseenter="makeTextToolTip(SkillsDesc)" onmouseleave =
 "leaveElement()"></button>
-<button id="accessorybagbutton" onclick="openMachineGui(steve.accessorybag);playClickSound()" onmouseenter="makeTextToolTip(AccesoryBagDesc)" onmouseleave =
+<button id="accessorybagbutton" onclick="steve.accessorybag.gui.open();playClickSound()" onmouseenter="makeTextToolTip(AccesoryBagDesc)" onmouseleave =
 "leaveElement()"></button>
 </div>
 <div id="accessorybag"><p>       Accessories</p></div>
-<div id="backpack"><div id="backpackname">fff</div></div>
+
 <div id="villagergui"></div>
 <div id="trashcan" class="guiSlot" onclick="deleteItemInCursor()" onmouseenter="makeTextToolTip(color('Trashcan','green') + br + color('WARNING','red') + ', removed items can`t be restored')" onmouseleave =
 "leaveElement()"></div>
 </div></span>
-<button id="settingsButton" onclick="OpenSettingsMenu(); playClickSound()" onmouseenter="makeTextToolTip('Settings')" onmouseleave =
+<button id="settingsButton" onclick="settingsGui.open(); isGuiOpen = true; playClickSound()" onmouseenter="makeTextToolTip('Settings')" onmouseleave =
 "leaveElement()"></button>
 
 <div id="settings">

@@ -1,11 +1,11 @@
-const spawnCoords ={
+const spawnCoords = {
   x: 50,
-  y:56
+  y: 56,
 }
-
 
 class player {
   constructor() {
+    this.version = 1
     this.width = 0.8
     this.height = this.width
     this.x = spawnCoords.x
@@ -22,18 +22,43 @@ class player {
     this.diffrencex = +(1 - this.width).toFixed(2)
     this.diffrencey = +(1 - this.height).toFixed(2)
     this.inventorySlots = 36
+    /** @type {Slot[]} */
     this.inventory = []
+    /** @type {Slot[]} */
     this.machines = []
-    this.machines.set(new classes.machine(), 9)
-    this.backpacks = []
-    this.backpacks.set(new classes.empty(), 24)
+
+    for (let i = 0; i < 9; i++) {
+      this.machines[i] = new Slot( (item)=>item.type == "machine", false,undefined, {
+        emptyClass: "machine",
+        isRclickSpecial : true,
+        isSpecialSlot:true,
+        onRclick: function(item){
+
+          if(!isEmpty(item)) item.openGui()
+        }
+      }) //filter here
+    }
+    
+    /** @type {Slot[]} */
+    this.backpacks = new Array()
+    for (let i = 0; i < backPacksInGui; i++) {
+      this.backpacks.push(new Slot(function (item){return item.type == "backpack" }, false,undefined,{
+        isRclickSpecial : true,
+        isSpecialSlot:true,
+        onRclick: function(item){
+
+          if(!isEmpty(item)) item.openGui()
+        }
+
+      })) //filter here
+    }
     this.accessorybag = new classes.accessorybag()
     this.skillstats = {
       totalDamageMultiplier: 0,
       combatfortune: 0,
       miningfortune: 0,
-      accessorybagslots:0,
-      defense:0
+      accessorybagslots: 0,
+      defense: 0,
     }
     this.stats = {
       maxhealth: 100,
@@ -62,6 +87,7 @@ class player {
     this.enchants = {
       smeltingtouch: 0,
     }
+    this.slots = []
     this.basicstats = Object.assign(
       Object.create(Object.getPrototypeOf(this.stats)),
       this.stats
@@ -70,15 +96,15 @@ class player {
     this.age = 0
     this.coins = 1000
     this.foodstats = {}
+    /** @type {Slot[]} */
+    this.armor = {}
+    armornames.forEach((x) => {
+      //(item) => item.type == x+"" 
+      this.armor[x] = new Slot(function(item){return item.type == x},"", true, {
+        emptyClass: x + "gui",
+      }) //filter here
+    })
     this.itemInHand = new classes.empty()
-    this.helmet = new classes.empty()
-    this.chestplate = new classes.empty()
-    this.leggings = new classes.empty()
-    this.boots = new classes.empty()
-    this.ring1 = new classes.empty()
-    this.ring2 = new classes.empty()
-    this.bracelet = new classes.empty()
-    this.belt = new classes.empty()
     this.skillxp = {}
     this.skilllevels = {}
     this.collectionitems = {}
@@ -99,13 +125,13 @@ class player {
   createPlayer() {
     let tag = document.createElement("div")
     tag.setAttribute("id", "player")
-    
+
     tag.style.width = this.width.blocks().px()
     tag.style.height = this.height.blocks().px()
 
     let tool = document.createElement("div")
     tool.setAttribute("id", "playertool")
-   
+
     e["playertool"] = tool
     e["player"] = tag
   }
@@ -120,22 +146,24 @@ class player {
   spawn() {
     const toolOffset = {
       x: 0.72,
-      y: 0.1
-      
-
+      y: 0.1,
     }
 
     e.player.style.left = this.offset.x.blocks().px()
     e.player.style.top = this.offset.y.blocks().px()
-   
-    e.playertool.style.left = (this.offset.x.blocks() + toolOffset.x.blocks()).px()
-    e.playertool.style.top = (this.offset.y.blocks() + toolOffset.y.blocks()).px()
+
+    e.playertool.style.left = (
+      this.offset.x.blocks() + toolOffset.x.blocks()
+    ).px()
+    e.playertool.style.top = (
+      this.offset.y.blocks() + toolOffset.y.blocks()
+    ).px()
 
     e.body.appendChild(e.playertool)
     e.body.appendChild(e.player)
 
     this.applySkin()
-   // centerMapOnPlayer()
+    // centerMapOnPlayer()
   }
   addAllFood() {
     for (const key in this.food) {
@@ -158,7 +186,15 @@ class player {
   }
 
   loadInventory() {
-    this.inventory.set(new classes.empty(), 36)
+    const inv = $("#inventory")[0]
+    const hotbar = $("#hotbar")[0]
+
+    for (let i = 0; i < this.inventorySlots; i++) {
+      this.inventory[i] = new Slot("", false)
+      if (i < 9) {
+        hotbar.appendChild(this.inventory[i].getTag())
+      } else inv.appendChild(this.inventory[i].getTag())
+    }
   }
   makeSkills() {
     for (const key in skillnames) {
@@ -173,40 +209,12 @@ class player {
     }
   }
   move() {
-  
     let movingright = true
     let oldcoords = [this.y, this.x]
     if (!keys.slice(0, 4).includes(1)) {
       clearInterval(movetimer)
       movetimer = 0
-    }
-    // else if (
-    //   this.x < 0 ||
-    //   this.y < 0 ||
-    //   this.y > (mapH - 1) * 5 - 1 ||
-    //   this.x > (mapW - 1) * 5 - 1
-    // ) {
-    //   // savemap();
-    //   if (this.x < 0) {
-    //     this.x = (mapW - 1.2) * 5
-    //     mapX--
-    //   }
-    //   if (this.y < 0) {
-    //     this.y = (mapH - 1.2) * 5
-    //     mapY--
-    //   }
-    //   if (this.y > (mapH - 1) * 5 - 1) {
-    //     this.y = 4
-    //     mapY++
-    //   }
-    //   if (this.x > (mapW - 1) * 5 - 1) {
-    //     this.x = 4
-    //     mapX++
-    //   }
-
-    //   goToNextMap()
-    // }
-    else {
+    } else {
       const speed = this.getSpeed()
       if (keys[0] != keys[2]) {
         if (keys[0]) this.y -= speed
@@ -215,91 +223,16 @@ class player {
 
       this.y = +this.y.toFixed(3)
       //comsole.log("y before:",this.y)
-      if(checkMapForBlock(this.y,this.x,this.width,this.height)) this.y = oldcoords[0]
-      //comsole.log("y after",this.y)
-      // if (oldcoords[0] > this.y) {
-      //   //move up
-      //   if (this.x % 5 >> 0 <= this.diffrencex) {
-      //     if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
-      //       this.y = oldcoords[0]
-      //   } else {
-      //     if (
-      //       checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
-      //       checkMapForBlock((this.y / 5) >> 0, (this.x / 5 + 1) >> 0)
-      //     )
-      //       this.y = oldcoords[0]
-      //   }
-      // } else {
-      //   // move down
-      //   if (this.x % 5 >> 0 <= this.diffrencex) {
-      //     if (
-      //       checkMapForBlock(
-      //         (this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1,
-      //         (this.x / 5) >> 0
-      //       )
-      //     ) {
-      //       this.y = oldcoords[0]
-      //     }
-      //   } else if (
-      //     checkMapForBlock(
-      //       ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
-      //       (this.x / 5 + 1) >> 0
-      //     ) ||
-      //     checkMapForBlock(
-      //       ((this.y - 0.2 - this.diffrencey + 0.0001) / 5 + 1) >> 0,
-      //       (this.x / 5) >> 0
-      //     )
-      //   )
-      //     this.y = oldcoords[0]
-      // }
+      if (checkMapForBlock(this.y, this.x, this.width, this.height))
+        this.y = oldcoords[0]
       if (keys[1] != keys[3]) {
         if (keys[1]) this.x -= speed
         if (keys[3]) this.x += speed
       }
       this.x = +this.x.toFixed(3)
-       //comsole.log("x before",this.x)
-      if(checkMapForBlock(this.y,this.x,this.width,this.height)) this.x = oldcoords[1]
-      //comsole.log("x after",this.x)
-    
-
-      //////
-      // if (oldcoords[1] > this.x) {
-      //   movingright = false
-      //   //move left
-      //   if (this.y % 5 >> 0 <= this.diffrencey) {
-      //     if (checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0))
-      //       this.x = oldcoords[1]
-      //   } else {
-      //     if (
-      //       checkMapForBlock((this.y / 5) >> 0, (this.x / 5) >> 0) ||
-      //       checkMapForBlock((this.y / 5 + 1) >> 0, (this.x / 5) >> 0)
-      //     )
-      //       this.x = oldcoords[1]
-      //   }
-      // } else {
-      //   //move right
-      //   movingright = true
-      //   if (this.y % 5 >> 0 <= this.diffrencey) {
-      //     if (
-      //       checkMapForBlock(
-      //         this.y / 5,
-      //         (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-      //       )
-      //     )
-      //       this.x = oldcoords[1]
-      //   } else if (
-      //     checkMapForBlock(
-      //       this.y / 5,
-      //       (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-      //     ) ||
-      //     checkMapForBlock(
-      //       (this.y / 5 + 1) >> 0,
-      //       (this.x - 0.2 - this.diffrencex + 0.01) / 5 + 1
-      //     )
-      //   ) {
-      //     this.x = oldcoords[1]
-      //   }
-      // }
+      //comsole.log("x before",this.x)
+      if (checkMapForBlock(this.y, this.x, this.width, this.height))
+        this.x = oldcoords[1]
 
       // e.player.style.top = this.y + "vh"
       // e.player.style.left = this.x + "vh"
@@ -321,22 +254,22 @@ class player {
   getSpeed() {
     return this.getStat("speed") / 1000
   }
- 
+
   searchForItemInInventory(item, s = 0, e = 36) {
     let itemSlots = []
     for (let i = e - 1; i >= s; i--) {
-      if (this.inventory[i].name == item.name) itemSlots.push(i)
+      if (this.inventory[i].getItem().name == item.name) itemSlots.push(i)
     }
     return itemSlots
   }
   searchForFirstEmpty(s, e) {
     for (let i = e - 1; i >= s; i--) {
-      if (this.inventory[i].name == "empty") return i
+      if (this.inventory[i].getItem().name == "empty") return i
     }
   }
   isEmptySlotInInventory(s = 0, e = 36) {
     for (let i = e - 1; i >= s; i--) {
-      if (this.inventory[i].name == "empty") return true
+      if (this.inventory[i].getItem().name == "empty") return true
     }
     return false
   }
@@ -344,41 +277,27 @@ class player {
     const items = this.searchForItemInInventory({ name: item })
     items.forEach((x) => {
       if (amount > 0) {
-        if (this.inventory[x].amount >= amount) {
-          this.inventory[x] = reduceStack(this.inventory[x], amount)
+        if (this.inventory[x].getItem().amount >= amount) {
+          this.inventory[x].reduceStack(amount)
           amount = 0
         } else {
-          amount -= this.inventory[x].amount
-          this.inventory[x] = reduceStack(
-            this.inventory[x],
-            this.inventory[x].amount
-          )
+          amount -= this.inventory[x].getItem().amount
+          this.inventory[x].reduceStack(this.inventory[x].getItem().amount)
         }
-        putItemInslot(
-          this.inventory[x],
-          e.inventory["slot" + x],
-          e.inventory["slot" + x + "amount"]
-        )
       }
     })
   }
   countItem(filter) {
     let amount = 0
     this.inventory.forEach((x) => {
-      if (x.name == filter) amount += x.amount
+      if (x.getItem().name == filter) amount += x.getItem().amount
     })
     return amount
   }
 
   clearinventory(s = 0, end = this.inventorySlots - 1) {
     for (s; s <= end; s++) {
-      this.inventory[s] = new classes.empty()
-
-      putItemInslot(
-        this.inventory[s],
-        e.inventory["slot" + s],
-        e.inventory["slot" + s + "amount"]
-      )
+      this.inventory[s].clear()
     }
   }
 
@@ -387,25 +306,27 @@ class player {
 
     if (itemslots != undefined)
       for (let i = 0; i < itemslots.length; i++) {
-        if (item.amount <= this.inventory[itemslots[i]].getEmpty()) {
-          this.inventory[itemslots[i]].amount += item.amount
-          item = reduceStack(item, item.amount)
-          putItemInslot(
-            this.inventory[itemslots[i]],
-            e.inventory["slot" + itemslots[i]],
-            e.inventory["slot" + itemslots[i] + "amount"]
-          )
+        if (item.amount <= this.inventory[itemslots[i]].getItem().getEmpty()) {
+          this.inventory[itemslots[i]].item.amount += item.amount
 
+          item = reduceStack(item, item.amount)
+          // putItemInslot(
+          //   this.inventory[itemslots[i]],
+          //   e.inventory["slot" + itemslots[i]],
+          //   e.inventory["slot" + itemslots[i] + "amount"]
+          // )
+          this.inventory[itemslots[i]].updateSlot()
           i = 10000
         } else {
-          item = reduceStack(item, this.inventory[itemslots[i]].getEmpty())
-          this.inventory[itemslots[i]].amount =
-            this.inventory[itemslots[i]].maxStackSize
-          putItemInslot(
-            this.inventory[itemslots[i]],
-            e.inventory["slot" + itemslots[i]],
-            e.inventory["slot" + itemslots[i] + "amount"]
-          )
+          if (this.inventory[itemslots[i]].getItem().getEmpty() != 0) {
+            item = reduceStack(
+              item,
+              this.inventory[itemslots[i]].getItem().getEmpty()
+            )
+            this.inventory[itemslots[i]].item.amount =
+              this.inventory[itemslots[i]].item.maxStackSize
+            this.inventory[itemslots[i]].updateSlot()
+          }
         }
 
         if (itemslots[i] == currentHotbarSlot) selectHotbarItem(itemslots[i])
@@ -413,17 +334,11 @@ class player {
     if (item.amount > 0) {
       let nextempty = this.searchForFirstEmpty(s, end)
       if (nextempty != undefined) {
-        this.inventory[nextempty] = Object.assign(
-          Object.create(Object.getPrototypeOf(item)),
-          item
+        this.inventory[nextempty].putItem(
+          Object.assign(Object.create(Object.getPrototypeOf(item)), item)
         )
         item = reduceStack(item, item.amount)
-
-        putItemInslot(
-          this.inventory[nextempty],
-          e.inventory["slot" + nextempty],
-          e.inventory["slot" + nextempty + "amount"]
-        )
+        this.inventory[nextempty].updateSlot()
 
         if (nextempty == currentHotbarSlot) selectHotbarItem(nextempty)
       }
@@ -433,12 +348,9 @@ class player {
   }
 
   getMiningSpeed() {
-    return (
-      this.getStat("miningspeed")  + steve.getEnchant("efficiency") * 25
-      
-    )
+    return this.getStat("miningspeed") + steve.getEnchant("efficiency") * 25
   }
-  getScavengerBonus(moblvl){
+  getScavengerBonus(moblvl) {
     return this.getEnchant("scavenger") * SCPMLPLOE * moblvl
   }
   fortunes = {
@@ -451,16 +363,16 @@ class player {
 
   isInRange(target) {
     return (
-      (target.x +0.5 - (this.x + this.width / 2)) ** 2 +
-        (target.y +0.5 - (this.y + this.height / 2)) ** 2 <=
-      ((this.getStat("range") + 1) ) ** 2
+      (target.x + 0.5 - (this.x + this.width / 2)) ** 2 +
+        (target.y + 0.5 - (this.y + this.height / 2)) ** 2 <=
+      (this.getStat("range") + 1) ** 2
     )
   }
   isMobInRange(target) {
     return (
       (target.x - (this.x + this.width / 2)) ** 2 +
         (target.y - (this.y + this.height / 2)) ** 2 <=
-      ((this.getStat("range") + 1) ) ** 2
+      (this.getStat("range") + 1) ** 2
     )
   }
   stopBreakingBlock() {
@@ -471,14 +383,27 @@ class player {
     selectedBlock = new classes[selectedBlock.name]()
   }
   sortInventory() {
-    let tempinventory = [...this.inventory]
-
-    tempinventory = tempinventory.slice(9)
-    tempinventory.sort(function (a, b) {
+    let itemArray = []
+    for(let i = 9 ; i < 36;i++){
+      const item = steve.inventory[i].getItem()
+    if(!isEmpty(item)) itemArray.push(item)
+    }
+    
+   
+    
+   
+    // tempinventory.forEach(x =>{
+    //   console.log(x.getItem().name)
+    // })
+    // console.log("after");
+    itemArray.sort(function (a, b) {
       return a.name > b.name ? 1 : -1
     })
-    this.clearinventory(9)
-    dumbtoinventory(tempinventory)
+    this.clearinventory(9) 
+    // tempinventory.forEach(x =>{
+    //   console.log(x.getItem().name)
+    // })
+   dumbtoinventory(itemArray)
   }
   breakblock(cblock) {
     if (keys[5] == 0) {
@@ -503,17 +428,16 @@ class player {
         clearInterval(breaktimer)
         breaktimer = 0
         dumbtoinventory(cblock.block.generateDrop())
-        
+
         map.layout[cblock.y][cblock.x][cblock.layer] = cblock.block.replacement
-        drawMapBlock(cblock.x,cblock.y)
-        if(cblock.block.name.includes("tree"))
-        {
-          let tag = document.getElementById(cblock.block.name + " " + cblock.x + " " + cblock.y)
+        drawMapBlock(cblock.x, cblock.y)
+        if (cblock.block.name.includes("tree")) {
+          let tag = document.getElementById(
+            cblock.block.name + " " + cblock.x + " " + cblock.y
+          )
           tag.className = cblock.block.replacement + " mapblock"
-        
         }
-       
-       
+
         selectedBlock = new classes.empty()
         setTimeout(
           blockreplacement,
@@ -533,9 +457,7 @@ class player {
     let defense = this.getStat("defense")
     if (isZombie(mobName)) defense += this.getStat("zombiedefense")
 
-    return (
-      +(1 - defense / (defense + 100)).toFixed(2) 
-    )
+    return +(1 - defense / (defense + 100)).toFixed(2)
   }
 
   getDamage(mob) {
@@ -601,14 +523,13 @@ class player {
   }
   addCoins(amount) {
     this.coins += amount
-    e.coinstext.innerText = session.settings.KcoinsNotation ? this.coins.formate() : this.coins.formateComas()
-   
+    e.coinstext.innerText = session.settings.KcoinsNotation
+      ? this.coins.formate()
+      : this.coins.formateComas()
   }
   naturalRegeneration() {
     this.addHealth(
-      (this.getMaxHealth() *
-        (this.getStat("naturalregeneration") / 100)) >>
-        0
+      (this.getMaxHealth() * (this.getStat("naturalregeneration") / 100)) >> 0
     )
   }
   addSet(item) {
@@ -633,20 +554,20 @@ class player {
     amount += this.stats[key] >> 0
 
     for (const key2 in this.food) {
-      amount += key2.stats[key] >> 0
+      amount += this.food[key2].stats[key] >> 0
     }
 
     amount += this.itemInHand.stats[key] >> 0
     amount += this.skillstats[key] || 0
     armornames.forEach((x) => {
-      amount += this[x].stats[key] >> 0
-      amount += this[x].additionalstats[key] >> 0
+      amount += this.armor[x].getItem().stats[key] >> 0
+      amount += this.armor[x].getItem().additionalstats[key] >> 0
     })
     for (let i = 0; i < this.accessorybag.inventory.length; i++) {
-      if (this.accessorybag.inventory[i].name == empty) i = 10000
-      else if (this.accessorybag.inventory[i].wasActivated) {
-        amount += this.accessorybag.inventory[i].stats[key] >> 0
-        amount += this.accessorybag.inventory[i].additionalstats[key] >> 0
+      if (this.accessorybag.inventory[i].isEmpty()) i = 10000
+      else if (this.accessorybag.inventory[i].getItem().wasActivated) {
+        amount += this.accessorybag.inventory[i].getItem().stats[key] >> 0
+        amount += this.accessorybag.inventory[i].getItem().additionalstats[key] >> 0
       }
     }
 
@@ -664,7 +585,7 @@ class player {
     amount += this.itemInHand.enchants[key] >> 0
 
     armornames.forEach((x) => {
-      amount += this[x].enchants[key] >> 0
+      amount += this.armor[x].getItem().enchants[key] >> 0
     })
 
     return amount
@@ -672,29 +593,25 @@ class player {
   getCenterCoordsArray() {
     return [this.x + this.width / 2, this.y + this.height / 2]
   }
-  tp(x,y){
-    if(!isUndefined(x))
-    this.x = x
-    if(!isUndefined(y))
-    this.y = y
-    
-    centerMapOnPlayer()
+  tp(x, y) {
+    if (!isUndefined(x)) this.x = x
+    if (!isUndefined(y)) this.y = y
 
+    centerMapOnPlayer()
   }
-  getDefense(){
+  getDefense() {
     return this.getStat("defence") + this.getEnchant("protection") * 3
   }
-  getCriticalDamage(){
+  getCriticalDamage() {
     return this.getStat("criticaldamage") + this.getEnchant("critical") * 10
   }
-  getMaxHealth(){
+  getMaxHealth() {
     return this.getStat("maxhealth") + this.getEnchant("growth") * 15
   }
-  getMagicFindMultiplier(){
-    return this.getStat("magicfind") /100 + 1
+  getMagicFindMultiplier() {
+    return this.getStat("magicfind") / 100 + 1
   }
-  getMagicFindChance(chance){
+  getMagicFindChance(chance) {
     return this.getMagicFindMultiplier() * chance
   }
-
 }

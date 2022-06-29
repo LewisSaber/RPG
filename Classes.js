@@ -190,23 +190,68 @@ classes.furnace = class extends classes.machine {
     this.fuel = 0
 
     this.inventory = {
-      input: new classes.empty(),
-      fuel: new classes.empty(),
-      output: new classes.empty(),
+      /*
+      #furnaceInput{
+  position: absolute;
+  left: 25vh;
+  top: 8vh;
+}
+#furnaceOutput{
+  position: absolute;
+  left: 44vh;
+  top: 14.5vh;
+}
+#furnaceFuel{
+  position: absolute;
+  left: 25vh;
+  top: 20vh;
+  
+}*/
+      input: new Slot("",true,{
+        position: "absolute",
+        left: "0vh",
+        top: "0vh",
+       
+      },{
+        onPostClick: this.doRecipe.bind(this)
+      }),
+      fuel: new Slot((item)=>item.burnvalue >0,true,{
+        position: "absolute",
+  left: "0vh",
+  top: " 10vh",
+      },{emptyClass:"fuelgui",
+      onPostClick: this.doRecipe.bind(this)
+    }),
+      output: new Slot("",false,{
+        position: "absolute",
+        right: "0",
+        top: "5vh"
+      },{canPutItems:false,
+        onPostClick: this.doRecipe.bind(this)
+      })
     }
+  }
+  generateGui(){
+    //<div id="backpack"><div id="backpackname">fff</div></div>
+    this.handler = document.createElement("div")
+    this.handler.className = "furnaceGui"
+    let arrow = document.createElement("div")
+    arrow.className = "furnacearrow"
+    this.handler.appendChild(arrow)
+    for(const key in this.inventory){
+      this.handler.appendChild(this.inventory[key].getTag())
+    }
+    e.gui.appendChild(this.handler)
+    this.gui = new Gui("furnace",[$("#inventory")[0],$("#hotbar")[0],this.handler])
   }
 
   doRecipe() {
-    this.recipe = furnacerecipes[this.inventory.input.name]
+    this.recipe = furnacerecipes[this.inventory.input.getItem().name]
     if (this.recipe != undefined && this.recipetimer == -1) {
       if (this.checkvalidnes()) {
-        if (this.inventoryslotid >= 0) {
-          e.machines["slot" + this.inventoryslotid].className =
-            "guiSlot furnaceactive"
-        }
         this.recipetimer = setTimeout(
           this.doRecipeInternal.bind(this),
-          this.recipe[3] * 20
+          this.recipe.time * 20
         )
       }
     }
@@ -214,36 +259,23 @@ classes.furnace = class extends classes.machine {
   doRecipeInternal() {
     if (this.checkvalidnes()) {
       // //comsole.log("recipe done")
-      this.inventory.output = new classes[this.recipe[0]](
-        this.inventory.output.amount + this.recipe[2]
-      )
-      this.inventory.input = reduceStack(this.inventory.input, this.recipe[1])
-      this.fuel -= this.recipe[3]
-      if (this.inventoryslotid == thismachinei) {
-        let iter = 0
-        for (const key in this.inventory) {
-          putItemInslot(
-            this.inventory[key],
-            e[this.name]["slot" + iter],
-            e[this.name]["slot" + iter + "amount"]
-          )
-          iter++
-        }
-      }
+      const result = new classes[this.recipe.output](this.recipe.amount)
+      this.inventory.output.addItem(result)
+      this.inventory.input.reduceStack(this.recipe.inputAmount)
+      this.fuel -= this.recipe.time
       if (this.checkvalidnes()) {
         // //comsole.log("starting recipe")
         this.recipetimer = setTimeout(
           this.doRecipeInternal.bind(this),
-          this.recipe[3] * 20
+          this.recipe.time * 20
         )
       } else this.stoprecipe()
     } else this.stoprecipe()
   }
   consumefuel() {
-    if (this.inventory.fuel.burnvalue > 0) {
-      this.fuel += this.inventory.fuel.burnvalue
-      this.inventory.fuel = reduceStack(this.inventory.fuel, 1)
-      ////comsole.log("Fuel reduced")
+    if (this.inventory.fuel.getItem().burnvalue > 0) {
+      this.fuel += this.inventory.fuel.getItem().burnvalue
+      this.inventory.fuel.reduceStack(1) 
       return true
     }
     return false
@@ -251,14 +283,14 @@ classes.furnace = class extends classes.machine {
   checkvalidnes() {
     if (this.recipe != undefined) {
       if (
-        furnacerecipes[this.inventory.input.name] != this.recipe ||
-        this.inventory.input.amount < this.recipe[1]
+        furnacerecipes[this.inventory.input.getItem().name] != this.recipe ||
+        this.inventory.input.getItem().amount < this.recipe.inputAmount
       )
         return false
-      if (this.inventory.output.getEmpty() < this.recipe[2]) return false
-      if (this.fuel < this.recipe[3])
-        while (this.consumefuel() && this.fuel < this.recipe[3]) {}
-      if (this.fuel < this.recipe[3]) return false
+      if (this.inventory.output.getItem().getEmpty() < this.recipe.amount) return false
+      if (this.fuel < this.recipe.time)
+        while (this.consumefuel() && this.fuel < this.recipe.time) {}
+      if (this.fuel < this.recipe.time) return false
       return true
     }
     return false
@@ -266,9 +298,6 @@ classes.furnace = class extends classes.machine {
   stoprecipe() {
     clearInterval(this.recipetimer)
     this.recipetimer = -1
-    if (this.inventoryslotid >= 0) {
-      e.machines["slot" + this.inventoryslotid].className = "guiSlot furnace"
-    }
   }
 }
 classes.shears = class extends classes.tool {
@@ -579,6 +608,7 @@ classes.armor = class extends classes.empty {
   constructor(amount = 0) {
     super(amount)
    this.wasActivated = false
+   this.maxStackSize = 1
   }
   checkSetParts(amount) {
     if (steve.helmet.set == this.set) amount--
@@ -741,8 +771,9 @@ classes.zombiehat = class extends classes.item {
       defense: 15,
     }
     this.rarity = 1
-    this.temp = this.makeAbilityDescription.bind(this)
-    document.addEventListener("ToolTipStart", this.temp)
+  }
+  onToolTip(){
+    this.makeAbilityDescription()
   }
   makeAbilityDescription() {
    
@@ -811,6 +842,10 @@ classes.dandelion = class extends classes.block {
     this.tool = "none"
     this.hardness = "100"
     this.replacement = "air"
+    this.xp = {
+      type:"foraging",
+      amount:2,
+    }
   }
 }
 classes.string = class extends classes.item {
@@ -898,9 +933,9 @@ classes.enchantingbook = class extends classes.machine {
     this.rarity = 1
 
     this.inventory = {
-      input: new classes.empty(),
-      input2: new classes.empty(),
-      output: new classes.empty(),
+      input: new Slot(),
+      input2: new Slot(),
+      output: new Slot(),
     }
   }
 
@@ -1010,43 +1045,69 @@ classes.glitchcompactor = class extends classes.machine {
     this.rarity = 1
 
     this.inventory = {
-      input1: new classes.empty(),
-      input2: new classes.empty(),
-      input3: new classes.empty(),
-      input4: new classes.empty(),
-      input5: new classes.empty(),
-      output: new classes.empty(),
+
+      input1: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      }),
+      input2: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      }),
+      input3: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      }),
+      input4: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      }),
+      input5: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      }),
+      output: new Slot("",false,{
+        position: "absolute",
+  top: "70%",
+  left: "40%"
+      },{canPutItems:false}),
     }
   }
   doRecipe() {
     let candorecipe = true
     while (candorecipe) {
-      this.recipe = [this.mostLeftItem(), glitchrecipes[this.mostLeftItem()]]
-      if (this.recipe[1] == undefined) {
+      this.recipe = glitchrecipes[this.mostLeftItem()]
+     
+      if (this.recipe == undefined) {
         candorecipe = false
       } else {
-        if (this.countItem(this.recipe[0]) > this.recipe[1][1]) {
+        if (this.countItem(this.recipe.input) >= this.recipe.inputAmount) {
+          
           if (
-            (this.inventory.output.name == this.recipe[1][0] ||
-              this.inventory.output.name == "empty") &&
-            this.inventory.output.getEmpty() >= this.recipe[1][2]
+            (this.inventory.output.getItem().name == this.recipe.output ||
+              this.inventory.output.isEmpty()) &&
+            this.inventory.output.getItem().getEmpty() >= this.recipe.amount
           ) {
-            this.removeFromInventory(this.recipe[0], this.recipe[1][1])
-            if (this.inventory.output.name == "empty") {
-              this.inventory.output = new classes[this.recipe[1][0]](
-                this.recipe[1][2]
-              )
-            } else this.inventory.output.amount += this.recipe[1][2]
-            putItemInslot(
-              this.inventory.output,
-              e.glitchcompactor.slot5,
-              e.glitchcompactor.slot5amount
+            this.removeFromInventory(this.recipe.input, this.recipe.inputAmount)
+            const result = new classes[this.recipe.output](
+              this.recipe.amount
             )
+            this.inventory.output.addItem(result)
+           
           } else candorecipe = false
         } else candorecipe = false
       }
     }
   }
+  generateGui(){
+    //<div id="glitchcompactor"><div id="glitchcompactorinputs"></div></div>
+    this.handler = document.createElement("div")
+    this.handler.className = "glitchcompactorGui"
+    let inputHandler = document.createElement("div")
+    inputHandler.className = "glitchcompactorinputs"
+    this.handler.appendChild(inputHandler)
+    for(const key in this.inventory){
+      if(key.includes("input")){
+        inputHandler.appendChild(this.inventory[key].getTag())
+      }
+      else
+      this.handler.appendChild(this.inventory[key].getTag())
+    }
+    e.gui.appendChild(this.handler)
+    this.gui = new Gui("glitchcompacter",[$("#inventory")[0],$("#hotbar")[0],this.handler])
+  }
+
+
 }
 
 selectorblocks.push("cactus")
@@ -1286,18 +1347,25 @@ classes.supercompactor = class extends classes.machine {
       "Put Glitched Item Inside as Filter"
     this.rarity = 1
     this.inventorySlots = 1
-    this.inventory = {}
+   
     this.timer = 0
     this.filter = []
+   
+  }
+  buildinventory(){
+    this.inventory = {}
     for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory["input" + i] = new classes.empty()
+      this.inventory["input" + i] = new Slot((item) =>item.name.includes("glitched"),false,undefined,{
+        onPostClick: this.doRecipe.bind(this)
+      })
     }
+
   }
   doRecipe() {
     this.filter = []
     for (const key in this.inventory) {
-      if (this.inventory[key].name.slice(0, 8) == "glitched")
-        this.filter.push(this.inventory[key].name.substr(8))
+      if (this.inventory[key].getItem().name.slice(0, 8) == "glitched")
+        this.filter.push(this.inventory[key].getItem().name.substr(8))
     }
     if (this.timer == 0 && this.filter.length > 0) {
       this.timer = setInterval(this.doRecipeInternal.bind(this), 1000)
@@ -1310,9 +1378,9 @@ classes.supercompactor = class extends classes.machine {
     this.filter.forEach((x) => {
       const recipe = glitchrecipes[x]
       if (recipe != undefined) {
-        let amount = (steve.countItem(x) / recipe[1]) >> 0
-        steve.removeFromInventory(x, amount * recipe[1])
-        give(recipe[0], amount * recipe[2])
+        let amount = (steve.countItem(x) / recipe.inputAmount) >> 0
+        steve.removeFromInventory(x, amount * recipe.inputAmount)
+        give(recipe.output, amount * recipe.amount)
       }
     })
   }
@@ -1323,6 +1391,16 @@ classes.supercompactor = class extends classes.machine {
   checkvalidnes() {
     return true
   }
+  generateGui(){
+    //<div id="backpack"><div id="backpackname">fff</div></div>
+    this.handler = document.createElement("div")
+    this.handler.className = "supercompactorGui"
+    for(const key in this.inventory){
+      this.handler.appendChild(this.inventory[key].getTag())
+    }
+    e.gui.appendChild(this.handler)
+    this.gui = new Gui("supercompactor",[$("#inventory")[0],$("#hotbar")[0],this.handler])
+  }
 }
 classes.supercompactor4000 = class extends classes.supercompactor {
   constructor(amount = 0) {
@@ -1332,9 +1410,7 @@ classes.supercompactor4000 = class extends classes.supercompactor {
       br + "Filter Slots: " + color(this.inventorySlots, "lime")
 
     this.inventorySlots = 1
-    for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory["input" + i] = new classes.empty()
-    }
+    this.buildinventory()
   }
 }
 classes.supercompactor5000 = class extends classes.supercompactor {
@@ -1345,9 +1421,7 @@ classes.supercompactor5000 = class extends classes.supercompactor {
     this.description +=
       br + "Filter Slots: " + color(this.inventorySlots, "lime")
     this.rarity = 2
-    for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory["input" + i] = new classes.empty()
-    }
+    this.buildinventory()
   }
 }
 classes.supercompactor6000 = class extends classes.supercompactor {
@@ -1358,9 +1432,7 @@ classes.supercompactor6000 = class extends classes.supercompactor {
     this.description +=
       br + "Filter Slots: " + color(this.inventorySlots, "lime")
     this.rarity = 3
-    for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory["input" + i] = new classes.empty()
-    }
+    this.buildinventory()
   }
 }
 classes.supercompactor7000 = class extends classes.supercompactor {
@@ -1371,9 +1443,7 @@ classes.supercompactor7000 = class extends classes.supercompactor {
     this.description +=
       br + "Filter Slots: " + color(this.inventorySlots, "lime")
     this.rarity = 4
-    for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory["input" + i] = new classes.empty()
-    }
+    this.buildinventory()
   }
 }
 classes.supercompactor8000 = class extends classes.supercompactor {
@@ -1384,9 +1454,7 @@ classes.supercompactor8000 = class extends classes.supercompactor {
     this.description +=
       br + "Filter Slots: " + color(this.inventorySlots, "lime")
     this.rarity = 5
-    for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory["input" + i] = new classes.empty()
-    }
+    this.buildinventory()
   }
 }
 classes.supercompactor9000 = class extends classes.supercompactor {
@@ -1397,9 +1465,7 @@ classes.supercompactor9000 = class extends classes.supercompactor {
     this.description +=
       br + "Filter Slots: " + color(this.inventorySlots, "lime")
     this.rarity = 6
-    for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory["input" + i] = new classes.empty()
-    }
+    this.buildinventory()
   }
 }
 
@@ -1529,9 +1595,8 @@ classes.revenantboots = class extends classes.revenantset {
     this.lvl = 0
 
     this.temp = this.addKills.bind(this)
-    this.temp2 = this.makeAbilityDescription.bind(this)
-    document.addEventListener("ToolTipStart", this.temp2)
   }
+
 }
 
 classes.revenantchestplate = class extends classes.revenantset {
@@ -1551,8 +1616,6 @@ classes.revenantchestplate = class extends classes.revenantset {
     this.lvl = 0
 
     this.temp = this.addKills.bind(this)
-    this.temp2 = this.makeAbilityDescription.bind(this)
-    document.addEventListener("ToolTipStart", this.temp2)
   }
 }
 classes.revenantleggings = class extends classes.revenantset {
@@ -1571,8 +1634,6 @@ classes.revenantleggings = class extends classes.revenantset {
     this.lvl = 0
 
     this.temp = this.addKills.bind(this)
-    this.temp2 = this.makeAbilityDescription.bind(this)
-    document.addEventListener("ToolTipStart", this.temp2)
   }
 }
 classes.intimidationtalisman = class extends classes.accessory {

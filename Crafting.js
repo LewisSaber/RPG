@@ -7,54 +7,31 @@ let glitchrecipes = {}
 const empty = "empty"
 
 let craftingTable = {
-  inventory: [].set(new classes.empty(1), 9),
-  output: new classes.empty(),
-  addToInventory(slot, clicktype) {
-    if (clicktype == "emptyCursorLclick")
-      if (isShiftOn) {
-        this.inventory[slot] = steve.addToInventory(this.inventory[slot])
-        putItemInslot(
-          this.inventory[slot],
-          e.craftingtable["slot" + slot],
-          e.craftingtable["slot" + slot + "amount"]
-        )
+  /** @type {Slot[]} */
+  inventory: [],
+  /** @type {Slot} */
+  output:undefined,
 
-        makeToolTip(this.inventory[slot])
-      } else {
-        this.inventory[slot] = putInCursorFull(
-          this.inventory[slot],
-          e.craftingtable["slot" + slot],
-          e.craftingtable["slot" + slot + "amount"]
-        )
-      }
+  build(){
+    for (let i = 0; i < 9; i++) {
+     this.inventory[i] = new Slot("",false,{position:"absolute",top:8 * ((i - (i % 3)) / 3) + 1 + "vh",left: 8 * (i % 3) + 1 + "vh"},{
+      onPostClick: this.onInventoryAdd.bind(this)
+     })
+      e.craftingtable.appendChild(this.inventory[i].getTag())
 
-    if (clicktype == "fullCursorLclick")
-      if (isShiftOn) {
-        this.inventory[slot] = steve.addToInventory(this.inventory[slot])
-        putItemInslot(
-          this.inventory[slot],
-          e.craftingtable["slot" + slot],
-          e.craftingtable["slot" + slot + "amount"]
-        )
-      } else {
-        this.inventory[slot] = PutInSlotFull(
-          this.inventory[slot],
-          e.craftingtable["slot" + slot],
-          e.craftingtable["slot" + slot + "amount"]
-        )
-      }
-    if (clicktype == "emptyCursorRclick")
-      this.inventory[slot] = putInCursorHalf(
-        this.inventory[slot],
-        e.craftingtable["slot" + slot],
-        e.craftingtable["slot" + slot + "amount"]
-      )
-    if (clicktype == "fullCursorRclick")
-      this.inventory[slot] = putInSlotOne(
-        this.inventory[slot],
-        e.craftingtable["slot" + slot],
-        e.craftingtable["slot" + slot + "amount"]
-      )
+    }
+
+    this.output =  new Slot("",false,{position:"absolute",top:9+ "vh",left: 25 + "vh"},
+    {
+      canPutItems: false,
+      isLclickSpecial: true,
+      onPostClick: this.doRecipe.bind(this)
+    })
+    e.craftingtable.appendChild(this.output.getTag())
+ 
+  },
+  onInventoryAdd() {
+
     this.searchRecipe()
     this.formIndexesArray()
     this.setOutput()
@@ -65,7 +42,7 @@ let craftingTable = {
       for (let i = 0; i < this.inventory.length; i++) {
         for (let j = 0; j < this.recipe.input.length; j++) {
           if (
-            this.inventory[i].name == this.recipe.input[j] &&
+            this.inventory[i].getItem().name == this.recipe.input[j] &&
             this.shapedrecipeindexes[j] == undefined
           ) {
             this.shapedrecipeindexes[j] = i
@@ -77,30 +54,27 @@ let craftingTable = {
   },
   setOutput() {
     if (this.recipe && this.checkValidness()) {
-      this.output = new classes[this.recipe.output](this.recipe.outputAmount)
-      this.output.withTag(this.recipe.outputtag)
-    } else this.output = new classes.empty()
-    putItemInslot(
-      this.output,
-      e.craftingtable.slot9,
-      e.craftingtable.slot9amount
-    )
+      let Output = new classes[this.recipe.output](this.recipe.outputAmount)
+      Output.withTag(this.recipe.outputtag)
+      this.output.setVisualItem(Output)
+     
+    } 
+    else this.output.removeVisualItem()
   },
   doRecipe() {
     if (this.recipe && this.checkValidness()) {
-      let Out = Object.assign(
-        Object.create(Object.getPrototypeOf(this.output)),
-        this.output
-      )
+      let Out = new classes[this.recipe.output](this.recipe.outputAmount)
+      Out.withTag(this.recipe.outputtag)
+      
       Out.amount = 0
-      if(isShiftOn ||(itemInCursor == "none" ||( itemInCursor.name == Out.name &&itemInCursor.getEmpty() >=this.recipe.outputAmount )))
+      if(( isShiftOn && steve.isEmptySlotInInventory()) ||(cursor.isEmpty() ||( cursor.getItem().name == Out.name &&cursor.getItem().getEmpty() >=this.recipe.outputAmount )))
       do {
 
         if (Out.getEmpty() >= this.recipe.outputAmount) {
           Out.amount += this.recipe.outputAmount
           for (let i = 0; i < this.shapedrecipeindexes.length; i++) {
-            this.inventory[this.shapedrecipeindexes[i]] = reduceStack(
-              this.inventory[this.shapedrecipeindexes[i]],
+            this.inventory[this.shapedrecipeindexes[i]].item = reduceStack(
+              this.inventory[this.shapedrecipeindexes[i]].item,
               this.recipe.inputamount[i]
             )
           }
@@ -112,46 +86,28 @@ let craftingTable = {
       if (!isEmpty(Out)) {
         if (isShiftOn) {
           steve.addToInventory(Out)
-          makeToolTip(new classes.empty())
-        } else AddItemToCursor(Out)
+          
+        } else 
+        cursor.addItem(Out)
+       
       }
-      for (let i = 0; i < 9; i++) {
-        putItemInslot(
-          this.inventory[i],
-          e.craftingtable["slot" + i],
-          e.craftingtable["slot" + i + "amount"]
-        )
-      }
+      this.inventory.forEach(x=>{
+        x.updateSlot()
+      })
       this.setOutput()
+      this.output.onToolTip()
     }
   },
-  dumpTable(ignore = false) {
-    if (!isNeiOpen || ignore)
-      for (let i = 0; i < 9; i++) {
-        if (!isEmpty(this.inventory[i]))
-          this.inventory[i] = steve.addToInventory(this.inventory[i])
-        putItemInslot(
-          this.inventory[i],
-          e.craftingtable["slot" + i],
-          e.craftingtable["slot" + i + "amount"]
-        )
-      }
+  dumpTable() {
+    dumbtoinventory(this.inventory)
+    this.clear()
+  
   },
   clear() {
     for (let i = 0; i < 9; i++) {
-      this.inventory[i] = new classes.empty()
-      putItemInslot(
-        this.inventory[i],
-        e.craftingtable["slot" + i],
-        e.craftingtable["slot" + i + "amount"]
-      )
+      this.inventory[i].clear()
     }
-    this.output = new classes.empty()
-    putItemInslot(
-      this.output,
-      e.craftingtable["slot9"],
-      e.craftingtable["slot9amount"]
-    )
+    this.output.removeVisualItem()
   },
 
   checkValidness() {
@@ -161,12 +117,12 @@ let craftingTable = {
         if (
           state &&
           this.recipe.input[i] ==
-            this.inventory[this.shapedrecipeindexes[i]].name &&
+            this.inventory[this.shapedrecipeindexes[i]].getItem().name &&
           this.recipe.inputamount[i] <=
-            this.inventory[this.shapedrecipeindexes[i]].amount &&
+            this.inventory[this.shapedrecipeindexes[i]].getItem().amount &&
           (this.recipe.inputtag[i] != undefined
             ? compareObjects(
-                this.inventory[this.shapedrecipeindexes[i]],
+                this.inventory[this.shapedrecipeindexes[i]].getItem(),
                 this.recipe.inputtag[i]
               )
             : true)
@@ -184,7 +140,7 @@ let craftingTable = {
   searchRecipe() {
     const sortedInventoryNames = [...this.inventory]
       .sort(function (a, b) {
-        return a.name > b.name ? 1 : -1
+        return a.getItem().name > b.getItem().name ? 1 : -1
       })
       .pushNames()
     this.recipe = undefined
@@ -264,15 +220,29 @@ function addShapedRecipe(
     (getName(output)).color("green"),
   ])
 }
-function addFurnaceRecipe(input, output, time, amount = 1, inputamount = 1) {
-  furnacerecipes[input] = [output, inputamount, amount, time]
+function addFurnaceRecipe(input, output, time, amount = 1, inputAmount = 1) {
+  furnacerecipes[input] ={
+    input:input,
+    output:output,
+    inputAmount:inputAmount,
+    amount:amount,
+    time:time
+  }
+  
   notification([
     "New Recipe Unlocked!<br>",
     (getName(output)).color("green"),
   ])
 }
 function addGlitchRecipe(input, inputamount = 160, amount = 1) {
-  glitchrecipes[input] = ["glitched" + input, inputamount, amount]
+  glitchrecipes[input] = 
+  {
+    input: input,
+   output:  "glitched" + input,
+   inputAmount: inputamount,
+   amount: amount
+
+  }
   notification([
     "New Recipe Unlocked!<br>",
     (getName("glitched" + input)).color("green"),
@@ -334,20 +304,20 @@ function loadrecipes() {
     },
   })
 
-  addShapedRecipe(
-    [
-      "ironblock",
-      "ironblock",
-      "ironblock",
-      "empty",
-      "ironingot",
-      "empty",
-      "ironingot",
-      "ironingot",
-      "ironingot",
-    ],
-    "anvil"
-  )
+  // addShapedRecipe(
+  //   [
+  //     "ironblock",
+  //     "ironblock",
+  //     "ironblock",
+  //     "empty",
+  //     "ironingot",
+  //     "empty",
+  //     "ironingot",
+  //     "ironingot",
+  //     "ironingot",
+  //   ],
+  //   "anvil"
+  // )
 
   addShapedRecipe(["paper", "paper", empty, "paper", "leather"], "book", 1, [2])
   addShapedRecipe(
@@ -397,19 +367,22 @@ function loadrecipes() {
       "stick",
       empty,
     ],
-    "woodsword",
-    1,
-    [],
-    {},
-    [, { kills: 20 }]
+    "woodsword"
   )
 
   addFurnaceRecipe("sand", "glass", 100)
   
 }
 
-function dumbtoinventory(items) {
+function dumbtoinventory(Items) {
+  
+  let items = [...Items]
+      
   for (let i = 0; i < items.length; i++) {
+   if(items[i] instanceof Slot){
+    items[i] = items[i].getItem()
+   }
+   if(!isEmpty(items[i]))
     while (items[i].getEmpty() <= 0) {
       let newitem = Object.assign(
         Object.create(Object.getPrototypeOf(items[i])),
@@ -417,6 +390,7 @@ function dumbtoinventory(items) {
       )
 
       newitem.amount = newitem.maxStackSize
+      console.log("amount",newitem.amount)
       steve.addToInventory(newitem)
       items[i].amount -= items[i].maxStackSize
     }
@@ -427,50 +401,28 @@ function dumbtoinventory(items) {
 let RecipeSpecial = []
 let RecipeGueue = []
 function findUsageRecipes() {
-  RecipeGueue = []
-  RecipeSpecial = []
+  let NewGueue = []
+ 
+
   shapedrecipes.forEach((x) => {
     if (x.input.includes(itemintooltip)) {
-      RecipeSpecial.push("")
-      x.type = "craftingtable"
-      RecipeGueue.push(x)
+      x.special = "Shaped Recipe"
+      x.type = "craftingTable"
+      NewGueue.push(x)
     }
   })
-  // shapelessrecipes.forEach(x =>{
-  //   if(x.input.includes(itemintooltip)){
-  //     RecipeSpecial.push("Shapeless Recipe");
-  //     x.type = "craftingtable"
-  //     RecipeGueue.push(x);
-  //   }
-  //   })
-  // // for (const key in shapedrecipes) {
-  // //   if (key.includes(itemintooltip)) {
-  // //     RecipeSpecial.push("Shaped Recipe");
-  // //     RecipeGueue.push([key.split(","), shapedrecipes[key]]);
-  // //   }
-  // // }
-
-  // for (const key in shapelessrecipes) {
-  //   if (key.includes(itemintooltip)) {
-  //     RecipeSpecial.push("Shapeless Recipe");
-  //     RecipeGueue.push([key.split(","), shapelessrecipes[key]]);
-  //   }
-  // }
   for (const key in furnacerecipes) {
-    if (key == itemintooltip) {
-      RecipeSpecial.push("Time: " + furnacerecipes[key][3] + " ticks")
+    if (furnacerecipes[key].input == itemintooltip) {
       let furnace = new classes.furnace(1)
+      furnace.special = "Time: " + (furnacerecipes[key].time/20).fixed(1) + " ticks"
 
-      furnace.inventory.input = new classes[key](furnacerecipes[key][1])
-      furnace.inventory.output = new classes[furnacerecipes[key][0]](
-        furnacerecipes[key][2]
-      )
-      RecipeGueue.push(furnace)
+      furnace.inventory.input.setVisualItem(new classes[key](furnacerecipes[key].inputAmount))
+      furnace.inventory.output.setVisualItem(new classes[furnacerecipes[key].output](furnacerecipes[key].amount))
+      NewGueue.push(furnace)
     }
   }
   for (const key in glitchrecipes) {
-    if (key == itemintooltip) {
-      RecipeSpecial.push("Super Compactor 3000 ")
+    if (glitchrecipes[key].input.includes( itemintooltip) ) {
       let glitch = new classes.glitchcompactor(1)
       let iter = 1
       let amount = glitchrecipes[key][1]
@@ -478,122 +430,107 @@ function findUsageRecipes() {
         const batch = amount >= 64 ? 64 : amount
 
         amount -= batch
-        glitch.inventory["input" + iter] = new classes[key](batch)
+        glitch.inventory["input" + iter].setVisualItem(new classes[key](batch))
         iter++
       }
-
-      glitch.inventory.output = new classes[glitchrecipes[key][0]](
-        glitchrecipes[key][2]
-      )
-      RecipeGueue.push(glitch)
+      
+      glitch.inventory.output.setVisualItem(new classes[glitchrecipes[key].output](
+        glitchrecipes[key].amount
+      ))
+      glitch.special = "Glitch Compactor 3000"
+      
+      NewGueue.push(glitch)
     }
+  }
+  if(NewGueue.length > 0){
+    RecipeGueue = NewGueue
   }
 }
 function findCraftingRecipes() {
-  RecipeGueue = []
-  RecipeSpecial = []
+  let NewGueue = []
+ 
 
   shapedrecipes.forEach((x) => {
-    if (x.output.includes(itemintooltip)) {
-      RecipeSpecial.push("Shaped Recipe")
-      x.type = "craftingtable"
-      RecipeGueue.push(x)
+    if (x.output.match1word(itemintooltip)) {
+      x.special = "Shaped Recipe"
+      x.type = "craftingTable"
+      NewGueue.push(x)
     }
   })
-
-  // shapelessrecipes.forEach(x =>{
-  //   if(x.output.includes(itemintooltip)){
-  //     RecipeSpecial.push("Shapeless Recipe");
-  //     x.type = "craftingtable"
-  //     RecipeGueue.push(x);
-  //   }
-  //   })
-
-  // for (const key in shapedrecipes) {
-  //   if (shapedrecipes[key].includes(itemintooltip)) {
-  //     RecipeSpecial.push("Shaped Recipe");
-  //     RecipeGueue.push([key.split(","), shapedrecipes[key]]);
-  //   }
-  // }
-  // for (const key in shapelessrecipes) {
-  //   if (shapelessrecipes[key].includes(itemintooltip)) {
-  //     RecipeSpecial.push("Shapeless Recipe");
-  //     RecipeGueue.push([key.split(","), shapelessrecipes[key]]);
-  //   }
-  //}
   for (const key in furnacerecipes) {
-    if (furnacerecipes[key][0] == itemintooltip) {
-      RecipeSpecial.push("Time: " + furnacerecipes[key][3] + " ticks")
+    if (furnacerecipes[key].output == itemintooltip) {
       let furnace = new classes.furnace(1)
+      furnace.special = "Time: " + (furnacerecipes[key].time/20).fixed(1) + " ticks"
 
-      furnace.inventory.input = new classes[key](furnacerecipes[key][1])
-      furnace.inventory.output = new classes[furnacerecipes[key][0]](
-        furnacerecipes[key][2]
-      )
-      RecipeGueue.push(furnace)
+      furnace.inventory.input.setVisualItem(new classes[key](furnacerecipes[key].inputAmount))
+      furnace.inventory.output.setVisualItem(new classes[furnacerecipes[key].output](furnacerecipes[key].amount))
+      NewGueue.push(furnace)
     }
   }
   for (const key in glitchrecipes) {
-    if (glitchrecipes[key][0] == itemintooltip) {
-      RecipeSpecial.push("Super Compactor 3000 ")
+    if (glitchrecipes[key].output == itemintooltip) {
       let glitch = new classes.glitchcompactor(1)
       let iter = 1
-      let amount = glitchrecipes[key][1]
+      let amount = glitchrecipes[key].inputAmount
       while (amount > 0) {
         const batch = amount >= 64 ? 64 : amount
 
         amount -= batch
-        glitch.inventory["input" + iter] = new classes[key](batch)
+        glitch.inventory["input" + iter].setVisualItem(new classes[key](batch))
         iter++
       }
-
-      glitch.inventory.output = new classes[glitchrecipes[key][0]](
-        glitchrecipes[key][2]
-      )
-      RecipeGueue.push(glitch)
+      
+      glitch.inventory.output.setVisualItem(new classes[glitchrecipes[key].output](
+        glitchrecipes[key].amount
+      ))
+      glitch.special = "Glitch Compactor 3000"
+      
+      NewGueue.push(glitch)
     }
+  }
+  if(NewGueue.length > 0){
+    RecipeGueue = NewGueue
   }
 }
 CurrentRecipeI = 0
-function ShowCraftingRecipe(n) {
-  craftingTable.clear()
-  e.craftingtable.style.display = "block"
-  if (lastmachine != undefined) e[lastmachine].style.display = "none"
-
-  e.neiText.innerHTML =
-    n + 1 + "/" + RecipeGueue.length + "<br>" + RecipeSpecial[n]
-  for (let i = 0; i < 9; i++) {
-    craftingTable.inventory[i] = new classes[RecipeGueue[n].input[i]](
-      RecipeGueue[n].inputamount[i]
-    )
-    craftingTable.inventory[i].withTag(RecipeGueue[n].inputtag[i])
-
-    putItemInslot(
-      craftingTable.inventory[i],
-      e.craftingtable["slot" + i],
-      e.craftingtable["slot" + i + "amount"]
-    )
+const craftingTableGui = new Gui("neiTable",[$("#inventory")[0],$("#hotbar")[0],$("#craftingtable")[0]],undefined,{
+  onclose: function(){ e.craftingtable.className = ""},
+  onopen: function(){e.craftingtable.className = "craftingTableNei"
   }
-  craftingTable.output = new classes[RecipeGueue[n].output](
-    RecipeGueue[n].outputAmount
-  )
-  craftingTable.output.withTag(RecipeGueue[n].outputtag)
-  putItemInslot(
-    craftingTable.output,
-    e.craftingtable["slot9"],
-    e.craftingtable["slot9amount"]
-  )
-}
+})
+let lastGui 
 function ShowRecipe(n) {
-  if (n >= RecipeGueue.length) n = 0
-  if (n < 0) n = RecipeGueue.length - 1
-  e.neiText.innerHTML =
-    n + 1 + "/" + RecipeGueue.length + "<br>" + RecipeSpecial[n]
-  if (RecipeGueue[n].name != undefined) {
-    openMachineGui(RecipeGueue[n], n)
-  } else ShowCraftingRecipe(n)
+if(!isNeiOpen){
+lastGui = activeGui
 
-  CurrentRecipeI = n
+}
+  if(RecipeGueue.length > 0){
+    
+    if (n >= RecipeGueue.length) n = 0
+    if (n < 0) n = RecipeGueue.length - 1
+    isNeiOpen = true
+    e.neiText.innerHTML =
+    n + 1 + "/" + RecipeGueue.length + br + RecipeGueue[n].special
+    
+    if(RecipeGueue[n].type == "craftingTable"){
+      craftingTable.dumpTable()
+      craftingTable.inventory.forEach((x,i)=>{
+        let item = new classes[RecipeGueue[n].input[i]](RecipeGueue[n].inputamount[i])
+        item.withTag(RecipeGueue[n].inputtag[i])
+       x.setVisualItem(item)
+       
+      })
+      let output = new classes[RecipeGueue[n].output](RecipeGueue[n].amount)
+      output.withTag(RecipeGueue[n].outputtag)
+      craftingTable.output.setVisualItem(output)
+      craftingTableGui.open()
+    }
+    else
+    RecipeGueue[n].openGui()
+    CurrentRecipeI = n
+  }
+
+
 }
 const numnames = ["K", "M", "B", "T"]
 Number.prototype.formate = function (OM = 3, Rounding = 2) {
@@ -615,7 +552,7 @@ Number.prototype.formateComas = function () {
 Array.prototype.pushNames = function () {
   let arr = []
   this.forEach((x) => {
-    arr.push(x.name)
+    arr.push(x.getItem().name)
   })
   return arr
 }

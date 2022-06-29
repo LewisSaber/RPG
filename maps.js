@@ -50,7 +50,7 @@ e.map.height = map.height.blocks()
     // }
     // else 
     centerMapOnPlayer()
-
+    console.log("Map Generated")
   }
   for (let i = 0; i < map.height; i++) {
     for (let j = 0; j < map.width; j++) {

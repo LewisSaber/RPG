@@ -1,3 +1,4 @@
+/** @type {HTMLElement[]} */
 let e = {}
 
 $.notify.defaults({ className: "info", position:"top right", style: 'bootstrap', autoHideDelay: 10000});
@@ -15,12 +16,7 @@ function loadIDS() {
   // e.behindeveryone.style.height = window.innerHeight - 130 + "px"
   // e.mapframe.style.height = window.innerHeight + "px"
   // e.mapframe.style.width = window.innerWidth + "px"
-  e.furnace.slot0 = e.furnaceInput
-  e.furnace.slot0amount = e.furnaceInputamount
-  e.furnace.slot1 = e.furnaceFuel
-  e.furnace.slot1amount = e.furnaceFuelamount
-  e.furnace.slot2 = e.furnaceOutput
-  e.furnace.slot2amount = e.furnaceOutputamount
+
   e.anvil.slot0 = e.anvilinput
   e.anvil.slot0amount = e.anvilInputamount
   e.anvil.slot1 = e.anviloutput
@@ -40,13 +36,13 @@ function loadIDS() {
   
 }
 const codeAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"//abcdefghijklmnopqrstuvwxyz"]
- const keywords = ["helmet","leggings","chestplate","boots","charm","relic","talisman","artifact","fortune","planks","pickaxe","axe","sword"]
+ const keywords = ["helmet","leggings","chestplate","boots","charm","relic","talisman","artifact","fortune","planks","pickaxe","axe","sword","glitched"]
 // const keywords = /helmet|leggings|chestplate|boots|charm|relic|talisman|artifact/
-const texturefilter = ["empty", "item", "block", "stonetype","tool","projectile","mob"]
+const texturefilter = ["empty", "item", "block", "stonetype","tool","projectile","mob","backpack"]
 const raritycolors = [
   "white",
   "lime",
-  "#0244bf",
+  "#105ae3",
   "purple",
   "yellow",
   "#fc26a7",
@@ -194,13 +190,15 @@ const toSave = [
   "mapY",
   "food",
   "skin",
-  "sellHistory"
-].concat(armornames)
+  "sellHistory",
+  "version","armor"
+]//.concat(armornames)
 
 const slayerArmorMilestones = [0,50,300,1000,2000,3000,5000,7500,10000,15000,25000,50000,100000,200000,500000]
 const slayerArmorMilestonesDefense = [0,20,50,90,120,150,180,200,220,240,260,280,300,310,315]
 
-String.prototype.toUpperLetter = function() {return this[0].toUpperCase() + this.substring(1)
+String.prototype.toUpperLetter = function() {
+  return this[0].toUpperCase() + this.substring(1)
 }
 Number.prototype.blocks = function() {
   return this*blocksize
@@ -286,188 +284,63 @@ String.prototype.assemble = function(type = "span"){
 
 function buildHotbar() {
   e.hotbar.style.display = "block"
-  e.hotbar.innerText = ""
-  for (let i = 0; i < 9; i++) {
-    let tag = document.createElement("div")
-    let amount = document.createElement("div")
-    amount.setAttribute("class", "itemamount")
-    e.inventory["slot" + i + "amount"] = amount
-    tag.setAttribute("oncontextmenu", "RclickOnSlot(" + i + "); return false")
-    tag.setAttribute("class", "guiSlot")
-    tag.setAttribute("onclick", "LclickOnSlot(" + i + ")")
-    tag.setAttribute("onmouseenter", "makeToolTip(steve.inventory[" + i + "])")
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"
-    )
-
-    e.inventory["slot" + i] = tag
-
-    tag.appendChild(amount)
-    e.hotbar.appendChild(tag)
-    putItemInslot(
-      steve.inventory[i],
-      e.inventory["slot" + i],
-      e.inventory["slot" + i + "amount"]
-    )
-  }
 }
-function buildInventory() {
-  for (let i = steve.inventorySlots - 1; i > 8; i--) {
-    let tag = document.createElement("div")
-    let amount = document.createElement("div")
-    amount.setAttribute("class", "itemamount")
-    e.inventory["slot" + i + "amount"] = amount
-    tag.setAttribute("onclick", "LclickOnSlot(" + i + ")")
-    tag.setAttribute("oncontextmenu", "RclickOnSlot(" + i + "); return false")
-    tag.setAttribute("onmouseenter", "makeToolTip(steve.inventory[" + i + "])")
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"
-    )
 
-    tag.setAttribute("class", "guiSlot")
-    e.inventory["slot" + i] = tag
-
-    tag.appendChild(amount)
-    e.inventory.appendChild(tag)
-  }
-}
 function random100(r) {
   return Math.floor(Math.random() * 100) <= r
 }
-function buildCraftingTable() {
-  for (let i = 0; i < 9; i++) {
-    let tag = document.createElement("div")
-    let amount = document.createElement("div")
-    amount.setAttribute("class", "itemamount")
-    e.craftingtable["slot" + i + "amount"] = amount
-
-    tag.setAttribute("onclick", "LclickOnSlot(" + i + ",'craftingtable')")
-    tag.setAttribute(
-      "oncontextmenu",
-      "RclickOnSlot(" + i + ",'craftingtable'); return false"
-    )
-    tag.setAttribute(
-      "onmouseenter",
-      "makeToolTip(craftingTable.inventory[" + i + "])"
-    )
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"
-    )
-    tag.style.position = "absolute"
-    tag.style.top = 8 * ((i - (i % 3)) / 3) + 1 + "vh"
-    tag.style.left = 8 * (i % 3) + 1 + "vh"
-
-    tag.setAttribute("class", "guiSlot")
-    e.craftingtable["slot" + i] = tag
-
-    tag.appendChild(amount)
-    e.craftingtable.appendChild(tag)
-  }
-  let tag = document.createElement("div")
-  let amount = document.createElement("div")
-  amount.setAttribute("class", "itemamount")
-  e.craftingtable["slot9amount"] = amount
-  tag.setAttribute("onclick", "craftingTable.doRecipe()")
-
-  // tag.setAttribute("oncontextmenu", "RclickOnSlot(" + i + ",'craftingtable'); return false");
-  tag.setAttribute("onmouseenter", "makeToolTip(craftingTable.output)")
-  tag.setAttribute(
-    "onmouseleave",
-    "leaveElement()"  )
-  tag.setAttribute("class", "guiSlot")
-  e.craftingtable["slot9"] = tag
-  tag.style.position = "absolute"
-  tag.style.top = 9 + "vh"
-  tag.style.left = 25 + "vh"
-  tag.appendChild(amount)
-  e.craftingtable.appendChild(tag)
-}
 
 function buildArmorGui() {
-  for (let i = 0; i < 8; i++) {
-    let tag = document.createElement("div")
-
-    tag.setAttribute(
-      "onclick",
-      "LclickOnSlot(" + i + ",'" + armornames[i] + "')"
-    )
-    tag.setAttribute("oncontextmenu", " return false")
-    tag.setAttribute(
-      "onmouseenter",
-      "makeToolTip(steve['" + armornames[i] + "'])"
-    )
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"    )
-    tag.className = "guiSlot " + armornames[i] + "gui"
-    e.armorgui[armornames[i]] = tag
-
-    e.armorgui.appendChild(tag)
+  for(const key in steve.armor){
+    e.armorgui.appendChild(steve.armor[key].getTag())
   }
+  craftingTable.build()
 }
 function buildmachines() {
   for (let i = 0; i < 9; i++) {
-    let tag = document.createElement("div")
-
-    tag.setAttribute("onclick", "LclickOnSlot(" + i + ",'machine')")
-    tag.setAttribute(
-      "oncontextmenu",
-      "openMachineGui(steve.machines[" + i + "]," + i + "); return false"
-    )
-    tag.setAttribute("onmouseenter", "makeToolTip(steve.machines[" + i + "])")
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"
-    )
-
-    tag.className = "guiSlot machine"
-    e.machines["slot" + i] = tag
-
-    e.machines.appendChild(tag)
-    putItemInslot(steve.machines[i], e.machines["slot" + i])
-    steve.machines[i].doRecipe()
+    e.machines.appendChild(steve.machines[i].getTag())
   }
 }
 function buildBackpacks() {
-  for (let i = 0; i < backPacksInGui; i++) {
-    let tag = document.createElement("div")
-    tag.setAttribute("onmouseenter", "makeToolTip(steve.backpacks[" + i + "])")
-    tag.setAttribute("onclick", "LclickOnSlot(" + i + ",'backpack')")
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"    )
-    tag.setAttribute(
-      "oncontextmenu",
-      "openMachineGui(steve.backpacks[" + i + "]," + i + "); return false"
-    )
-    tag.setAttribute("id","backpackGui" + i)
-    e["backpackGui" + i] = tag
-    tag.className = "guiSlot"
-    e.backpacks["slot" + i] = tag
-    e.backpacks.appendChild(tag)
-    putItemInslot(steve.backpacks[i], e.backpacks["slot" + i])
-  }
-}
+  steve.backpacks.forEach(x=>{
+    e.backpacks.appendChild(x.getTag())
+  })
+  // for (let i = 0; i < backPacksInGui; i++) {
+  //   let tag = document.createElement("div")
+  //   tag.setAttribute("onmouseenter", "makeToolTip(steve.backpacks[" + i + "])")
+  //   tag.setAttribute("onclick", "LclickOnSlot(" + i + ",'backpack')")
+  //   tag.setAttribute(
+  //     "onmouseleave",
+  //     "leaveElement()"    )
+  //   tag.setAttribute(
+  //     "oncontextmenu",
+  //     "openMachineGui(steve.backpacks[" + i + "]," + i + "); return false"
+  //   )
+  //   tag.setAttribute("id","backpackGui" + i)
+  //   e["backpackGui" + i] = tag
+  //   tag.className = "guiSlot"
+  //   e.backpacks["slot" + i] = tag
+  //   e.backpacks.appendChild(tag)
+  //   putItemInslot(steve.backpacks[i], e.backpacks["slot" + i])
+  // }
+ }
 function buildBackpacksGui() {
-  for (let i = 0; i < maxbackpackslot; i++) {
-    let tag = document.createElement("div")
+  // for (let i = 0; i < maxbackpackslot; i++) {
+  //   let tag = document.createElement("div")
 
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"    )
+  //   tag.setAttribute(
+  //     "onmouseleave",
+  //     "leaveElement()"    )
     
-    let amount = document.createElement("div")
-    amount.setAttribute("class", "itemamount")
-    tag.className = "guiSlot empty"
+  //   let amount = document.createElement("div")
+  //   amount.setAttribute("class", "itemamount")
+  //   tag.className = "guiSlot empty"
 
-    e.backpack["slot" + i] = tag
-    e.backpack["slot" + i + "amount"] = amount
-    tag.appendChild(amount)
-    e.backpack.appendChild(tag)
-  }
+  //   e.backpack["slot" + i] = tag
+  //   e.backpack["slot" + i + "amount"] = amount
+  //   tag.appendChild(amount)
+  //   e.backpack.appendChild(tag)
+  // }
 }
 function buildEnchantingBook() {
   for (let i = 0; i < 3; i++) {
@@ -531,61 +404,8 @@ function buildCollections() {
   }
   
 }
-function buildGlitchedCompactor() {
-  for (let i = 0; i < 6; i++) {
-    let tag = document.createElement("div")
 
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"    )
-    let amount = document.createElement("div")
-    amount.setAttribute("class", "itemamount")
-    tag.className = "guiSlot empty"
-    //tag.setAttribute("id","enchantingbookslot" + i)
-    e.glitchcompactor["slot" + i] = tag
-    e.glitchcompactor["slot" + i + "amount"] = amount
-    tag.appendChild(amount)
-    if (i == 5) {
-      tag.setAttribute("id", "enchantedcompacteroutput")
-      e.glitchcompactor.appendChild(tag)
-    } else e.glitchcompactorinputs.appendChild(tag)
-  }
-}
-function buildaccessoryGui() {
-  for (let i = 0; i < maxaccesoriesslots; i++) {
-    let tag = document.createElement("div")
 
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"    )
-    let amount = document.createElement("div")
-    amount.setAttribute("class", "itemamount")
-    tag.className = "guiSlot empty"
-
-    e.accessorybag["slot" + i] = tag
-    e.accessorybag["slot" + i + "amount"] = amount
-    tag.appendChild(amount)
-    e.accessorybag.appendChild(tag)
-  }
-}
-function buildSuperCompactor() {
-  for (let i = 0; i < maxCompactorSlots; i++) {
-    let tag = document.createElement("div")
-
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"    )
-    let amount = document.createElement("div")
-    amount.setAttribute("class", "itemamount")
-    tag.className = "guiSlot empty"
-    //tag.setAttribute("id","enchantingbookslot" + i)
-    e.supercompactor["slot" + i] = tag
-    e.supercompactor["slot" + i + "amount"] = amount
-    tag.appendChild(amount)
-
-    e.supercompactor.appendChild(tag)
-  }
-}
 function buildBiomesSelector() {
   biomes.forEach((x) => {
     let tag = document.createElement("option")
@@ -622,17 +442,17 @@ function buildAccountSelector() {
   e.accounts.value = session.nick
 }
 
-$.notify.addStyle('recipe', {
-  html: "<div><span data-notify-text/></div>",
-  classes: {
-    base: {
-      "white-space": "nowrap",
-      "background-color": "lightblue",
-      "padding": "5px"
-    },
-    superblue: {
-      "color": "white",
-      "background-color": "blue"
-    }
-  }
-});
+// $.notify.addStyle('recipe', {
+//   html: "<div><span data-notify-text/></div>",
+//   classes: {
+//     base: {
+//       "white-space": "nowrap",
+//       "background-color": "lightblue",
+//       "padding": "5px"
+//     },
+//     superblue: {
+//       "color": "white",
+//       "background-color": "blue"
+//     }
+//   }
+// });

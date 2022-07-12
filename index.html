@@ -7,7 +7,7 @@
     <title>RPG</title>
   </head>
   <body id="body" >
-   
+    
     <div id="progressbar"><p id="progressbartext"><div id="progressbarInside"></div></p></div>
     <div id="mapframe" style="display:none;"></div>
     <canvas id="map" width="5000" height="5000"></canvas>
@@ -38,20 +38,7 @@
 
 <div id="enchantingbook"><button id="enchantingbookbutton" onclick="steve.machines[thismachinei].doRecipeInternal()">Apply</button></div>
 
-<div id="anvil">
-<div id="anvilColorSelector">
-  <div id="anvilColorExample"></div>
-  <input type="range" min="0" max="255" value="0" class="slider" id="anvilred"  oninput="renamingColor.red = this.value;steve.machines[thismachinei].applycolor()">
 
-    <input type="range" min="0" max="255" value="0" class="slider" id="anvilgreen"  oninput="renamingColor.green = this.value;steve.machines[thismachinei].applycolor()">
-    <input type="range" min="0" max="255" value="0" class="slider" id="anvilblue"  oninput="renamingColor.blue = this.value;steve.machines[thismachinei].applycolor()">
-
-</div>
-
-  <div id="anvilinput" class="guiSlot empty"><div id="anvilInputamount" class="itemamount"></div></div>
-  <input type="text" id="anviltext" placeholder="Rename Item" oninput="steve.machines[thismachinei].applyname();"onclick="playClickSound()" onfocus="removeKeysEvent()" onblur="addKeysEvent()" oncontextmenu="wipeInput(this); steve.machines[thismachinei].applyname(); return false" >
-  <div id="anviloutput" class="guiSlot empty"><div id="anvilOutputamount" class="itemamount"></div></div>
-</div>
 <div id="guibuttons">
   <button id="collectionsbutton" onclick="collectionGui.open();playClickSound()" onmouseenter="makeTextToolTip(CollectionsDesc)" onmouseleave =
   "leaveElement()"></button>

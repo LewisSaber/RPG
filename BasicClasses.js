@@ -5,7 +5,6 @@ const freezeRange = 20
 classes.empty = class {
   constructor(amount = 0) {
     this.name = "empty"
-    this.description = ""
     this.description2 = ""
     this.amount = amount
     this.maxStackSize = 64
@@ -18,16 +17,16 @@ classes.empty = class {
     this.additionalstats = {}
     this.enchants = {}
   }
+  onCopy(){}
   postloadConstructor() {}
   getEmpty() {
     return this.maxStackSize - this.amount
   }
   useAbility() {}
   withTag(tag) {
-    if(tag != undefined)
-    this.addTag(tag)
+    if (tag != undefined) this.addTag(tag)
   }
-  onToolTip(){}
+  onToolTip() {}
   addTag(tag) {
     if (tag) {
       for (const key in tag) {
@@ -39,8 +38,8 @@ classes.empty = class {
       }
     }
   }
-  onPlacement(){}
-  onRemoval(){}
+  onPlacement() {}
+  onRemoval() {}
 }
 classes.block = class extends classes.empty {
   constructor(amount = 0) {
@@ -158,12 +157,16 @@ classes.machine = class extends classes.empty {
     super(amount)
     this.name = "machine"
     this.type = "machine"
-
-    this.inventoryslotid = -1
     this.maxStackSize = 1
     this.recipetimer = -1
     this.inventory = {}
     this.obitained = new Date()
+  }
+  onCopy(){
+    for(const key in this.inventory){
+      this.inventory[key].properties.onPostClick = this.doRecipe.bind(this)
+    }
+   
   }
   doRecipe() {}
   stoprecipe() {}
@@ -200,61 +203,27 @@ classes.machine = class extends classes.empty {
         } else {
           amount -= this.inventory[key].getItem().amount
           this.inventory[key].putItem(new classes.empty())
-          
         }
       }
       iter++
     }
   }
-  addToInventory(item) {
-    let iter = 0
-    for (const key in this.inventory) {
-      if (item.name != "empty")
-        if (!key.includes("output")) {
-          if (this.inventory[key].name == item.name) {
-            if (this.inventory[key].getEmpty() >= item.amount) {
-              this.inventory[key].amount += item.amount
-              item = reduceStack(item, item.amount)
-            } else {
-              item = reduceStack(item, this.inventory[key].getEmpty())
-              this.inventory[key].amount = this.inventory[key].maxStackSize
-            }
-          } else if (this.inventory[key].name == "empty") {
-            this.inventory[key] = Object.assign(
-              Object.create(Object.getPrototypeOf(item)),
-              item
-            )
-            item = reduceStack(item, item.amount)
-          }
-        }
-      if (thismachinei == this.inventoryslotid) {
-        putItemInslot(
-          this.inventory[key],
-          e[this.machinetype]["slot" + iter],
-          e[this.machinetype]["slot" + iter + "amount"]
-        )
-      }
-      iter++
-    }
-
-    return item
+ 
+  generateGui() {}
+  removeGui() {
+    if (this.handler) this.handler.remove()
   }
-  generateGui(){}
-  removeGui(){
-    if(this.handler)
-    this.handler.remove()
-  }
-  onPlacement(){
+  onPlacement() {
     this.generateGui()
     this.doRecipe()
   }
-  onRemoval(){
+  onRemoval() {
     this.gui = undefined
     this.removeGui()
     this.stoprecipe()
   }
-  openGui(){
-    if(this.gui == undefined) this.generateGui()
+  openGui() {
+    if (this.gui == undefined) this.generateGui()
     this.gui.open()
   }
 }
@@ -269,71 +238,44 @@ classes.backpack = class extends classes.empty {
     this.inventory = []
     this.inventorySlots = 0
     this.description = "Inventory Slots: " + this.inventorySlots
-   
   }
   buildinventory() {
     this.inventory = []
     for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory[i] = new Slot("",true,undefined)
+      this.inventory[i] = new Slot("", 1, undefined)
     }
   }
-  generateGui(){
+  generateGui() {
     //<div id="backpack"><div id="backpackname">fff</div></div>
     this.handler = document.createElement("div")
     this.handler.className = "backpack"
-    let nameHandler = document.createElement("div") 
+    let nameHandler = document.createElement("div")
     nameHandler.className = "backpackname"
     nameHandler.style.color = this.customcolor
     nameHandler.innerText = this.Rname == "" ? getName(this.name) : this.Rname
     this.handler.appendChild(nameHandler)
-    this.inventory.forEach(x=>{
+    this.inventory.forEach((x) => {
       this.handler.appendChild(x.getTag())
     })
     e.gui.appendChild(this.handler)
-    this.gui = new Gui("backpack",[$("#inventory")[0],$("#hotbar")[0],this.handler])
+    this.gui = new Gui(
+      "backpack",
+      [$("#inventory")[0], $("#hotbar")[0], this.handler],
+      this.inventory.concat(steve.inventory)
+    )
   }
-  openGui(){
-    if(this.gui == undefined) this.generateGui()
+  openGui() {
+    if (this.gui == undefined) this.generateGui()
     this.gui.open()
   }
-  removeGui(){
+  removeGui() {
     this.handler.remove()
   }
-  addToInventory(item) {
-    let iter = 0
-    for (const key in this.inventory) {
-      if (item.name != "empty")
-        if (this.inventory[key].name == item.name) {
-          if (this.inventory[key].getEmpty() >= item.amount) {
-            this.inventory[key].amount += item.amount
-            item = reduceStack(item, item.amount)
-          } else {
-            item = reduceStack(item, this.inventory[key].getEmpty())
-            this.inventory[key].amount = this.inventory[key].maxStackSize
-          }
-        } else if (this.inventory[key].name == "empty") {
-          this.inventory[key] = Object.assign(
-            Object.create(Object.getPrototypeOf(item)),
-            item
-          )
-          item = reduceStack(item, item.amount)
-        }
-
-      putItemInslot(
-        this.inventory[key],
-        e.backpack["slot" + iter],
-        e.backpack["slot" + iter + "amount"]
-      )
-
-      iter++
-    }
-
-    return item
-  }
-  onPlacement(){
+  
+  onPlacement() {
     this.generateGui()
   }
-  onRemoval(){
+  onRemoval() {
     this.gui = undefined
     this.removeGui()
   }
@@ -358,6 +300,7 @@ classes.consumable = class extends classes.empty {
         Object.create(Object.getPrototypeOf(this.addedstats)),
         this.addedstats
       )
+     
       delete bottleneck.health
       steve.food[alphabetCode()] = {
         time: this.effectLength * 1000,
@@ -545,6 +488,7 @@ classes.mob = class {
           if (amount) {
             drops.push(new classes[name](amount))
             addCollectionItem(key.collection, amount)
+            notifyRareDrop(name, key.chance)
           }
         }
       }
@@ -704,57 +648,67 @@ classes.accessorybag = class {
   constructor() {
     this.inventory = []
     this.name = "accessorybag"
-    for(let i = 0 ; i < maxaccesoriesslots;i++){
-    this.inventory[i] = new Slot((item)=>item.type == "accessory",true,undefined,{
-      onPostClick : this.onClick.bind(this),
-    })
+    for (let i = 0; i < maxaccesoriesslots; i++) {
+      this.inventory[i] = new Slot(
+        (item) => item.type == "accessory",
+        1,
+        undefined,
+        {
+          onPostClick: this.onClick.bind(this),
+        }
+      )
     }
-    
+
     this.families = []
     this.generateGui()
   }
-  onClick(){
+  onClick() {
     this.sort()
     this.reactivate()
   }
-  sort(){
-    this.inventory.sort(function(a,b){
+  sort() {
+    this.inventory.sort(function (a, b) {
       return a.isEmpty() ? 1 : -1
     })
   }
-  
+
   reactivate() {
     this.families = []
     this.inventory.forEach((x) => {
-      if(!x.isEmpty()){
+      if (!x.isEmpty()) {
         if (x.getItem().wasActivated) {
           x.item.deactivate()
         }
-        if(!this.families.includes(x.getItem().family)){
+        if (!this.families.includes(x.getItem().family)) {
           this.families.push(x.getItem().family)
           x.item.activate()
         }
       }
     })
   }
-  generateGui(){
+  generateGui() {
     this.handler = $("#accessorybag")[0]
-    this.inventory.forEach(x=>{
+    this.inventory.forEach((x) => {
       x.hide()
       this.handler.appendChild(x.getTag())
     })
-    this.gui = new Gui("accessorybag",[$("#inventory")[0],$("#hotbar")[0],this.handler],undefined,{
-      onopen:this.onGuiOpen.bind(this)
-    })
-    
+    this.gui = new Gui(
+      "accessorybag",
+      [$("#inventory")[0], $("#hotbar")[0], this.handler],
+      undefined,
+      {
+        onopen: this.onGuiOpen.bind(this),
+      }
+    )
   }
-  onGuiOpen(){
+  onGuiOpen() {
     const slots = steve.getStat("accessorybagslots")
-    for(let i = 0; i < slots;i++){
+
+    this.gui.slots = this.inventory.slice(0, slots).concat(steve.inventory)
+    for (let i = 0; i < slots; i++) {
       this.inventory[i].show()
     }
   }
-
 }
 
 class Loot {
@@ -787,125 +741,130 @@ class Loot {
 const guiProperties = {
   movesHotbar: true,
   needsHandler: true,
-  onopen:undefined,
-  onclose:undefined,
+  onopen: undefined,
+  onclose: undefined,
 }
 
 class Gui {
   /**
    * @param {string} name
-   * @param {HTMLElement[]} content 
-   * @param {Slots[]} slots 
-   * @param {guiProperties} properties 
+   * @param {HTMLElement[]} content
+   * @param {Slots[]} slots
+   * @param {guiProperties} properties
    */
-  constructor(name,content,slots,properties = {}) {
+  constructor(name, content, slots = [], properties = {}) {
     this.name = name
     this.content = content
-    this.slots  = slots
+    this.slots = slots
     this.properties = properties
-    if(this.properties.needsHandler == undefined)
-    this.properties.needsHandler = true
-    if(this.properties.movesHotbar == undefined)
-    this.properties.movesHotbar = true
-
+    if (this.properties.needsHandler == undefined)
+      this.properties.needsHandler = true
+    if (this.properties.movesHotbar == undefined)
+      this.properties.movesHotbar = true
   }
   open() {
     activeGui.close()
- 
-    if(this.properties.needsHandler) e.guihandler.style.display = "block"
-    if(this.properties.movesHotbar)   e.hotbar.style.bottom = "11vh"
-    
-    
+
+    if (this.properties.needsHandler) e.guihandler.style.display = "block"
+    if (this.properties.movesHotbar) e.hotbar.style.bottom = "11vh"
 
     this.content.forEach((x) => {
       x.style.display = "block"
     })
-    if(isNeiOpen){
+    if (isNeiOpen) {
       e.nei.style.display = "block"
       e.inventory.style.display = "none"
       e.hotbar.style.display = "none"
-    }
-    else
-    {
+    } else {
       e.nei.style.display = "none"
     }
-    if(this.properties.onopen)
-    this.properties.onopen()
+    if (this.properties.onopen) this.properties.onopen()
     activeGui = this
   }
   close() {
-    if(this.properties.needsHandler) e.guihandler.style.display = "none"
+    if (this.properties.needsHandler) e.guihandler.style.display = "none"
     e.hotbar.style.bottom = "0vh"
     this.content.forEach((x) => {
       x.style.display = "none"
     })
-    if(this.properties.onclose)
-    this.properties.onclose()
+    if (this.properties.onclose) this.properties.onclose()
   }
-
+  getSlotsWithState(state) {
+    let arr = []
+    for (const i in this.slots) {
+      if (
+        typeof this.slots[i] != "function" &&
+        this.slots[i].shiftState == state
+      ) {
+        arr.push(this.slots[i])
+      }
+    }
+    return arr
+  }
 }
 let slots = []
 /**
- * Properties:  
+ * Properties:
  * @example
- * canPutItems - if you can input in slot 
+ * canPutItems - if you can input in slot
  * isLclickSpecial/isRclickSpecial - supports Default L/R click
  * onPreClick - action before any click
  * onPostClick - action after any click
  * emptyClass - background placeholder if slot is empty
- *  
- *  
- *  
- *  
+ *
+ *
+ *
+ *
  * </ul>
- * 
+ *
  */
 const SlotProperties = {
   /** if you can input in slot  */
-   emptyClass:"",
-   /** Dont Support Default L click 
-    * @type {Boolean} */
-   isLclickSpecial:false,
-   /** Dont Support Default R click 
-    * * @type {Boolean} */
-   isRclickSpecial:false,
-   /** action before any click
-    * @type {function} */
-   onPreClick : () =>{},
-   /** action after any click 
+  emptyClass: "",
+  /** Dont Support Default L click
+   * @type {Boolean} */
+  isLclickSpecial: false,
+  /** Dont Support Default R click
+   * * @type {Boolean} */
+  isRclickSpecial: false,
+  /** action before any click
    * @type {function} */
-   onPostClick : () =>{},
-   /** can Input Items 
-     * @type {Boolean} */
-   canPutItems:true,
-  /** if supports item onPlacement/onRemoval 
+  onPreClick: () => {},
+  /** action after any click
+   * @type {function} */
+  onPostClick: () => {},
+  /** can Input Items
+   * @type {Boolean} */
+  canPutItems: true,
+  /** if supports item onPlacement/onRemoval
    * @type {Boolean}*/
   isSpecialSlot: false,
   /** action on R click
-    * @type {function} */
-   onRclick : () =>{},
+   * @type {function} */
+  onRclick: () => {},
 }
-
 
 class Slot {
   /**
-   * 
-   * @param {*} filter 
-   * @param {*} isMachineSlot 
-   * @param {CCSStyleObject} position 
-   * @param {SlotProperties} properties 
+   *
+   * @param {*} filter
+   * @param {Number} isMachineSlot
+   *
+   * @param {CCSStyleObject} position
+   * @param {SlotProperties} properties
    */
-  constructor( filter = "", isMachineSlot = true, position,properties = {}) {
+  constructor(filter = "", shiftState = 2, position, properties = {}) {
     this.item = new classes.empty()
     this.filter = filter
-    this.isMachineSlot = isMachineSlot
+    this.shiftState = shiftState
     this.create(position)
-    this.id = slots.length 
+    this.id = slots.length
     slots.push(this)
     this.properties = properties
-    if(this.properties.emptyClass == undefined) this.properties.emptyClass = "empty"
-    if(this.properties.canPutItems == undefined) this.properties.canPutItems = true
-
+    if (this.properties.emptyClass == undefined)
+      this.properties.emptyClass = "empty"
+    if (this.properties.canPutItems == undefined)
+      this.properties.canPutItems = true
   }
   hide() {
     this.tag.style.display = "none"
@@ -913,7 +872,7 @@ class Slot {
   show() {
     this.tag.style.display = "block"
   }
-  isEmpty(){
+  isEmpty() {
     return isEmpty(this.item)
   }
   create(position) {
@@ -934,149 +893,186 @@ class Slot {
     this.amount = amount
   }
   updateSlot() {
-    
-    if(this.visualItem && this.isEmpty()){
+    if (this.visualItem && this.isEmpty()) {
       this.tag.className = this.visualItem.name + " guiSlot"
-      this.amount.innerText = this.visualItem.amount > 1 ? this.visualItem.amount : ""
-    }
-    else
-    {
+      this.amount.innerText =
+        this.visualItem.amount > 1 ? this.visualItem.amount : ""
+    } else {
+      this.tag.className =
+        (this.isEmpty() ? this.properties.emptyClass : this.item.name) +
+        " guiSlot"
 
-      this.tag.className =(this.isEmpty() ? this.properties.emptyClass :this.item.name) + " guiSlot"
-      
       this.amount.innerText = this.item.amount > 1 ? this.item.amount : ""
     }
   }
-  onToolTip(){
+  onToolTip() {
     this.item.onToolTip()
-    if(this.visualItem && this.isEmpty())
-    makeToolTip(this.visualItem)
-    else
-    makeToolTip(this.item )
+    if (this.visualItem && this.isEmpty()) makeToolTip(this.visualItem)
+    else makeToolTip(this.item)
   }
-  checkFilter(item){
-    if(isEmpty(item)) return true
-    if(typeof this.filter == "string"){
-
-    return item.name.match1word(this.filter)
-    }
-    else
-    return this.filter(item)
+  checkFilter(item) {
+    if (isEmpty(item)) return true
+    if (typeof this.filter == "string") {
+      return item.name.match1word(this.filter)
+    } else return this.filter(item)
   }
 
   onclick(evt) {
-   
-    switch (evt.button) {
-      //Lclick
-      case 0:
-      case 1:
-        if(!this.properties.isLclickSpecial)
-        if(!(this.isEmpty() && cursor.isEmpty())){
-            if(this.item.name == cursor.getItem().name ){
-              if(this.properties.canPutItems){
-                let amount = Math.min(this.item.getEmpty(),cursor.getItem().amount)
-                cursor.removeAmount(amount)
-                this.item.amount += amount
-              }
-            }else
-            if(this.properties.canPutItems || cursor.isEmpty())
-            {
-              
-              if(this.checkFilter(cursor.getItem())){
-
-                if(this.properties.isSpecialSlot){
-                  this.item.onRemoval()
-                }
-              
-                this.item = cursor.putItem(this.item)
-                if(this.properties.isSpecialSlot){
-                  this.item.onPlacement()
-                }
-              }
-            }
-          
-        }
+    if (isNeiOpen) {
+      console.log(evt.button)
+      if (evt.button == 0) {
        
-       
-          this.updateSlot()
-          if(cursor.isEmpty()){
-            this.onToolTip()
-          }
-        break
-      //Rclick
-      case 2:
-        if(!this.properties.isRclickSpecial)
-        if(!(this.isEmpty() && cursor.isEmpty())){
-          if(cursor.isEmpty()){
-            const amount = Math.round(this.item.amount/2)
-            const oldAmount = this.item.amount
-            this.item.amount = amount
-            cursor.putItem(this.item)
-            this.item.amount = oldAmount
-            this.item = reduceStack(this.item,amount)
-          }else
-          if(this.isEmpty()){
-            if(this.properties.canPutItems && this.checkFilter(cursor.getItem())){
-
-              this.item  = Object.assign(
-                Object.create(Object.getPrototypeOf(cursor.getItem())),
-                cursor.getItem()
-                ) 
-                this.item.amount = 1
-                cursor.removeAmount(1)
-              } 
-             
-          }else
-          if(this.item.name == cursor.getItem().name && this.item.getEmpty() >= 1){
-            if(this.properties.canPutItems){
-
-              const amount = 1
-              this.item.amount += 1
-              cursor.removeAmount(1)
+        findCraftingRecipes()
+      } else findUsageRecipes()
+      ShowRecipe(currentRecipeI)
+    } else {
+      if (isShiftOn && this.shiftState != 2) {
+        /** @type {Slot[]} */
+        let Slots = activeGui.getSlotsWithState(!this.shiftState)
+        for (const i in Slots) {
+          if (typeof Slots[i] == "function") continue
+          if (Slots[i].canLPutItem(this.item)) {
+            if (this.item.getEmpty() >= Slots[i].getItem().amount) {
+              this.item.onRemoval()
             }
-
+            this.item = Slots[i].addItem(this.item)
+            if (this.isEmpty()) {
+              this.onToolTip()
+              break
+            }
           }
-          this.updateSlot()
         }
-        if(this.properties.onRclick)
-        this.properties.onRclick(this.item)
-        break
-      }
-      if(this.properties.onPostClick){
+        this.updateSlot()
+      } else
+        switch (evt.button) {
+          //Lclick
+          case 0:
+          case 1:
+            if (!this.properties.isLclickSpecial)
+              if (!(this.isEmpty() && cursor.isEmpty())) {
+                if (this.item.name == cursor.getItem().name) {
+                  if (this.properties.canPutItems) {
+                    let amount = Math.min(
+                      this.item.getEmpty(),
+                      cursor.getItem().amount
+                    )
+                    cursor.removeAmount(amount)
+                    this.item.amount += amount
+                  }
+                } else if (this.properties.canPutItems || cursor.isEmpty()) {
+                  if (this.checkFilter(cursor.getItem())) {
+                    if (this.properties.isSpecialSlot) {
+                      this.item.onRemoval()
+                    }
+
+                    this.item = cursor.putItem(this.item)
+                    if (this.properties.isSpecialSlot) {
+                      this.item.onPlacement()
+                    }
+                  }
+                }
+              }
+
+            this.updateSlot()
+            if (cursor.isEmpty()) {
+              this.onToolTip()
+            }
+            break
+          //Rclick
+          case 2:
+            if (!this.properties.isRclickSpecial)
+              if (!(this.isEmpty() && cursor.isEmpty())) {
+                if (cursor.isEmpty()) {
+                  const amount = Math.round(this.item.amount / 2)
+                  const oldAmount = this.item.amount
+                  this.item.amount = amount
+                  cursor.putItem(this.item)
+                  this.item.amount = oldAmount
+                  this.item = reduceStack(this.item, amount)
+                } else if (this.isEmpty()) {
+                  if (
+                    this.properties.canPutItems &&
+                    this.checkFilter(cursor.getItem())
+                  ) {
+                    this.item = Object.assign(
+                      Object.create(Object.getPrototypeOf(cursor.getItem())),
+                      cursor.getItem()
+                    )
+                    this.item.onCopy()
+                    this.item.amount = 1
+                    cursor.removeAmount(1)
+                  }
+                } else if (
+                  this.item.name == cursor.getItem().name &&
+                  this.item.getEmpty() >= 1
+                ) {
+                  if (this.properties.canPutItems) {
+                    const amount = 1
+                    this.item.amount += 1
+                    cursor.removeAmount(1)
+                  }
+                }
+                this.updateSlot()
+              }
+            if (this.properties.onRclick) this.properties.onRclick(this.item)
+            break
+        }
+
+      if (this.properties.onPostClick) {
         this.properties.onPostClick()
       }
+    }
   }
-  getItem(){
+  getItem() {
     return this.item
   }
- 
+
   getTag() {
     return this.tag
   }
-  putItem(item){
-    this.item = item
-    if(this.properties.isSpecialSlot) this.item.onPlacement()
-    this.updateSlot()
-  }
-  addItem(item){
-    if(this.isEmpty()) this.putItem(item)
-    else
-    {
-
-      if(this.item.name == item.name){
-        this.item.amount += item.amount
-      } 
-      this.updateSlot()
+  putItem(item) {
+    this.item = Object.assign(Object.create(Object.getPrototypeOf(item)), item)
+    this.item.onCopy()
+    item = new classes.empty()
+  
+    if (this.properties.isSpecialSlot) this.item.onPlacement()
+    if (this.properties.onPostClick) {
+      this.properties.onPostClick()
     }
+    this.updateSlot()
+    return item
   }
-  select(){
+  canLPutItem(item) {
+    return (
+      !this.properties.isLclickSpecial &&
+      this.checkFilter(item) &&
+      this.properties.canPutItems
+    )
+  }
+  addItem(item) {
+    if (this.checkFilter(item)) {
+      if (this.isEmpty()) return this.putItem(item)
+      else {
+        if (this.item.name == item.name) {
+          const amount = Math.min(item.amount, this.item.getEmpty())
+          this.item.amount += amount
+          item = reduceStack(item, amount)
+        }
+        this.updateSlot()
+        if (this.properties.onPostClick) {
+          this.properties.onPostClick()
+        }
+      }
+    }
+    return item
+  }
+  select() {
     this.tag.style.borderWidth = "0.6vh"
     this.tag.style.margin = "0.1vh"
-   
   }
-  unSelect(){
-  this.tag.style.borderWidth = "0.4vh"
-  this.tag.style.margin = "0.3vh"
+  unSelect() {
+    this.tag.style.borderWidth = "0.4vh"
+    this.tag.style.margin = "0.3vh"
     /*
      display: block;
   float: left;
@@ -1086,24 +1082,22 @@ class Slot {
   border: inset 0.4vh #5f5f5f;
   position: relative;*/
   }
-  reduceStack(amount){
-    this.item = reduceStack(this.item,amount)
+  reduceStack(amount) {
+    this.item = reduceStack(this.item, amount)
     this.updateSlot()
   }
-  setVisualItem(item){
+  setVisualItem(item) {
     this.visualItem = item
     this.updateSlot()
   }
-  removeVisualItem(){
+  removeVisualItem() {
     this.visualItem = undefined
     this.updateSlot()
   }
-  clear(){
+  clear() {
     this.item = new classes.empty()
     this.removeVisualItem()
-    
   }
-
 }
 
 const cursor = {
@@ -1115,7 +1109,7 @@ const cursor = {
   isEmpty() {
     return this.item.name == "empty"
   },
-  getItem(){
+  getItem() {
     return this.item
   },
   updateSlot() {
@@ -1187,12 +1181,14 @@ const cursor = {
         Object.create(Object.getPrototypeOf(item)),
         item
       )
+      this.item.onCopy()
       item = new classes.empty()
     } else {
       let temp = Object.assign(
         Object.create(Object.getPrototypeOf(this.item)),
         this.item
       )
+      temp.onCopy()
       this.item = item
       item = temp
     }
@@ -1207,17 +1203,76 @@ const cursor = {
   removeItem() {
     return this.removeAmount(this.item.amount)
   },
-  removeHalf(){
-    return this.removeAmount(Math.round(this.item.amount/2))
+  removeHalf() {
+    return this.removeAmount(Math.round(this.item.amount / 2))
   },
-  addItem(item){
-    if(this.isEmpty()) {
+  addItem(item) {
+    if (this.isEmpty()) {
       this.putItem(item)
-
-    }else
-    if(this.item.name == item.name){
+    } else if (this.item.name == item.name) {
       this.item.amount += item.amount
     }
   },
-  
+  setBorderColor(color){
+    this.handler.style.borderColor = color
+
+  }
+}
+
+class colorPicker {
+  constructor(oncolorchange) {
+    this.oncolorchange = oncolorchange
+    this.create()
+  }
+  oninput() {
+    this.colorPlaceHolder.style.backgroundColor = this.getColor()
+    this?.oncolorchange()
+  }
+  create() {
+    this.container = document.createElement("div")
+    this.container.className = "colorpickerContainer"
+    const colors = ["red", "green", "blue"]
+    this.inputs = {}
+    this.colorPlaceHolder = document.createElement("div")
+    this.colorPlaceHolder.className = "colorpickerExample"
+    this.container.appendChild(this.colorPlaceHolder)
+    colors.forEach((x) => {
+      this.inputs[x] = document.createElement("input")
+      this.inputs[x].min = 0
+      this.inputs[x].max = 255
+      this.inputs[x].type = "range"
+      this.inputs[x].className = x+"sliderColorPicker"
+      this.inputs[x].oninput = this.oninput.bind(this)
+      this.container.appendChild(this.inputs[x])
+    })
+  }
+  getTag() {
+    return this.container
+  }
+  setClass(classs){
+    this.container.className = "colorpickerContainer " + classs 
+  }
+  getColor() {
+    let str = "#"
+    for (const key in this.inputs) {
+      str += toHex(+this.inputs[key].value)
+    }
+    return str
+  }
+  setColor(hex){
+    this.inputs.red.value = parseInt(
+      hex.slice(1, 3),
+      16
+    )
+    this.inputs.green.value = parseInt(
+      hex.slice(3, 5),
+      16
+    )
+    this.inputs.blue.value = parseInt(
+      hex.slice(5, 7),
+      16
+    )
+    this.colorPlaceHolder.style.backgroundColor = this.getColor()
+
+  }
 }

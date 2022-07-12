@@ -14,14 +14,14 @@ let craftingTable = {
 
   build(){
     for (let i = 0; i < 9; i++) {
-     this.inventory[i] = new Slot("",false,{position:"absolute",top:8 * ((i - (i % 3)) / 3) + 1 + "vh",left: 8 * (i % 3) + 1 + "vh"},{
+     this.inventory[i] = new Slot("",1,{position:"absolute",top:8 * ((i - (i % 3)) / 3) + 1 + "vh",left: 8 * (i % 3) + 1 + "vh"},{
       onPostClick: this.onInventoryAdd.bind(this)
      })
       e.craftingtable.appendChild(this.inventory[i].getTag())
 
     }
 
-    this.output =  new Slot("",false,{position:"absolute",top:9+ "vh",left: 25 + "vh"},
+    this.output =  new Slot("",2,{position:"absolute",top:9+ "vh",left: 25 + "vh"},
     {
       canPutItems: false,
       isLclickSpecial: true,
@@ -305,20 +305,20 @@ function loadrecipes() {
   })
   addShapedRecipe(["tyrant","lewissaber","colen","repolainen","dreammaster","boubou","cinobi","runakai","alastor"],"gtnh")
 
-  // addShapedRecipe(
-  //   [
-  //     "ironblock",
-  //     "ironblock",
-  //     "ironblock",
-  //     "empty",
-  //     "ironingot",
-  //     "empty",
-  //     "ironingot",
-  //     "ironingot",
-  //     "ironingot",
-  //   ],
-  //   "anvil"
-  // )
+  addShapedRecipe(
+    [
+      "ironblock",
+      "ironblock",
+      "ironblock",
+      "empty",
+      "ironingot",
+      "empty",
+      "ironingot",
+      "ironingot",
+      "ironingot",
+    ],
+    "anvil"
+  )
 
   addShapedRecipe(["paper", "paper", empty, "paper", "leather"], "book", 1, [2])
   addShapedRecipe(
@@ -335,7 +335,7 @@ function loadrecipes() {
     ],
     "ironblock"
   )
-  addFurnaceRecipe("cobblestone", "stone", 160, 1)
+  addFurnaceRecipe("cobblestone", "stone", 10, 1)
   addFurnaceRecipe("ironore", "ironingot", 160, 1)
   addFurnaceRecipe("rottenflesh", "leather", 320, 1, 4)
   addShapedRecipe(
@@ -389,6 +389,7 @@ function dumbtoinventory(Items) {
         Object.create(Object.getPrototypeOf(items[i])),
         items[i]
       )
+      newitem.onCopy()
 
       newitem.amount = newitem.maxStackSize
       console.log("amount",newitem.amount)
@@ -426,7 +427,8 @@ function findUsageRecipes() {
     if (glitchrecipes[key].input.includes( itemintooltip) ) {
       let glitch = new classes.glitchcompactor(1)
       let iter = 1
-      let amount = glitchrecipes[key][1]
+      let amount = glitchrecipes[key].inputAmount
+      console.log(amount)
       while (amount > 0) {
         const batch = amount >= 64 ? 64 : amount
 
@@ -444,12 +446,12 @@ function findUsageRecipes() {
     }
   }
   if(NewGueue.length > 0){
+    currentRecipeI = 0
     RecipeGueue = NewGueue
   }
 }
 function findCraftingRecipes() {
   let NewGueue = []
- 
 
   shapedrecipes.forEach((x) => {
     if (x.output.match1word(itemintooltip)) {
@@ -490,6 +492,7 @@ function findCraftingRecipes() {
     }
   }
   if(NewGueue.length > 0){
+    currentRecipeI = 0
     RecipeGueue = NewGueue
   }
 }
@@ -521,7 +524,7 @@ lastGui = activeGui
        x.setVisualItem(item)
        
       })
-      let output = new classes[RecipeGueue[n].output](RecipeGueue[n].amount)
+      let output = new classes[RecipeGueue[n].output](RecipeGueue[n].outputAmount)
       output.withTag(RecipeGueue[n].outputtag)
       craftingTable.output.setVisualItem(output)
       craftingTableGui.open()
@@ -533,6 +536,7 @@ lastGui = activeGui
 
 
 }
+let currentRecipeI = 0
 const numnames = ["K", "M", "B", "T"]
 Number.prototype.formate = function (OM = 3, Rounding = 2) {
   if (this > 10 ** OM) {

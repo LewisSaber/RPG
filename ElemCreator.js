@@ -17,23 +17,13 @@ function loadIDS() {
   // e.mapframe.style.height = window.innerHeight + "px"
   // e.mapframe.style.width = window.innerWidth + "px"
 
-  e.anvil.slot0 = e.anvilinput
-  e.anvil.slot0amount = e.anvilInputamount
-  e.anvil.slot1 = e.anviloutput
-  e.anvil.slot1amount = e.anvilOutputamount
-  e.accessorybagbutton.setAttribute(
-    "oncontextmenu",
-    "openMachineGui(steve.accessorybag); return false"
-  )
-  e.skillsbutton.setAttribute(
-    "oncontextmenu",
-    "openNoInventoryGui('skills'); return false"
-  )
-  e.collectionsbutton.setAttribute(
-    "oncontextmenu",
-    "openNoInventoryGui('collections'); return false"
-  )
-  
+  // e.anvil.slot0 = e.anvilinput
+  // e.anvil.slot0amount = e.anvilInputamount
+  // e.anvil.slot1 = e.anviloutput
+  // e.anvil.slot1amount = e.anvilOutputamount
+  e.accessorybagbutton.oncontextmenu = e.accessorybagbutton.onclick
+  e.skillsbutton.oncontextmenu = e.skillsbutton.onclick
+  e.collectionsbutton.oncontextmenu = e.collectionsbutton.onclick  
 }
 const codeAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"//abcdefghijklmnopqrstuvwxyz"]
  const keywords = ["helmet","leggings","chestplate","boots","charm","relic","talisman","artifact","fortune","planks","pickaxe","axe","sword","glitched"]
@@ -198,6 +188,12 @@ const toSave = [
   "version","armor"
 ]//.concat(armornames)
 
+function toHex(numb) {
+  if (numb <= 0) return "00"
+  if (numb > 255) return "FF"
+  return numb.toString(16).toUpperCase()
+}
+
 const slayerArmorMilestones = [0,50,300,1000,2000,3000,5000,7500,10000,15000,25000,50000,100000,200000,500000]
 const slayerArmorMilestonesDefense = [0,20,50,90,120,150,180,200,220,240,260,280,300,310,315]
 
@@ -309,43 +305,9 @@ function buildBackpacks() {
   steve.backpacks.forEach(x=>{
     e.backpacks.appendChild(x.getTag())
   })
-  // for (let i = 0; i < backPacksInGui; i++) {
-  //   let tag = document.createElement("div")
-  //   tag.setAttribute("onmouseenter", "makeToolTip(steve.backpacks[" + i + "])")
-  //   tag.setAttribute("onclick", "LclickOnSlot(" + i + ",'backpack')")
-  //   tag.setAttribute(
-  //     "onmouseleave",
-  //     "leaveElement()"    )
-  //   tag.setAttribute(
-  //     "oncontextmenu",
-  //     "openMachineGui(steve.backpacks[" + i + "]," + i + "); return false"
-  //   )
-  //   tag.setAttribute("id","backpackGui" + i)
-  //   e["backpackGui" + i] = tag
-  //   tag.className = "guiSlot"
-  //   e.backpacks["slot" + i] = tag
-  //   e.backpacks.appendChild(tag)
-  //   putItemInslot(steve.backpacks[i], e.backpacks["slot" + i])
-  // }
+
  }
-function buildBackpacksGui() {
-  // for (let i = 0; i < maxbackpackslot; i++) {
-  //   let tag = document.createElement("div")
 
-  //   tag.setAttribute(
-  //     "onmouseleave",
-  //     "leaveElement()"    )
-    
-  //   let amount = document.createElement("div")
-  //   amount.setAttribute("class", "itemamount")
-  //   tag.className = "guiSlot empty"
-
-  //   e.backpack["slot" + i] = tag
-  //   e.backpack["slot" + i + "amount"] = amount
-  //   tag.appendChild(amount)
-  //   e.backpack.appendChild(tag)
-  // }
-}
 function buildEnchantingBook() {
   for (let i = 0; i < 3; i++) {
     let tag = document.createElement("div")

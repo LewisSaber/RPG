@@ -39,11 +39,13 @@ function LOADING() {
   loadMode()
   loadSession()
   generateMap()
-
+  let armorArray = []
+  armornames.forEach(x => { armorArray.push(steve.armor[x])})
+  inventoryGui.slots = steve.inventory.concat(armorArray)
   e.map.onmousedown = onMapClick
 
   window.onmousemove = function (evt) {
-    timer = setTimeout(cursor.position(evt), 1)
+    timer = setTimeout(cursor.position(evt), 20)
   }
   window.oncontextmenu = function (evt) {
     steve.getItemInHand().useAbility(evt)
@@ -54,7 +56,7 @@ function LOADING() {
   if (!isMapModeOn) {
     e.map.onmousemove = cursorMoveOnMap
     loadPlayer(session.nick)
-
+    steve.loadAccessoryBagGui()
     loadrecipes()
     // window.addEventListener("keydown",test);
     addKeysEvent()
@@ -67,7 +69,6 @@ function LOADING() {
     buildArmorGui()
     buildBackpacks()
     buildmachines()
-    buildBackpacksGui()
     buildSkills()
     buildCollections()
     buildEnchantingBook()
@@ -90,10 +91,8 @@ function LOADING() {
     window.onmouseup = function () {
       keys[5] = 0
     }
-    steve.machines.forEach(x=>{
-  if(x.getItem().type == "machine") x.item.doRecipe()
-    }
-    )
+    
+    
     steve.inventory[currentHotbarSlot].select()
     e.playertool.className = steve.getItemInHand().name
     steve.addCoins(0)
@@ -178,13 +177,13 @@ function downButtonHandler(evt) {
   }
   if (evt.code == "KeyR" && !keys[6]) {
     findCraftingRecipes()
-    ShowRecipe(0)
+    ShowRecipe(currentRecipeI)
   }
   
 
   if (evt.code == "KeyU" && !keys[7] ) {
     findUsageRecipes()
-    ShowRecipe(0)
+    ShowRecipe(currentRecipeI)
   }
   if (evt.code == "KeyM" && !keyStates.m) {
     steve.sortInventory()
@@ -362,7 +361,7 @@ function makestats(item, plus = "+") {
   return str + br
 }
 
-function makeinventory(item) {
+function makeinventory(item,inventoryName = "Inventory: ") {
   let str = ""
   if (item.inventory != undefined) {
     let iter = 1
@@ -386,7 +385,7 @@ function makeinventory(item) {
         iter++
       }
     }
-    if (str != "") str = br + color("Inventory: ", "lime") + br + str
+    if (str != "") str = br + color(inventoryName, "#a62525") + br + str
     str += "<br>"
   }
   return str
@@ -589,8 +588,8 @@ function makeTextToolTip(text) {
         if (text.includes("Accessory")) {
           let iter = 0
           e.tooltip.innerHTML += br + "Capacity: " + (steve.getStat("accessorybagslots") + " Slots").color("lime")
-          e.tooltip.innerHTML += br + "Currently Stores: " + br
-          e.tooltip.innerHTML += makeinventory(steve.accessorybag)
+         
+          e.tooltip.innerHTML += makeinventory(steve.accessorybag,"Currently Stores: ")
 
           e.tooltip.innerHTML += br + br + br
         }
@@ -626,6 +625,7 @@ function makeToolTip(item, sellValue = true) {
   document.toolTipText = ""
 
   if (cursor.becomeToolTip()) {
+    cursor.setBorderColor(raritycolors[item.rarity])
     if (item.name == "empty" || item.name == "machine") {
       e.tooltip.style.display = "none"
       itemintooltip = "none"
@@ -644,7 +644,7 @@ function makeToolTip(item, sellValue = true) {
         (item.Rname == ""
           ? color(getName(item.name), raritycolors[item.rarity]) + br
           : color(item.Rname, item.customcolor) + br) +
-        (item.description == "" ? "" : item.description + br) +
+        (item.description ? item.description.color("#818181") + br : "") +
         (item.burnvalue > 0
           ? color("Burn Time: " + item.burnvalue + " ticks", "gray") + br
           : "") +
@@ -807,6 +807,7 @@ function loadPlayer(Nick) {
     pl = players[Nick.toLowerCase()]
     for (const key1 in pl) {
       if (toSave.includes(key1)) {
+      // console.log(key1)
         if (key1 == "inventory") {
           for (let i = 0; i < pl.inventorySlots; i++) {
             steve.inventory[i].putItem(loadInventoryItem(pl[key1][i]))
@@ -821,10 +822,15 @@ function loadPlayer(Nick) {
       
         }
         else if (key1 == "machines") {
-          
+          console.log("loaing machines")
           for (let i = 0; i < 9; i++) {
             steve.machines[i].putItem( loadInventoryItem(pl[key1][i]))
-            steve.machines[i].item.inventoryslotid = i
+            if(steve.machines[i].item.name == "anvil" )
+            {  steve.machines[i].item.id = 3
+
+              steve.machines[i].item.inventory[0].properties.onPostClick()
+            }
+              
             //pl[key1][i].inventoryslotid;
             if (steve.machines[i].name == "furnace")
               steve.machines[i].item.fuel = pl[key1][i].fuel
@@ -2127,7 +2133,7 @@ function cursorMoveOnMap(evt) {
 /**
     (1-5]% - RARE drop;
     (0,1%-1%] - Legendary drop;
-    (inf - 0,1%] - IMPOSSIBLE DROP} dropname ;
+    (inf - 0,1%] - IMPOSSIBLE DROP
    * @param {string} dropname 
  * @param {number} chance 
  */
@@ -2159,3 +2165,26 @@ function notifyRareDrop(dropname,chance){
 // const inventoryGui = new Gui([
 //   $("#inventory")
 // ])
+function toArray(object){
+  let arr = []
+  for(const key in object){
+    arr.push(object[key])
+  }
+  return arr
+}
+
+class B{
+  constructor(properties){
+    this.properties = properties
+  
+  }
+}
+
+class A {
+  constructor(){
+    this.b = new B({log:this.log.bind(this) })
+  }
+  log(){
+    console.log(this)
+  }
+}

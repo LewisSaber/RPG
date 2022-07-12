@@ -191,39 +191,24 @@ classes.furnace = class extends classes.machine {
     this.fuel = 0
 
     this.inventory = {
-      /*
-      #furnaceInput{
-  position: absolute;
-  left: 25vh;
-  top: 8vh;
-}
-#furnaceOutput{
-  position: absolute;
-  left: 44vh;
-  top: 14.5vh;
-}
-#furnaceFuel{
-  position: absolute;
-  left: 25vh;
-  top: 20vh;
-  
-}*/
-      input: new Slot("",true,{
-        position: "absolute",
-        left: "0vh",
-        top: "0vh",
-       
-      },{
-        onPostClick: this.doRecipe.bind(this)
-      }),
-      fuel: new Slot((item)=>item.burnvalue >0,true,{
+   
+    
+      fuel: new Slot((item)=>item.burnvalue >0,1,{
         position: "absolute",
   left: "0vh",
   top: " 10vh",
       },{emptyClass:"fuelgui",
       onPostClick: this.doRecipe.bind(this)
     }),
-      output: new Slot("",false,{
+    input: new Slot("",1,{
+      position: "absolute",
+      left: "0vh",
+      top: "0vh",
+     
+    },{
+      onPostClick: this.doRecipe.bind(this)
+    }),
+      output: new Slot("",1,{
         position: "absolute",
         right: "0",
         top: "5vh"
@@ -243,7 +228,8 @@ classes.furnace = class extends classes.machine {
       this.handler.appendChild(this.inventory[key].getTag())
     }
     e.gui.appendChild(this.handler)
-    this.gui = new Gui("furnace",[$("#inventory")[0],$("#hotbar")[0],this.handler])
+    this.gui = new Gui("furnace",[$("#inventory")[0],$("#hotbar")[0],this.handler],toArray(this.inventory).concat(steve.inventory))
+    
   }
 
   doRecipe() {
@@ -341,67 +327,93 @@ classes.ironblock = class extends classes.block {
     this.name = "ironblock"
   }
 }
+
 classes.anvil = class extends classes.machine {
   constructor(amount = 0) {
     super(amount)
     this.name = "anvil"
     this.machinetype = "anvil"
-    // this.nametorename = ""
+    this.description = "Allows You to customize items"
     this.inventory = {
-      input: new classes.empty(),
-      output: new classes.empty(),
-    }
+      0 :new Slot("",1,{
+        marginLeft:"36vh",
+        marginTop:"5vh",
+        float:"left"
+      },{
+      onPostClick: this.doRecipe.bind(this)
+    })}
   }
-  applyname() {
-    //this.nametorename = e.anviltext.value
-    this.inventory.output.Rname = e.anviltext.value
+  onCopy(){
+    this.inventory[0].properties.onPostClick = this.doRecipe.bind(this)
   }
-  applycolor() {
-    anvilColorExample.style.backgroundColor = renamingColor.toHex()
-    this.inventory.output.customcolor = renamingColor.toHex()
-  }
-  doRecipe() {
-    this.inventory.output = Object.assign(
-      Object.create(Object.getPrototypeOf(this.inventory.input)),
-      this.inventory.input
-    )
-    if (this.inventory.input.name != "empty") {
-      e.anviltext.value =
-        this.inventory.input.Rname || getName(this.inventory.input.name)
-      e.anvilred.value = parseInt(
-        this.inventory.input.customcolor.slice(1, 3),
-        16
-      )
-      e.anvilgreen.value = parseInt(
-        this.inventory.input.customcolor.slice(3, 5),
-        16
-      )
-      e.anvilblue.value = parseInt(
-        this.inventory.input.customcolor.slice(5, 7),
-        16
-      )
-      renamingColor.red = parseInt(
-        this.inventory.input.customcolor.slice(1, 3),
-        16
-      )
-      renamingColor.green = parseInt(
-        this.inventory.input.customcolor.slice(3, 5),
-        16
-      )
-      renamingColor.blue = parseInt(
-        this.inventory.input.customcolor.slice(5, 7),
-        16
-      )
+  doRecipe(){
 
-      anvilColorExample.style.backgroundColor = renamingColor.toHex()
-    }
-    this.applyname()
-    putItemInslot(
-      this.inventory.output,
-      e[this.name]["slot" + 1],
-      e[this.name]["slot" + 1 + "amount"]
-    )
+    if(this.gui)
+    {
+  if(!this.inventory[0].isEmpty()){
+    
+    this.nameInput.value = this.inventory[0].getItem().Rname 
+    this.nameInput.placeholder = getName(this.inventory[0].getItem().name )
+    this.colorPicker.setColor(this.inventory[0].getItem().customcolor)
+    this.nameInput.style.color = this.colorPicker.getColor()
+  }else
+  {
+    this.nameInput.value = ""
+    this.nameInput.placeholder = "Enter Name"
   }
+  }
+}
+  changeName(){
+    if(this.gui){
+      this.inventory[0].getItem().Rname = this.nameInput.value
+    }
+  }
+  changeColor(){
+    if(this.gui){
+      this.inventory[0].getItem().customcolor = this.colorPicker.getColor()
+      this.nameInput.style.color = this.colorPicker.getColor()
+    }
+  }
+  generateGui() {
+      //<div id="backpack"><div id="backpackname">fff</div></div>
+      this.handler = document.createElement("div")
+      this.handler.className = "anvilGui"
+      this.colorPicker = new colorPicker(this.changeColor.bind(this))
+      this.colorPicker.setClass("anvilColorPicker")
+      this.handler.appendChild(this.colorPicker.getTag())
+      this.nameInput = document.createElement("input")
+      this.nameInput.className = "anvilNameInput"
+      this.nameInput.oninput = this.changeName.bind(this)
+      this.handler.appendChild(this.nameInput)
+      this.handler.appendChild(this.inventory[0].getTag())
+      e.gui.appendChild(this.handler)
+      this.gui = new Gui(
+        "anvil",
+        [$("#inventory")[0], $("#hotbar")[0], this.handler],
+        toArray(this.inventory).concat(steve.inventory)
+      )
+      this.nameInput.onfocus = function(){
+        removeKeysEvent()
+      }
+      this.nameInput.onblur = function(){
+        addKeysEvent()
+      }
+      this.nameInput.oncontextmenu = function(){
+        this.nameInput.value = ""
+        this.nameInput.oninput()
+      }.bind(this)
+    
+  }
+  onPlacement() {
+    this.generateGui()
+    this.doRecipe()
+  }
+  onRemoval() {
+    this.gui = undefined
+    this.removeGui()
+  }
+ 
+
 }
 classes.smallbackpack = class extends classes.backpack {
   constructor(amount = 0) {
@@ -626,14 +638,18 @@ classes.armor = class extends classes.empty {
     if (steve.boots.set == this.set) amount++
     return amount
   }
-  Activate() {
+  onPlacement() {
+    console.log("on placement")
     steve.addSet(this)
     this.wasActivated = true
   }
-  DeActivate() {
-   
-    steve.removeSet(this)
-    this.wasActivated = false
+  onRemoval() {
+    console.log("on removal")
+    if(this.wasActivated){
+      steve.removeSet(this)
+      this.wasActivated = false
+
+    }
   }
 }
 
@@ -989,6 +1005,7 @@ classes.enchantingbook = class extends classes.machine {
           Object.create(Object.getPrototypeOf(this.inventory.input)),
           this.inventory.input
         )
+        this.inventory.output.onCopy()
         this.inventory.input = new classes.empty()
         if (Object.keys(this.inventory.input2.enchants).length == 0)
           this.inventory.input2 = new classes.empty()
@@ -1004,29 +1021,7 @@ classes.enchantingbook = class extends classes.machine {
       }
     }
   }
-  // checkvalidnes() {
-  //   if (this.recipe != undefined) {
-  //     if (
-  //       furnacerecipes[this.inventory.input.name] != this.recipe ||
-  //       this.inventory.input.amount < this.recipe[1]
-  //     )
-  //       return false;
-  //     if (this.inventory.output.getEmpty() < this.recipe[2]) return false;
-  //     if (this.fuel < this.recipe[3])
-  //       while (this.consumefuel() && this.fuel < this.recipe[3]) {}
-  //     if (this.fuel < this.recipe[3]) return false;
-  //     return true;
-  //   }
-  //   return false;
-  // }
-  // stoprecipe() {
-  //   clearInterval(this.recipetimer);
-  //   this.recipetimer = -1;
-  //   if (this.inventoryslotid >= 0) {
-  //     e.machines["slot" + this.inventoryslotid].className = "guiSlot furnace";
-  //   }
-  //   //comsole.log("Recipe stopped");
-  // }
+
 }
 
 classes.glitchedcobblestone = class extends classes.item {
@@ -1047,17 +1042,17 @@ classes.glitchcompactor = class extends classes.machine {
 
     this.inventory = {
 
-      input1: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      input1: new Slot("",1,undefined,{onPostClick: this.doRecipe.bind(this)
       }),
-      input2: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      input2: new Slot("",1,undefined,{onPostClick: this.doRecipe.bind(this)
       }),
-      input3: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      input3: new Slot("",1,undefined,{onPostClick: this.doRecipe.bind(this)
       }),
-      input4: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      input4: new Slot("",1,undefined,{onPostClick: this.doRecipe.bind(this)
       }),
-      input5: new Slot("",true,undefined,{onPostClick: this.doRecipe.bind(this)
+      input5: new Slot("",1,undefined,{onPostClick: this.doRecipe.bind(this)
       }),
-      output: new Slot("",false,{
+      output: new Slot("",2,{
         position: "absolute",
   top: "70%",
   left: "40%"
@@ -1105,7 +1100,7 @@ classes.glitchcompactor = class extends classes.machine {
       this.handler.appendChild(this.inventory[key].getTag())
     }
     e.gui.appendChild(this.handler)
-    this.gui = new Gui("glitchcompacter",[$("#inventory")[0],$("#hotbar")[0],this.handler])
+    this.gui = new Gui("glitchcompacter",[$("#inventory")[0],$("#hotbar")[0],this.handler],toArray(this.inventory).concat(steve.inventory))
   }
 
 
@@ -1356,7 +1351,7 @@ classes.supercompactor = class extends classes.machine {
   buildinventory(){
     this.inventory = {}
     for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory["input" + i] = new Slot((item) =>item.name.includes("glitched"),false,undefined,{
+      this.inventory["input" + i] = new Slot((item) =>item.name.includes("glitched"),1,undefined,{
         onPostClick: this.doRecipe.bind(this)
       })
     }

@@ -28,7 +28,7 @@ class player {
     this.machines = []
 
     for (let i = 0; i < 9; i++) {
-      this.machines[i] = new Slot( (item)=>item.type == "machine", false,undefined, {
+      this.machines[i] = new Slot( (item)=>item.type == "machine", 2,undefined, {
         emptyClass: "machine",
         isRclickSpecial : true,
         isSpecialSlot:true,
@@ -42,7 +42,7 @@ class player {
     /** @type {Slot[]} */
     this.backpacks = new Array()
     for (let i = 0; i < backPacksInGui; i++) {
-      this.backpacks.push(new Slot(function (item){return item.type == "backpack" }, false,undefined,{
+      this.backpacks.push(new Slot(function (item){return item.type == "backpack" }, 2,undefined,{
         isRclickSpecial : true,
         isSpecialSlot:true,
         onRclick: function(item){
@@ -53,6 +53,7 @@ class player {
       })) //filter here
     }
     this.accessorybag = new classes.accessorybag()
+    
     this.skillstats = {
       totalDamageMultiplier: 0,
       combatfortune: 0,
@@ -100,8 +101,9 @@ class player {
     this.armor = {}
     armornames.forEach((x) => {
       //(item) => item.type == x+"" 
-      this.armor[x] = new Slot(function(item){return item.type == x},"", true, {
+      this.armor[x] = new Slot(function(item){return item.type == x},1, undefined, {
         emptyClass: x + "gui",
+        isSpecialSlot: true,
       }) //filter here
     })
     
@@ -121,6 +123,9 @@ class player {
   }
   addAge() {
     this.age++
+  }
+  loadAccessoryBagGui(){
+    this.accessorybag.gui.slots =this.accessorybag.inventory.concat(this.inventory)
   }
   getItemInHand(){
     return steve.inventory[currentHotbarSlot].getItem()
@@ -192,11 +197,14 @@ class player {
     const inv = $("#inventory")[0]
     const hotbar = $("#hotbar")[0]
 
-    for (let i = 0; i < this.inventorySlots; i++) {
-      this.inventory[i] = new Slot("", false)
-      if (i < 9) {
-        hotbar.appendChild(this.inventory[i].getTag())
-      } else inv.appendChild(this.inventory[i].getTag())
+    for (let i = this.inventorySlots-1; i >=0; i--) {
+      this.inventory[i] = new Slot("", 0)
+      if (i >= 9) {
+        inv.appendChild(this.inventory[i].getTag())
+      } 
+    }
+    for(let i = 0; i < 9;i++){
+       hotbar.appendChild(this.inventory[i].getTag())
     }
   }
   makeSkills() {
@@ -398,7 +406,7 @@ class player {
     // })
     // console.log("after");
     itemArray.sort(function (a, b) {
-      return a.name > b.name ? 1 : -1
+      return isEmpty(a) ? -1 : 1
     })
     this.clearinventory(9) 
     // tempinventory.forEach(x =>{
@@ -563,6 +571,7 @@ class player {
     armornames.forEach((x) => {
       amount += this.armor[x].getItem().stats[key] >> 0
       amount += this.armor[x].getItem().additionalstats[key] >> 0
+     
     })
     for (let i = 0; i < this.accessorybag.inventory.length; i++) {
       if (this.accessorybag.inventory[i].isEmpty()) i = 10000
@@ -601,7 +610,7 @@ class player {
     centerMapOnPlayer()
   }
   getDefense() {
-    return this.getStat("defence") + this.getEnchant("protection") * 3
+    return this.getStat("defense") + this.getEnchant("protection") * 3
   }
   getCriticalDamage() {
     return this.getStat("criticaldamage") + this.getEnchant("critical") * 10

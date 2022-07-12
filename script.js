@@ -30,7 +30,6 @@ const AccesoryBagDesc =
   color("ONLY 1", "red") +
   " Accessory Of Each Family<br> will be active at time<br>"
 
- 
 function LOADING() {
   loadIDS()
   createTextures()
@@ -40,7 +39,9 @@ function LOADING() {
   loadSession()
   generateMap()
   let armorArray = []
-  armornames.forEach(x => { armorArray.push(steve.armor[x])})
+  armornames.forEach((x) => {
+    armorArray.push(steve.armor[x])
+  })
   inventoryGui.slots = steve.inventory.concat(armorArray)
   e.map.onmousedown = onMapClick
 
@@ -52,7 +53,6 @@ function LOADING() {
     return false
   }
 
-  
   if (!isMapModeOn) {
     e.map.onmousemove = cursorMoveOnMap
     loadPlayer(session.nick)
@@ -91,8 +91,7 @@ function LOADING() {
     window.onmouseup = function () {
       keys[5] = 0
     }
-    
-    
+
     steve.inventory[currentHotbarSlot].select()
     e.playertool.className = steve.getItemInHand().name
     steve.addCoins(0)
@@ -126,7 +125,6 @@ function onBeforeUnload() {
   }
 }
 
-
 function test(evt) {
   console.log(evt)
 }
@@ -143,27 +141,23 @@ let isGuiOpen = false
 function downButtonHandler(evt) {
   ////comsole.log(evt)
   // //comsole.log("down");
-  if ((evt.code == "KeyE" && !keys[4] ) || (evt.code == "Escape" && !keyStates.Escape)) {
-    if(isNeiOpen){
+  if (
+    (evt.code == "KeyE" && !keys[4]) ||
+    (evt.code == "Escape" && !keyStates.Escape)
+  ) {
+    if (isNeiOpen) {
       isNeiOpen = false
       RecipeGueue = []
       lastGui.open()
+    } else if (isGuiOpen) {
+      if (activeGui.name == "inventory" || activeGui.name == "settings") {
+        isGuiOpen = false
+        mapGui.open()
+      } else inventoryGui.open()
+    } else {
+      isGuiOpen = true
+      inventoryGui.open()
     }
-    else
-      if(isGuiOpen){
-        if(activeGui.name == "inventory" || activeGui.name == "settings"){
-         
-          isGuiOpen = false
-          mapGui.open()
-        }
-        else
-        inventoryGui.open()
-      }
-      else
-      {
-        isGuiOpen = true
-        inventoryGui.open()
-      }
     // if (isNeiOpen) {
     //   toggleNei()
     //   toggleInventory()
@@ -179,15 +173,13 @@ function downButtonHandler(evt) {
     findCraftingRecipes()
     ShowRecipe(currentRecipeI)
   }
-  
 
-  if (evt.code == "KeyU" && !keys[7] ) {
+  if (evt.code == "KeyU" && !keys[7]) {
     findUsageRecipes()
     ShowRecipe(currentRecipeI)
   }
   if (evt.code == "KeyM" && !keyStates.m) {
     steve.sortInventory()
-    
   }
   if (evt.code == "ShiftLeft" && !isShiftOn) {
     isShiftOn = true
@@ -250,8 +242,6 @@ function downButtonHandler(evt) {
 }
 isNeiOpen = false
 
-
-
 function upButtonHandler(evt) {
   if (evt.code == "ShiftLeft" && isShiftOn) {
     isShiftOn = false
@@ -308,14 +298,48 @@ function loadMode() {
 isInventoryopen = false
 isGuiOpen = false
 
-const inventoryGui = new Gui("inventory",[
-  $("#inventory")[0],$("#craftingtable")[0],$("#backpacks")[0],$("#coins")[0],$("#guibuttons")[0],$("#hotbar")[0],$("#armorgui")[0],$("#machines")[0],$("#trashcan")[0],$("#playerStats")[0]
-],undefined,{
-  onopen: function(){craftingTable.dumpTable()}
+const inventoryGui = new Gui(
+  "inventory",
+  [
+    $("#inventory")[0],
+    $("#craftingtable")[0],
+    $("#backpacks")[0],
+    $("#coins")[0],
+    $("#guibuttons")[0],
+    $("#hotbar")[0],
+    $("#armorgui")[0],
+    $("#machines")[0],
+    $("#trashcan")[0],
+    $("#playerStats")[0],
+  ],
+  undefined,
+  {
+    onopen: function () {
+      craftingTable.dumpTable()
+    },
+  }
+)
+const mapGui = new Gui(
+  "map",
+  [$("#hotbar")[0], $("#healthbar")[0]],
+  undefined,
+  {
+    needsHandler: false,
+    movesHotbar: false,
+    onopen: function () {
+      e.playertool.className = steve.getItemInHand().name
+    },
+  }
+)
+const collectionGui = new Gui(
+  "collections",
+  [$("#collections")[0]],
+  undefined,
+  { movesHotbar: false }
+)
+const skillGui = new Gui("skills", [$("#skills")[0]], undefined, {
+  movesHotbar: false,
 })
-const mapGui = new Gui("map",[$("#hotbar")[0],$("#healthbar")[0]],undefined,{needsHandler:false,movesHotbar:false,onopen: function(){ e.playertool.className = steve.getItemInHand().name}})
-const collectionGui = new Gui("collections",[$("#collections")[0]],undefined,{ movesHotbar:false})
-const skillGui = new Gui("skills",[$("#skills")[0]],undefined,{ movesHotbar:false})
 let activeGui = mapGui
 
 let breaktimer = 0
@@ -361,29 +385,65 @@ function makestats(item, plus = "+") {
   return str + br
 }
 
-function makeinventory(item,inventoryName = "Inventory: ") {
+function makeinventory(item, inventoryName = "Inventory: ") {
   let str = ""
   if (item.inventory != undefined) {
-    let iter = 1
+    let iter = 0
+    let list = {}
     for (const key in item.inventory) {
-      if (typeof item.inventory[key] != "function" && item.inventory[key].getItem().name != "empty") {
-        str +=
-          (item.inventory[key].getItem().Rname == ""
-            ? color(
-                getName(item.inventory[key].getItem().name),
-                raritycolors[item.inventory[key].getItem().rarity]
-              )
-            : color(
-                item.inventory[key].getItem().Rname,
-                item.inventory[key].getItem().customcolor
-              )) +
-          " x" +
-          item.inventory[key].getItem().amount +
-          ", "
+      if (
+        typeof item.inventory[key] != "function" &&
+        item.inventory[key].getItem().name != "empty"
+      ) {
+        // str +=
+        //   (item.inventory[key].getItem().Rname == ""
+        //     ? color(
+        //         getName(item.inventory[key].getItem().name),
+        //         raritycolors[item.inventory[key].getItem().rarity]
+        //       )
+        //     : color(
+        //         item.inventory[key].getItem().Rname,
+        //         item.inventory[key].getItem().customcolor
+        //       )) +
+        //   " x" +
+        //   item.inventory[key].getItem().amount +
+        //   ", "
 
-        if (iter % 2 == 0) str += "<br>"
-        iter++
+        // if (iter % 2 == 0) str += "<br>"
+        // iter++
+        if (item.inventory[key].getItem().Rname) {
+          if (!list[item.inventory[key].getItem().Rname]) {
+            list[item.inventory[key].getItem().Rname] = {
+              amount: item.inventory[key].getItem().amount,
+              name: item.inventory[key].getItem().Rname,
+              color: item.inventory[key].getItem().customcolor,
+            }
+          } else {
+            list[item.inventory[key].getItem().Rname].amount +=
+              item.inventory[key].getItem().amount
+          }
+
+
+        } else {
+          if (!list[item.inventory[key].getItem().name]) {
+            list[item.inventory[key].getItem().name] = {
+              amount: item.inventory[key].getItem().amount,
+              name: getName(item.inventory[key].getItem().name),
+              color: raritycolors[item.inventory[key].getItem().rarity],
+            }
+          } else {
+            list[item.inventory[key].getItem().name].amount +=
+              item.inventory[key].getItem().amount
+          }
+        }
+       
       }
+      
+    }
+    for(const key in list){
+      str += "x"+list[key].amount + " " + list[key].name.color(list[key].color) + ", "
+      if(iter%2 == 1) str += br
+      iter++
     }
     if (str != "") str = br + color(inventoryName, "#a62525") + br + str
     str += "<br>"
@@ -447,7 +507,6 @@ function makeEnchants(item) {
       }
       if (iter % 2 == 1) str += br
       str += br
-     
     }
   }
 
@@ -455,20 +514,25 @@ function makeEnchants(item) {
 }
 
 function makeCollectionToolTip(item) {
- 
-  let str = getName(item).color("yellow") + br+
-  "Collection amount: ".color("lightgray") + (steve.collectionitems[item].formateComas()).color("lime") +br + br + 
-  "REWARDS:".color("yellow")+br
+  let str =
+    getName(item).color("yellow") +
+    br +
+    "Collection amount: ".color("lightgray") +
+    steve.collectionitems[item].formateComas().color("lime") +
+    br +
+    br +
+    "REWARDS:".color("yellow") +
+    br
 
-    for (const key of collections[item]) {
-      str +=
-        (steve.collectionitems[item] < key.amount
-          ? color(key.amount.formate(3, 1) + ": ", "lightgray") +
-            color(key.message, "lightblue")
-          : color(key.amount.formate(3, 1) + ": " + key.message, "lime")) + br
-    }
-    makeTextToolTip(str)
+  for (const key of collections[item]) {
+    str +=
+      (steve.collectionitems[item] < key.amount
+        ? color(key.amount.formate(3, 1) + ": ", "lightgray") +
+          color(key.message, "lightblue")
+        : color(key.amount.formate(3, 1) + ": " + key.message, "lime")) + br
   }
+  makeTextToolTip(str)
+}
 
 let br = "<br>"
 
@@ -483,45 +547,70 @@ function getName(name) {
   if (Names[name] == undefined) {
     for (let i = 0; i < keywords.length; i++) {
       if (name.includes(keywords[i])) {
-       
-        name = name.replace(keywords[i], " " + keywords[i].toUpperLetter()+ " ")
-        str =  name.split(" ").map(x=> x==""? "" : Names[x] ? Names[x] : x.toUpperLetter()).join(" ")
-                
+        name = name.replace(
+          keywords[i],
+          " " + keywords[i].toUpperLetter() + " "
+        )
+        str = name
+          .split(" ")
+          .map((x) => (x == "" ? "" : Names[x] ? Names[x] : x.toUpperLetter()))
+          .join(" ")
+
         i = 1000
       }
     }
-   if(str == "")
-    str += name.toUpperLetter()
+    if (str == "") str += name.toUpperLetter()
   } else str += Names[name]
   return str
 }
 
 function makeSteveToolTip() {
-  let str = steve.nick + br.repeat(3) 
-  +
-  "Health: " +makeStatSpan(steve.getMaxHealth(),"maxhealth","") + br+
-  "Defense: " + makeStatSpan(steve.getDefense(""),"defense","") + br+
-  "Strength: " + makeStatSpan(steve.getStat("strength"),"strength","") + br+
-  "Speed: " + makeStatSpan(steve.getStat("speed"),"speed","") + br+
-  "Crit Chance: " + makeStatSpan(steve.getStat("criticalchance"),"criticalchance","") + br+
-  "Crit Damage: " + makeStatSpan(steve.getCriticalDamage(""),"criticaldamage","") + br+
-  "Mining Speed: " + makeStatSpan(steve.getMiningSpeed(""),"miningspeed","") + br
+  let str =
+    steve.nick +
+    br.repeat(3) +
+    "Health: " +
+    makeStatSpan(steve.getMaxHealth(), "maxhealth", "") +
+    br +
+    "Defense: " +
+    makeStatSpan(steve.getDefense(""), "defense", "") +
+    br +
+    "Strength: " +
+    makeStatSpan(steve.getStat("strength"), "strength", "") +
+    br +
+    "Speed: " +
+    makeStatSpan(steve.getStat("speed"), "speed", "") +
+    br +
+    "Crit Chance: " +
+    makeStatSpan(steve.getStat("criticalchance"), "criticalchance", "") +
+    br +
+    "Crit Damage: " +
+    makeStatSpan(steve.getCriticalDamage(""), "criticaldamage", "") +
+    br +
+    "Mining Speed: " +
+    makeStatSpan(steve.getMiningSpeed(""), "miningspeed", "") +
+    br
 
-  for(const key in steve.fortunes){
-    if(key != "none"){
-      str += getName(key) + " Fortune: " +makeStatSpan(steve.fortunes[key]()*100 ,key+"fortune","")  + br
+  for (const key in steve.fortunes) {
+    if (key != "none") {
+      str +=
+        getName(key) +
+        " Fortune: " +
+        makeStatSpan(steve.fortunes[key]() * 100, key + "fortune", "") +
+        br
     }
   }
-  str += "Magic Find: " + makeStatSpan(steve.getStat("magicfind"),"magicfind","") + br
+  str +=
+    "Magic Find: " +
+    makeStatSpan(steve.getStat("magicfind"), "magicfind", "") +
+    br
 
- 
-str+=
-  "Total kills: " +
-      (steve.kills + "💀").color("red") +
-      br +
-      "Playtime: " +
-      playerAgeString() +
-      br
+  str +=
+    "Total kills: " +
+    (steve.kills + "💀").color("red") +
+    br +
+    "Playtime: " +
+    playerAgeString() +
+    br
 
   makeTextToolTip(str)
 }
@@ -587,9 +676,15 @@ function makeTextToolTip(text) {
         }
         if (text.includes("Accessory")) {
           let iter = 0
-          e.tooltip.innerHTML += br + "Capacity: " + (steve.getStat("accessorybagslots") + " Slots").color("lime")
-         
-          e.tooltip.innerHTML += makeinventory(steve.accessorybag,"Currently Stores: ")
+          e.tooltip.innerHTML +=
+            br +
+            "Capacity: " +
+            (steve.getStat("accessorybagslots") + " Slots").color("lime")
+
+          e.tooltip.innerHTML += makeinventory(
+            steve.accessorybag,
+            "Currently Stores: "
+          )
 
           e.tooltip.innerHTML += br + br + br
         }
@@ -630,9 +725,8 @@ function makeToolTip(item, sellValue = true) {
       e.tooltip.style.display = "none"
       itemintooltip = "none"
     } else {
-      
       itemintooltip = item.name //used in recipe search
-      e.tooltip.className = "tooltipimg" 
+      e.tooltip.className = "tooltipimg"
       e.tooltip.style.display = "block"
       // document.dispatchEvent(
       //   new CustomEvent("ToolTipStart", {
@@ -648,7 +742,6 @@ function makeToolTip(item, sellValue = true) {
         (item.burnvalue > 0
           ? color("Burn Time: " + item.burnvalue + " ticks", "gray") + br
           : "") +
-          
         (item.family == undefined
           ? ""
           : "Talisman Family: " + color(getName(item.family), "magenta") + br) +
@@ -656,9 +749,7 @@ function makeToolTip(item, sellValue = true) {
         makeEnchants(item) +
         makeinventory(item) +
         makeConsumable(item) +
-        (item.description2 == ""
-          ? ""
-          : item.description2 + br) +
+        (item.description2 == "" ? "" : item.description2 + br) +
         br +
         (item.sellValue != undefined && sellValue
           ? "Sell Value: " +
@@ -673,10 +764,9 @@ function makeToolTip(item, sellValue = true) {
         (thismachinei == -4 && item.sellValue != undefined && sellValue
           ? "Hold Shift to Sell" + br
           : "") +
-         (item.obitained && session.settings.obitained ? "Obitained on: "+item.obitained.toMyFormat().color("#fa4646")+br:"")
-        +
-
-
+        (item.obitained && session.settings.obitained
+          ? "Obitained on: " + item.obitained.toMyFormat().color("#fa4646") + br
+          : "") +
         (
           " " +
           raritynames[item.rarity] +
@@ -685,7 +775,6 @@ function makeToolTip(item, sellValue = true) {
         )
           .toUpperCase()
           .color(raritycolors[item.rarity], 1800)
-          
     }
     return true
   }
@@ -730,51 +819,58 @@ function breakblock(x, y) {
     }
   }
 }
-function removeSlotInstance(object){
-  if(object != null){
-    for(const key in object){
-      if(object[key] instanceof Slot){
+function removeSlotInstance(object) {
+  if (object != null) {
+    for (const key in object) {
+      if (object[key] instanceof Slot) {
         object[key] = object[key].item
-        
-      }else
-      if(typeof object[key] == "object" && !(object[key] instanceof HTMLElement)){
+      } else if (
+        typeof object[key] == "object" &&
+        !(object[key] instanceof HTMLElement)
+      ) {
         object[key] = removeSlotInstance(object[key])
       }
-      
     }
   }
-    return object
+  return object
 }
-const itemSaveValues = ["name","Rname","Enchants","inventory","kills","customcolor","obitained","amount"]
+const itemSaveValues = [
+  "name",
+  "Rname",
+  "Enchants",
+  "inventory",
+  "kills",
+  "customcolor",
+  "obitained",
+  "amount",
+]
 /**
  * Removes useless data from item
  */
-function removeUselessItemInfo(item){
-for(const key in item){
-  if(!itemSaveValues.includes(key)){
-  delete item[key]
+function removeUselessItemInfo(item) {
+  for (const key in item) {
+    if (!itemSaveValues.includes(key)) {
+      delete item[key]
+    }
+    if (key == "inventory") {
+      item[key] = removeSlotInstance(item[key])
+      item[key] = removeUselessItemData(item[key])
+    }
   }
-  if(key == "inventory"){
-    item[key] = removeSlotInstance(item[key])
-    item[key] = removeUselessItemData(item[key])
-  }
-}
-return item
+  return item
 }
 /**
  * Detects all items in container
- * @param {itemContainer} object 
- * @returns 
+ * @param {itemContainer} object
+ * @returns
  */
-function removeUselessItemData(object){
-  for(const key in object){
-    if(object[key].name){
+function removeUselessItemData(object) {
+  for (const key in object) {
+    if (object[key].name) {
       object[key] = removeUselessItemInfo(object[key])
-    }else
-    if(typeof object[key] == "object"){
+    } else if (typeof object[key] == "object") {
       object[key] = removeUselessItemData(object[key])
     }
-
   }
   return object
 }
@@ -783,14 +879,13 @@ function removeUselessItemData(object){
  */
 let steve = new player()
 function savePlayer(Nick) {
-
   players[Nick] = Object.assign(
-                Object.create(Object.getPrototypeOf(steve)),
-                steve
-              )
-  
-  for(const key in players[Nick]){
-    if(!toSave.includes(key)){
+    Object.create(Object.getPrototypeOf(steve)),
+    steve
+  )
+
+  for (const key in players[Nick]) {
+    if (!toSave.includes(key)) {
       delete players[Nick][key]
     }
   }
@@ -807,37 +902,33 @@ function loadPlayer(Nick) {
     pl = players[Nick.toLowerCase()]
     for (const key1 in pl) {
       if (toSave.includes(key1)) {
-      // console.log(key1)
+        // console.log(key1)
         if (key1 == "inventory") {
           for (let i = 0; i < pl.inventorySlots; i++) {
             steve.inventory[i].putItem(loadInventoryItem(pl[key1][i]))
           }
         } else if (armornames.includes(key1)) {
           steve.armor[key1].putItem(loadInventoryItem(pl[key1]))
-        } else if(key1 == "armor"){
-          
-          armornames.forEach(x=>{
-            steve.armor[x].putItem(loadInventoryItem(pl.armor[x])) 
+        } else if (key1 == "armor") {
+          armornames.forEach((x) => {
+            steve.armor[x].putItem(loadInventoryItem(pl.armor[x]))
           })
-      
-        }
-        else if (key1 == "machines") {
+        } else if (key1 == "machines") {
           console.log("loaing machines")
           for (let i = 0; i < 9; i++) {
-            steve.machines[i].putItem( loadInventoryItem(pl[key1][i]))
-            if(steve.machines[i].item.name == "anvil" )
-            {  steve.machines[i].item.id = 3
+            steve.machines[i].putItem(loadInventoryItem(pl[key1][i]))
+            if (steve.machines[i].item.name == "anvil") {
+              steve.machines[i].item.id = 3
 
               steve.machines[i].item.inventory[0].properties.onPostClick()
             }
-              
+
             //pl[key1][i].inventoryslotid;
             if (steve.machines[i].name == "furnace")
               steve.machines[i].item.fuel = pl[key1][i].fuel
           }
         } else if (key1 == "backpacks") {
           for (let i = 0; i < 24; i++) {
-            
             steve.backpacks[i].putItem(loadInventoryItem(pl[key1][i]))
           }
         } else if (key1 == "skillxp") {
@@ -847,7 +938,9 @@ function loadPlayer(Nick) {
             steve.collectionitems[key2] = pl.collectionitems[key2]
         } else if (key1 == "accessorybag") {
           for (let i = 0; i < maxaccesoriesslots; i++) {
-            steve.accessorybag.inventory[i].putItem( loadInventoryItem(pl[key1].inventory[i]))
+            steve.accessorybag.inventory[i].putItem(
+              loadInventoryItem(pl[key1].inventory[i])
+            )
           }
         } else if (key1 == "sellHistory") {
           pl.sellHistory.forEach((x) => {
@@ -865,10 +958,8 @@ function loadPlayer(Nick) {
     players[Nick.toLowerCase()] = steve
   }
   armornames.forEach((x) => {
-    if(steve.armor[x].Activate != undefined)
-    steve.armor[x]?.Activate()
-  }
-)
+    if (steve.armor[x].Activate != undefined) steve.armor[x]?.Activate()
+  })
   steve.createPlayer()
   session.nick = session.nick.toLowerCase()
 }
@@ -876,13 +967,14 @@ function loadInventoryItem(item) {
   let result = new classes[item.name](item.amount)
   result.Rname = item.Rname
   result.customcolor = item.customcolor
-  if(result.obitained && item.obitained) result.obitained = new Date(item.obitained)
+  if (result.obitained && item.obitained)
+    result.obitained = new Date(item.obitained)
   if (item.kills != undefined) result.kills = item.kills
   if (item.enchants != undefined) result.enchants = item.enchants
   if (result.inventory != undefined) {
     for (const key2 in result.inventory) {
-      if(typeof result.inventory[key2] != "function")
-      result.inventory[key2].putItem(loadInventoryItem(item.inventory[key2]))
+      if (typeof result.inventory[key2] != "function")
+        result.inventory[key2].putItem(loadInventoryItem(item.inventory[key2]))
     }
   }
   result.postloadConstructor()
@@ -1123,7 +1215,6 @@ function ScrollHandler(evt) {
     if (currentHotbarSlot < 0) currentHotbarSlot = 8
     steve.inventory[currentHotbarSlot].select()
     e.playertool.className = steve.getItemInHand().name
-    
   } else {
     if (evt.deltaY < 0 && cursor.isToolTip) {
       if (isShiftOn) {
@@ -1292,8 +1383,6 @@ function getStatColor(stat) {
   }
 }
 
-
-
 let RV = {
   1000: "M",
   900: "CM",
@@ -1420,8 +1509,8 @@ Enchants = {
     cost: 1000,
     conflict: "",
     getDescriprion: (lvl) =>
-      "	Increases critical damage by " + makeStatSpan(10*lvl,"criticaldamage") 
-     
+      "	Increases critical damage by " +
+      makeStatSpan(10 * lvl, "criticaldamage"),
   },
   growth: {
     maxlvl: 5,
@@ -1429,10 +1518,8 @@ Enchants = {
     cost: 500,
     conflict: "",
     getDescriprion: (lvl) =>
-      "Grants " + makeStatSpan(15*lvl,"health") + " Health" 
-     
+      "Grants " + makeStatSpan(15 * lvl, "health") + " Health",
   },
-
 }
 
 function givepaste(enchant, lvl = 5) {
@@ -1455,7 +1542,7 @@ let session = {
     bodycolor: "white",
     KcoinsNotation: false,
     enchDescLimit: 4,
-    obitained:false,
+    obitained: false,
   },
   tooltipYOffset: 0,
   tooltipXOffset: 0,
@@ -1526,10 +1613,9 @@ function formBackPackContains() {
   steve.backpacks.forEach((x, i) => {
     let str = ""
     if (!x.isEmpty()) {
-      x.getItem().inventory.forEach(y=>{
-        if(!y.isEmpty()) str += y.getItem().name + x.getItem().Rname
+      x.getItem().inventory.forEach((y) => {
+        if (!y.isEmpty()) str += y.getItem().name + x.getItem().Rname
       })
-      
     }
     backpackContains.push(str)
   })
@@ -1540,10 +1626,8 @@ function highLightBackPacks() {
       e.backpackSeach.value != "" &&
       backpackContains[i].includes(e.backpackSeach.value)
     ) {
-     
       steve.backpacks[i].tag.style.backgroundColor = "lime"
-    } else
-    {
+    } else {
       steve.backpacks[i].tag.style.backgroundColor = "transparent"
     }
   }
@@ -1555,7 +1639,9 @@ function highLightBackPacks() {
 const isEmpty = (item) => {
   return item.name == "empty" || item.name == "machine"
 }
-const settingsGui = new Gui("settings",[$("#settings")[0]],undefined,{needsHandler:false})
+const settingsGui = new Gui("settings", [$("#settings")[0]], undefined, {
+  needsHandler: false,
+})
 
 function alphabetCode(length = 8) {
   let str = ""
@@ -1885,7 +1971,7 @@ const staticons = {
   farmingfortune: "☘",
   combatfortune: "☘",
   foragingfortune: "☘",
-  magicfind: "✯"
+  magicfind: "✯",
 }
 function getStatIcon(statname) {
   let icon = staticons[statname] || ""
@@ -1932,7 +2018,7 @@ function leaveElement() {
   itemintooltip = "none"
   document.toolTipText = ""
   setTimeout(function () {
-   cursor.hideOnLeave()
+    cursor.hideOnLeave()
   }, 200)
 }
 let randomNumber = (from, to) => from + Math.floor(Math.random() * (to - from))
@@ -1960,9 +2046,8 @@ function compareObjects(item, tag) {
 }
 
 function notification(text) {
-
   if (isLoaded) {
-    $.notify(text,"recipe");
+    $.notify(text, "recipe")
   }
 }
 
@@ -2137,54 +2222,51 @@ function cursorMoveOnMap(evt) {
    * @param {string} dropname 
  * @param {number} chance 
  */
-function notifyRareDrop(dropname,chance){
-  if(chance <= 5){
+function notifyRareDrop(dropname, chance) {
+  if (chance <= 5) {
     let str = ""
-    if(chance <= 0.1){
+    if (chance <= 0.1) {
       str += "IMPOSSIBLE drop".color("red")
-      
-    }
-    else
-    if(chance <= 1){
+    } else if (chance <= 1) {
       str += "LEGENDARY drop".color("yellow")
-    }
-    else
-    str += "RARE drop".color("blue")
+    } else str += "RARE drop".color("blue")
     str += br + getName(dropname) + br
     let magicfind = steve.getStat("magicfind")
-    if(magicfind){
-      str += ("+" +magicfind.formateComas() +"% "+getName("magicfind")).color(getStatColor("magicfind"))
+    if (magicfind) {
+      str += (
+        "+" +
+        magicfind.formateComas() +
+        "% " +
+        getName("magicfind")
+      ).color(getStatColor("magicfind"))
     }
-   
-    $.notify(str,"drop")
 
-
+    $.notify(str, "drop")
   }
-} 
+}
 
 // const inventoryGui = new Gui([
 //   $("#inventory")
 // ])
-function toArray(object){
+function toArray(object) {
   let arr = []
-  for(const key in object){
+  for (const key in object) {
     arr.push(object[key])
   }
   return arr
 }
 
-class B{
-  constructor(properties){
+class B {
+  constructor(properties) {
     this.properties = properties
-  
   }
 }
 
 class A {
-  constructor(){
-    this.b = new B({log:this.log.bind(this) })
+  constructor() {
+    this.b = new B({ log: this.log.bind(this) })
   }
-  log(){
+  log() {
     console.log(this)
   }
 }

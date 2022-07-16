@@ -94,7 +94,7 @@ const collections = {
   cactus: [
      {
       message: "Green Dye Recipe",
-      reward: 'addFurnaceRecipe("cactus","dyegreen",60)',
+      reward: 'addFurnaceRecipe("cactus","dyegreen",20)',
       amount: 16
     },
   ],

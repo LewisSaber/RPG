@@ -7,6 +7,7 @@ classes.testItem = class extends classes.item {
       miningfortune: 2000,
     }
   }
+
 }
 
 classes.cobblestone = class extends classes.stonetype {
@@ -238,7 +239,7 @@ classes.furnace = class extends classes.machine {
       if (this.checkvalidnes()) {
         this.recipetimer = setTimeout(
           this.doRecipeInternal.bind(this),
-          this.recipe.time * 20
+          this.recipe.time * 1000
         )
       }
     }
@@ -773,8 +774,7 @@ classes.efficientaxe = class extends classes.tool {
       "5".color("yellow") +
       " Planks instead of " +
       "1".color("yellow") +
-      " Log" +
-      br
+      " Log"
   }
 }
 classes.zombiehat = class extends classes.item {
@@ -1086,7 +1086,6 @@ classes.glitchcompactor = class extends classes.machine {
     }
   }
   generateGui(){
-    //<div id="glitchcompactor"><div id="glitchcompactorinputs"></div></div>
     this.handler = document.createElement("div")
     this.handler.className = "glitchcompactorGui"
     let inputHandler = document.createElement("div")
@@ -1509,7 +1508,7 @@ classes.revenantset = class extends classes.armor {
   postloadConstructor() {
     this.slayerArmorLevelUp()
   }
-  makeAbilityDescription() {
+  onToolTip() {
     this.description2 =
       "Full Set Bonus: Trolling The Reaper".color("yellow") +
       br +
@@ -1546,18 +1545,19 @@ classes.revenantset = class extends classes.armor {
     }
   }
 
-  Activate() {
+  onPlacement() {
     //  document.removeEventListener("mobdeath",this.temp)
-    super.Activate()
+    super.onPlacement()
     document.addEventListener("mobdeath", this.temp)
-
+    
     if (steve.sets.revenant.amount == 3) {
       steve.sets.revenant.isActivated = true
       // steve.stats.zombiedefense += 100
     }
   }
-  DeActivate() {
-    super.DeActivate()
+  onRemoval() {
+    super.onRemoval()
+    
     document.removeEventListener("mobdeath", this.temp)
 
     if (
@@ -1568,7 +1568,10 @@ classes.revenantset = class extends classes.armor {
     }
   }
   addKills(evt) {
+    console.log(isZombie(evt.detail.name))
     if (isZombie(evt.detail.name)) {
+      console.log("addingkills")
+      console.log(this)
       this.kills++
       this.slayerArmorLevelUp()
     }
@@ -1592,6 +1595,9 @@ classes.revenantboots = class extends classes.revenantset {
 
     this.temp = this.addKills.bind(this)
   }
+  onCopy(){
+    this.temp = this.addKills.bind(this)
+  }
 
 }
 
@@ -1613,6 +1619,9 @@ classes.revenantchestplate = class extends classes.revenantset {
 
     this.temp = this.addKills.bind(this)
   }
+  onCopy(){
+    this.temp = this.addKills.bind(this)
+  }
 }
 classes.revenantleggings = class extends classes.revenantset {
   constructor(amount = 0) {
@@ -1629,6 +1638,9 @@ classes.revenantleggings = class extends classes.revenantset {
     this.kills = 0
     this.lvl = 0
 
+    this.temp = this.addKills.bind(this)
+  }
+  onCopy(){
     this.temp = this.addKills.bind(this)
   }
 }
@@ -1651,8 +1663,7 @@ classes.intimidationtalisman = class extends classes.accessory {
       "Monsters at or below level " +
       this.stats.intimidationlevel.color("lime") +
       br +
-      "will no longer target you" +
-      br
+      "will no longer target you" 
   }
 }
 classes.intimidationcharm = class extends classes.accessory {
@@ -1674,8 +1685,7 @@ classes.intimidationcharm = class extends classes.accessory {
       "Monsters at or below level " +
       this.stats.intimidationlevel.color("lime") +
       br +
-      "will no longer target you" +
-      br
+      "will no longer target you" 
   }
 }
 classes.intimidationartifact = class extends classes.accessory {
@@ -1697,8 +1707,7 @@ classes.intimidationartifact = class extends classes.accessory {
       "Monsters at or below level " +
       this.stats.intimidationlevel.color("lime") +
       br +
-      "will no longer target you" +
-      br
+      "will no longer target you" 
   }
 }
 classes.woodtoughrod = class extends classes.item {

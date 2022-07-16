@@ -28,7 +28,7 @@
 <div id="inventory"></div>
 <div class="player " id="playerStats"  onmouseenter="makeSteveToolTip()" onmouseleave =
 "leaveElement()"></div>
-<div  id="coins" onmouseenter="if(session.settings.KcoinsNotation)makeTextToolTip('Coins: ' + steve.coins.formateComas().color('yellow') )" onmouseleave="leaveElement()"><div id="coinspicture"></div><p id="coinstext"></p></div>
+<div  id="coins" onmouseenter="if(session.settings.KcoinsNotation)makeToolTip('Coins: ' + steve.coins.formateComas().color('yellow') )" onmouseleave="leaveElement()"><div id="coinspicture"></div><p id="coinstext"></p></div>
 <div id="backpacks"> <p id="backpacks0">Backpacks</p><input id="backpackSeach" onfocus="removeKeysEvent();formBackPackContains()" onblur="addKeysEvent()" oninput="highLightBackPacks()" onclick="playClickSound()" oncontextmenu="wipeInput(this); backpackContains.set('',backPacksInGui);   highLightBackPacks(); return false"></div>
 <div id="armorgui"></div>
 <div id="skills" style="display: none;"></div>
@@ -40,17 +40,17 @@
 
 
 <div id="guibuttons">
-  <button id="collectionsbutton" onclick="collectionGui.open();playClickSound()" onmouseenter="makeTextToolTip(CollectionsDesc)" onmouseleave =
+  <button id="collectionsbutton" onclick="collectionGui.open();playClickSound()" onmouseenter="makeToolTip('collections')" onmouseleave =
   "leaveElement()"></button>
-<button id="skillsbutton" onclick="skillGui.open();playClickSound()" onmouseenter="makeTextToolTip(SkillsDesc)" onmouseleave =
+<button id="skillsbutton" onclick="skillGui.open();playClickSound()" onmouseenter="makeToolTip('skills')" onmouseleave =
 "leaveElement()"></button>
-<button id="accessorybagbutton" onclick="steve.accessorybag.gui.open();playClickSound()" onmouseenter="makeTextToolTip(AccesoryBagDesc)" onmouseleave =
+<button id="accessorybagbutton" onclick="steve.accessorybag.gui.open();playClickSound()" onmouseenter="makeToolTip('accessorybag')" onmouseleave =
 "leaveElement()"></button>
 </div>
 <div id="accessorybag"><p>       Accessories</p></div>
 
-<div id="villagergui"></div>
-<div id="trashcan" class="guiSlot" onclick="deleteItemInCursor()" onmouseenter="makeTextToolTip(color('Trashcan','green') + br + color('WARNING','red') + ', removed items can`t be restored')" onmouseleave =
+<div id="villagerGui"><p id="villagerName"></p></div>
+<div id="trashcan" class="guiSlot" onclick="deleteItemInCursor()" onmouseenter="makeToolTip(color('Trashcan','green') + br + color('WARNING','red') + ', removed items can`t be restored')" onmouseleave =
 "leaveElement()"></div>
 </div></span>
 <button id="settingsButton" onclick="if(activeGui.name =='settings'){
@@ -58,7 +58,7 @@ mapGui.open(); isGuiOpen = false;
 }else
 {
   settingsGui.open(); isGuiOpen = true;
-} playClickSound()" onmouseenter="makeTextToolTip('Settings')" onmouseleave =
+} playClickSound()" onmouseenter="makeToolTip('Settings')" onmouseleave =
 "leaveElement()"></button>
 
 <div id="settings">
@@ -77,14 +77,14 @@ mapGui.open(); isGuiOpen = false;
     <label for="coinsNotation">Change Coins Notation</label>
     <br>
     <input type="checkbox" class="settingsCheckBox" id="obitainedCheckBox" name="obitainedCheckBox" onchange="if(this.checked) session.settings.obitained = true; else session.settings.obitained = false; ">
-    <label for="obitainedCheckBox">Show when item was obitained</label>
+    <label for="obitainedCheckBox">Show when item was obtained</label>
    
     
     
   </div>
   <div onclick="changeBodyColor()" class="settingsblock button">Change Background Color</div>
   <div onclick="changeFont()" class="settingsblock button">Change Your Font<br> <a href="https://www.w3schools.com/cssref/css_websafe_fonts.asp" target="_blank">Possible Fonts</a> </div>
-  <div class="settingsblock button" onclick="changeSkin()" onmouseenter="makeTextToolTip('Type Default To Get Normal Skin')" onmouseleave =
+  <div class="settingsblock button" onclick="changeSkin()" onmouseenter="makeToolTip('Type Default To Get Normal Skin')" onmouseleave =
   "leaveElement()">Change Skin</div>
  
   <div class="settingsblock">
@@ -93,14 +93,14 @@ mapGui.open(); isGuiOpen = false;
 
   </div>
   <div class="settingsblockMedium" onmouseleave="leaveElement()"
-  onmouseenter="makeTextToolTip('After how many enchants <br>description will be hidden')">
+  onmouseenter="makeToolTip('After how many enchants <br>description will be hidden')">
     <p id="enchDesc">Enchant Description Limit : 4</p>
     <input type="range" min="0" max="10" value="4" class="slider" id="enchDescRange" oninput="session.settings.enchDescLimit = this.value;e.enchDesc.innerHTML = 'Enchant Description Limit : ' + this.value">
 
   </div>
   <div class="settingsblock" >
     <p id="fontExample">ToolTip FontSize: 25</p>
-    <input type="range" min="10" max="50" value="25" class="slider" id="fontRange" oninput="setToolTipFontSize(this.value/10)" onmouseenter="makeTextToolTip('example<br>Defense: 20')" onmouseleave =
+    <input type="range" min="10" max="50" value="25" class="slider" id="fontRange" oninput="setToolTipFontSize(this.value/10)" onmouseenter="makeToolTip('example<br>Defense: 20')" onmouseleave =
     "leaveElement()">
 
   </div>

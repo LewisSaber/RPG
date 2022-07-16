@@ -8,19 +8,8 @@ function loadIDS() {
   for (let i = 0, n = allElements.length; i < n; i++) {
     e[allElements[i].id] = allElements[i]
   }
-  // e.map.style.width = mapW * 5 + "vh"
-  // e.map.style.height = mapH * 5 + "vh"
   e.guihandler.style.width = window.innerWidth - 100 + "px"
   e.guihandler.style.height = window.innerHeight - 50 + "px"
-  // e.behindeveryone.style.width = window.innerWidth - 10 + "px"
-  // e.behindeveryone.style.height = window.innerHeight - 130 + "px"
-  // e.mapframe.style.height = window.innerHeight + "px"
-  // e.mapframe.style.width = window.innerWidth + "px"
-
-  // e.anvil.slot0 = e.anvilinput
-  // e.anvil.slot0amount = e.anvilInputamount
-  // e.anvil.slot1 = e.anviloutput
-  // e.anvil.slot1amount = e.anvilOutputamount
   e.accessorybagbutton.oncontextmenu = e.accessorybagbutton.onclick
   e.skillsbutton.oncontextmenu = e.skillsbutton.onclick
   e.collectionsbutton.oncontextmenu = e.collectionsbutton.onclick  
@@ -117,7 +106,8 @@ const Names = {
   foragingfortune: "Foraging Fortune",
   miningfortune: "Mining Fortune",
   maxhealth: "Health",
-  zombieheart: "Zombie Heart"
+  zombieheart: "Zombie Heart",
+  health: "Heal"
 }
 
 

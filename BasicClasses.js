@@ -12,10 +12,11 @@ classes.empty = class {
     this.burnvalue = 0
     this.Rname = ""
     this.rarity = 0
-    this.customcolor = "#000000"
+    this.customcolor = "#222222"
     this.stats = {}
     this.additionalstats = {}
     this.enchants = {}
+    this.isVisual = false
   }
   onCopy(){}
   postloadConstructor() {}
@@ -121,36 +122,6 @@ classes.tree = class extends classes.block {
     this.replacement = "air"
   }
 
-  // generateDrop() {
-  //   let drops = []
-  //   if (steve.stats.tool.match1word("shears")) {
-  //     drops.push(new classes["steeleaf"]( 2 * steve.getForagingFortune()))
-  //   } else if (steve.itemInHand.name == "efficientaxe")
-  //     drops.push(
-  //       new classes["planks" + this.name.slice(4)](
-  //         Math.floor(this.logs * 5 * steve.getForagingFortune())
-  //       )
-  //     )
-  //   else if (steve.enchants.smeltingtouch)
-  //     drops.push(
-  //       new classes["charcoal"](
-  //         Math.floor(this.logs * steve.getForagingFortune())
-  //       )
-  //     )
-  //   else
-  //     drops.push(
-  //       new classes["log" + this.name.slice(4)](
-  //         Math.floor(this.logs * steve.getForagingFortune())
-  //       )
-  //     )
-  //   addSkillXP("foraging", this.xp)
-  //   addCollectionItem(
-  //     "log" + this.name.slice(4),
-  //     (this.logs * steve.getForagingFortune()) >> 0
-  //   )
-
-  //   return drops
-  // }
 }
 classes.machine = class extends classes.empty {
   constructor(amount = 0) {
@@ -246,7 +217,6 @@ classes.backpack = class extends classes.empty {
     }
   }
   generateGui() {
-    //<div id="backpack"><div id="backpackname">fff</div></div>
     this.handler = document.createElement("div")
     this.handler.className = "backpack"
     let nameHandler = document.createElement("div")
@@ -291,18 +261,20 @@ classes.consumable = class extends classes.empty {
   useAbility() {
     if (caneat) {
       caneat = false
-
-      steve.inventory[currentHotbarSlot] = reduceStack(
-        steve.inventory[currentHotbarSlot],
-        1
-      )
       let bottleneck = Object.assign(
         Object.create(Object.getPrototypeOf(this.addedstats)),
         this.addedstats
       )
+      
+      if(bottleneck.health){
+        steve.addHealth(bottleneck.health)
+      }
      
       delete bottleneck.health
-      steve.food[alphabetCode()] = {
+      if(steve.food[this.name]){
+        steve.food[this.name].time += this.effectLength * 1000
+      }else
+      steve.food[this.name] = {
         time: this.effectLength * 1000,
         stats: bottleneck,
       }
@@ -310,6 +282,12 @@ classes.consumable = class extends classes.empty {
       setTimeout(function () {
         caneat = true
       }, 1000)
+     
+      document.dispatchEvent(
+        new CustomEvent("reduceStack", {
+          detail: { toReduce: 1 },
+        })
+      )
     }
   }
 }
@@ -382,8 +360,8 @@ classes.mob = class {
           ")"
       )
     } else {
-      tag.setAttribute("onclick", "steve.damageMob(" + this.id + ")")
-      tag.setAttribute("onmouseenter", "makeMonsterHotbar(" + this.id + ")")
+      tag.onclick = function(){steve.damageMob(this)}.bind(this)
+      tag.onmouseenter = function(){makeMonsterHotbar(this)}.bind(this) 
     }
     tag.id = "mob" + this.id
     e.mapcontainer.appendChild(tag)
@@ -762,7 +740,7 @@ class Gui {
     if (this.properties.movesHotbar == undefined)
       this.properties.movesHotbar = true
   }
-  open() {
+  open(data) {
     activeGui.close()
 
     if (this.properties.needsHandler) e.guihandler.style.display = "block"
@@ -778,7 +756,7 @@ class Gui {
     } else {
       e.nei.style.display = "none"
     }
-    if (this.properties.onopen) this.properties.onopen()
+    if (this.properties.onopen) this.properties.onopen(data)
     activeGui = this
   }
   close() {
@@ -857,14 +835,14 @@ class Slot {
     this.item = new classes.empty()
     this.filter = filter
     this.shiftState = shiftState
-    this.create(position)
     this.id = slots.length
     slots.push(this)
     this.properties = properties
     if (this.properties.emptyClass == undefined)
-      this.properties.emptyClass = "empty"
+    this.properties.emptyClass = "empty"
     if (this.properties.canPutItems == undefined)
-      this.properties.canPutItems = true
+    this.properties.canPutItems = true
+    this.create(position)
   }
   hide() {
     this.tag.style.display = "none"
@@ -887,7 +865,7 @@ class Slot {
     }
     tag.onmouseenter = this.onToolTip.bind(this)
     tag.onmousedown = this.onclick.bind(this)
-    tag.setAttribute("class", "guiSlot")
+    tag.setAttribute("class", "guiSlot "+ this.properties.emptyClass)
     tag.appendChild(amount)
     this.tag = tag
     this.amount = amount
@@ -926,7 +904,8 @@ class Slot {
       } else findUsageRecipes()
       ShowRecipe(currentRecipeI)
     } else {
-      if (isShiftOn && this.shiftState != 2) {
+
+      if (isShiftOn && this.shiftState != 2 && !this.properties.isLclickSpecial && evt.button == 0) {
         /** @type {Slot[]} */
         let Slots = activeGui.getSlotsWithState(!this.shiftState)
         for (const i in Slots) {
@@ -1019,7 +998,7 @@ class Slot {
         }
 
       if (this.properties.onPostClick) {
-        this.properties.onPostClick()
+        this.properties.onPostClick(this)
       }
     }
   }
@@ -1088,6 +1067,7 @@ class Slot {
   }
   setVisualItem(item) {
     this.visualItem = item
+    item.isVisual = true
     this.updateSlot()
   }
   removeVisualItem() {
@@ -1097,6 +1077,16 @@ class Slot {
   clear() {
     this.item = new classes.empty()
     this.removeVisualItem()
+  }
+  useAbility(evt){
+    let crutch = this.reduceStackEvent.bind(this)
+    document.addEventListener("reduceStack", crutch)
+    this.item.useAbility(evt)
+    document.removeEventListener("reduceStack", crutch)
+  }
+  reduceStackEvent(evt){
+    if(evt.detail.toReduce)
+    this.reduceStack(evt.detail.toReduce)
   }
 }
 
@@ -1115,7 +1105,7 @@ const cursor = {
   updateSlot() {
     this.handler.className = this.item.name
   },
-  isToolTip: true,
+  isToolTip: false,
   becomeItem() {
     if (this.isToolTip) {
       this.handler.style.width = (1).blocks().px()
@@ -1140,6 +1130,7 @@ const cursor = {
     if (isEmpty(this.item)) {
       if (!this.isToolTip) {
         this.handler.className = "tooltipimg"
+        console.log(this.handler.className)
         this.handler.style.width = "auto"
         this.handler.style.height = "auto"
         this.handler.style.padding = " 1.2vh 2vh"
@@ -1216,6 +1207,9 @@ const cursor = {
   setBorderColor(color){
     this.handler.style.borderColor = color
 
+  },
+  canAddItem(item){
+    return this.isEmpty() || (this.item.name == item.name && this.item.getEmpty() >= item.amount)
   }
 }
 

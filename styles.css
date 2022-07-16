@@ -48,14 +48,14 @@
   
   text-align: center;
 }
-.villagername{
+#villagerName{
   width: 100%;
   text-align: center;
   font-size: 4vh;
   margin: 0;
   margin-bottom: 1vh;
 }
-#villagergui{
+#villagerGui{
 
   padding: 2vh;
   width: 100%;
@@ -67,7 +67,7 @@
   display: none;
   
 }
-/* #villagergui > div{
+/* #villagerGui > div{
 float: none;
 } */
 .settingsblockMedium,

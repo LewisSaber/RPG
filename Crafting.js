@@ -335,9 +335,9 @@ function loadrecipes() {
     ],
     "ironblock"
   )
-  addFurnaceRecipe("cobblestone", "stone", 10, 1)
-  addFurnaceRecipe("ironore", "ironingot", 160, 1)
-  addFurnaceRecipe("rottenflesh", "leather", 320, 1, 4)
+  addFurnaceRecipe("cobblestone", "stone", 1, 1)
+  addFurnaceRecipe("ironore", "ironingot", 8, 1)
+  addFurnaceRecipe("rottenflesh", "leather", 16, 1, 4)
   addShapedRecipe(
     [
       "leather",
@@ -354,8 +354,8 @@ function loadrecipes() {
   )
   addShapedRecipe(["ironingot","ironingot","ironingot",empty,"steeleafhandle",empty,empty,"steeleafhandle",empty],"ironpickaxe",1,[4,4,4])
   addShapedRecipe(["ironingot","ironingot",empty,"ironingot","steeleafhandle",empty,empty,"steeleafhandle",empty],"ironaxe",1,[4,4,0,4])
-  addFurnaceRecipe("beef", "steak", 100)
-  addFurnaceRecipe("rawchicken", "cookedchicken", 80)
+  addFurnaceRecipe("beef", "steak", 8)
+  addFurnaceRecipe("rawchicken", "cookedchicken", 8)
   addShapedRecipe(
     [
       empty,
@@ -371,7 +371,7 @@ function loadrecipes() {
     "woodsword"
   )
 
-  addFurnaceRecipe("sand", "glass", 100)
+  addFurnaceRecipe("sand", "glass", 5)
   
 }
 
@@ -416,7 +416,7 @@ function findUsageRecipes() {
   for (const key in furnacerecipes) {
     if (furnacerecipes[key].input == itemintooltip) {
       let furnace = new classes.furnace(1)
-      furnace.special = "Time: " + (furnacerecipes[key].time/20).fixed(1) + " ticks"
+      furnace.special = "Time: " + (furnacerecipes[key].time/2*1000).fixed(1) + " seconds"
 
       furnace.inventory.input.setVisualItem(new classes[key](furnacerecipes[key].inputAmount))
       furnace.inventory.output.setVisualItem(new classes[furnacerecipes[key].output](furnacerecipes[key].amount))
@@ -463,7 +463,7 @@ function findCraftingRecipes() {
   for (const key in furnacerecipes) {
     if (furnacerecipes[key].output == itemintooltip) {
       let furnace = new classes.furnace(1)
-      furnace.special = "Time: " + (furnacerecipes[key].time/20).fixed(1) + " ticks"
+      furnace.special = "Time: " + (furnacerecipes[key].time).fixed(1) + " seconds"
 
       furnace.inventory.input.setVisualItem(new classes[key](furnacerecipes[key].inputAmount))
       furnace.inventory.output.setVisualItem(new classes[furnacerecipes[key].output](furnacerecipes[key].amount))

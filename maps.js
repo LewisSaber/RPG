@@ -248,9 +248,8 @@ function renderMapFromVariable(width, height, xoffset = 0, yoffset = 0) {
   for (let i = yoffset; i < height + yoffset; i++) {
     for (let j = xoffset; j < width + xoffset; j++) {
       if(!map.layout[i][j][0].includes("tree")){
-
-        drawfloorblock(map.layout[i][j][1], j, i)
-        drawblock(map.layout[i][j][0], j, i)
+        drawMapBlock(j,i)
+        
       }
     }
   }
@@ -363,9 +362,9 @@ function turnButton(id, loc) {
 }
 
 function saveMap() {
-  // downloadMap()
+   downloadMap()
   // // saveMapToClipBoard()
-  // downloadTxtFile(btoa(JSON.stringify(map)))
+   downloadTxtFile(btoa(JSON.stringify(map)))
 }
 
 function saveMapToClipBoard() {

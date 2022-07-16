@@ -130,6 +130,9 @@ class player {
   getItemInHand(){
     return steve.inventory[currentHotbarSlot].getItem()
   }
+  getItemInHandSlot(){
+    return steve.inventory[currentHotbarSlot]
+  }
   createPlayer() {
     let tag = document.createElement("div")
     tag.setAttribute("id", "player")
@@ -284,8 +287,8 @@ class player {
     }
     return false
   }
-  removeFromInventory(item, amount) {
-    const items = this.searchForItemInInventory({ name: item })
+  removeFromInventory(itemName, amount) {
+    const items = this.searchForItemInInventory({ name: itemName })
     items.forEach((x) => {
       if (amount > 0) {
         if (this.inventory[x].getItem().amount >= amount) {
@@ -485,30 +488,30 @@ class player {
   getProjectileDamage(mob, initialDamage) {
     return initialDamage
   }
-  dealDamageToMob(id, type = "hit", initialDamage = 0) {
-    mobs[id].knockback()
+  dealDamageToMob(mob, type = "hit", initialDamage = 0) {
+    mob.knockback()
     let damage = 0
-    if (type == "hit") damage = this.getDamage(mobs[id])
+    if (type == "hit") damage = this.getDamage(mob)
     if (type == "projectile")
-      damage = this.getProjectileDamage(mobs[id], initialDamage)
+      damage = this.getProjectileDamage(mob, initialDamage)
 
-    mobs[id].stats.health -= damage
+      mob.stats.health -= damage
     //comsole.log(damage)
 
-    if (mobs[id].stats.health <= 0) {
-      mobs[id].die()
+    if (mob.stats.health <= 0) {
+      mob.die()
       e.progressbar.style.display = "none"
     } else {
-      playMobHowl(mobs[id].name, "hurt")
-      makeMonsterHotbar(id)
+      playMobHowl(mob.name, "hurt")
+      makeMonsterHotbar(mob)
     }
   }
-  damageMob(id) {
-    if (this.isMobInRange(mobs[id]) && !isBlockBetween(this, mobs[id])) {
-      if (mobs[id].name == "villager") {
-        openMachineGui(mobs[id])
+  damageMob(mob) {
+    if (this.isMobInRange(mob) && !isBlockBetween(this, mob)) {
+      if (mob.name == "villager") {
+        villagerGui.open({villagerType: mob.villagerName})
       } else {
-        this.dealDamageToMob(id)
+        this.dealDamageToMob(mob)
       }
     }
   }

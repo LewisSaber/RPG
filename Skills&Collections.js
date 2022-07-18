@@ -87,7 +87,7 @@ const collections = {
     {
       
       message: "Enchanting Book Recipe",
-      reward: '',//addShapedRecipe([empty,"glitchedredstone",empty,"string","book","string"],"enchantingbook",1,[0,2,0,32,1,32])
+      reward: 'addShapedRecipe([empty,"glitchedredstone",empty,"string","book","string"],"enchantingbook",1,[0,2,0,32,1,32])',
       amount: 256
     }
   ],

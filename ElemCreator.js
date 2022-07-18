@@ -298,23 +298,6 @@ function buildBackpacks() {
 
  }
 
-function buildEnchantingBook() {
-  for (let i = 0; i < 3; i++) {
-    let tag = document.createElement("div")
-
-    tag.setAttribute(
-      "onmouseleave",
-      "leaveElement()"    )
-    let amount = document.createElement("div")
-    amount.setAttribute("class", "itemamount")
-    tag.className = "guiSlot empty"
-    tag.setAttribute("id", "enchantingbookslot" + i)
-    e.enchantingbook["slot" + i] = tag
-    e.enchantingbook["slot" + i + "amount"] = amount
-    tag.appendChild(amount)
-    e.enchantingbook.appendChild(tag)
-  }
-}
 function buildSkills() {
   for (const key in skillnames) {
     const holder = document.createElement("div")

@@ -1,6 +1,10 @@
 const villagerTrades = {
     john: [
       {
+        item:  new classes.string(4),
+        price: { rottenflesh: 2, coins: 100} 
+      },
+      {
         item:  new classes.intimidationtalisman(1),
         price: { rottenflesh: 64, coins: 10000} 
       },

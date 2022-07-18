@@ -338,6 +338,7 @@ function loadrecipes() {
   addFurnaceRecipe("cobblestone", "stone", 1, 1)
   addFurnaceRecipe("ironore", "ironingot", 8, 1)
   addFurnaceRecipe("rottenflesh", "leather", 16, 1, 4)
+  addFurnaceRecipe("logoak", "charcoal", 8)
   addShapedRecipe(
     [
       "leather",

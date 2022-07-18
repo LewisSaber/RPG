@@ -30,7 +30,7 @@
 }
 #body{
  font-family: Minecraftia;
- 
+ --font-family:minecraftia;
   image-rendering: crisp-edges;
   image-rendering: pixelated;
   overflow: hidden;
@@ -522,7 +522,6 @@ float: none;
   height: 40vh;
 }
 .furnacearrow{
-  background-image: url(img/guiarrowoff.png);
   width: 8vh;
   height: 5vh;
   background-size: 100% 100%;
@@ -530,24 +529,13 @@ float: none;
   left: 10vh;
   top: 6.5vh;
 }
+.guiArrowOn{
+  background-image: url(img/guiarrowon.png);
+}
+.guiArrowOff{
+  background-image: url(img/guiarrowoff.png);
+}
 
-#anvilinput{
-  position: absolute;
-  left: 20vh;
-  top: 20vh;
-  
-}
-#anviloutput{
-  position: absolute;
-  left: 40vh;
-  top: 20vh;
-}
-#anviltext{
-  font-size: 3vh;
-  left: 16vh;
-  top: 12vh;
-  position: absolute;
-}
 
 
 #backpacks{
@@ -783,7 +771,10 @@ left: 37.5%;
   width: 5vh;
   height: 5vh;
 }
-#enchantingbook{
+.enchantingPasteGui{
+  background-image: url(img/enchantingPasteGui.png);
+}
+.enchantingBookGui{
   background-image: url(img/enchantingbookgui.png);
   width: 50%;
   margin-left: 20%;
@@ -793,27 +784,14 @@ left: 37.5%;
   margin-top: 5vh;
   position: relative;
 }
-#enchantingbookslot0{
-  position: absolute;
-  top: 8vh;
-  left: 20%;
-}
-#enchantingbookslot1{
-  position: absolute;
-  top: 8vh;
- right: 20%;
-}
-#enchantingbookslot2{
+
+.enchantingbookButton{
+  font-family: var(--font-family);
   position: absolute;
   top: 20vh;
- right: 43%;
-}
-#enchantingbookbutton{
-  position: absolute;
-  top: 20vh;
-  width: 12vh;
+  width: 60%;
   font-size: 2.5vh;
-  left: 18%;
+  left: 20%;
  
 }
 .coin{
@@ -908,7 +886,8 @@ left: 37.5%;
 .rottenflesh>*,
 .logoak > *,
 .bedrock > *,
-.coal > *
+.coal > *,
+.charcoal > *
 {
   color: white;
 }
@@ -1679,9 +1658,17 @@ margin-left: 15%;
   font-size: 3vh;
   display: block;
   float: left;
+  font-family: var(--font-family)
 }
 .guiSlot:hover{
  /* filter:brightness(1.4);*/
 border-width: 0.6vh;
 margin: 0.1vh;
+}
+.enchantingBookArrow{
+ font-size: 10vh;
+ position: absolute;
+ left:22vh;
+ top:2.5vh;
+
 }

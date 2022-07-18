@@ -265,7 +265,7 @@ classes.consumable = class extends classes.empty {
         Object.create(Object.getPrototypeOf(this.addedstats)),
         this.addedstats
       )
-      
+
       if(bottleneck.health){
         steve.addHealth(bottleneck.health)
       }
@@ -857,7 +857,7 @@ class Slot {
     let tag = document.createElement("div")
     let amount = document.createElement("div")
     amount.setAttribute("class", "itemamount")
-    tag.setAttribute("onmouseleave", "leaveElement()")
+    tag.onmouseleave=leaveElement
     if (position) {
       for (const key in position) {
         tag.style[key] = position[key]

@@ -54,7 +54,6 @@ function LOADING() {
     buildmachines()
     buildSkills()
     buildCollections()
-    buildEnchantingBook()
     loadskills()
     loadCollections()
     inventoryGui.close()
@@ -82,6 +81,7 @@ function LOADING() {
     steve.addCoins(0)
     steve.addHealth(1000000)
     steve.spawn()
+    steve.machines.forEach(x =>{x.item.doRecipe?.()})
 
     // goToNextMap()
   } else {
@@ -595,6 +595,7 @@ function makeConsumable(item) {
   let str = ""
   if (item.addedstats != undefined) {
    str += "Effects: ".color("lime") + br
+   if(item.effectLength)
    str += "- Duration: " + HumanReadibleTime(item.effectLength).color("orange") + br
     for (const key in item.addedstats) {
       str += "- " +
@@ -951,11 +952,17 @@ function randomItem(min, max, chance) {
 function random1000(chance) {
   return Math.floor(Math.random() * 1000 + 1) <= chance * 10
 }
-function getEnchantCost(item) {
+function getEnchantCost(item1,item2) {
+  if(item1.name == "enchantingpaste") return 0
   let cost = 0
-  for (const key in item.enchants) {
-    cost += Enchants[key].cost * item.enchants[key]
+ console.log(item2)
+  for(const key in item2.enchants){
+     if(canEnchantApply(item1,key,item2.enchants[key]))
+     cost += Enchants[key].cost * item2.enchants[key]
+     
   }
+  console.log("Cost",cost)
+  
 
   return cost
 }
@@ -1290,23 +1297,7 @@ function deleteAccount(elem) {
     buildAccountSelector()
   }
 }
-function makePriceToolTip(item, price, actuallamount = false) {
-  if (makeToolTip(item, false)) {
-    e.tooltip.innerHTML += br + br + "Price: ".color("yellow")
-    for (const key in price) {
-      e.tooltip.innerHTML += (
-        br +
-        "- " +
-        price[key].formateComas() +
-        " " +
-        getName(key)
-      ).color("yellow")
-    }
-    e.tooltip.innerHTML +=
-      "<br><br>Hold Shift to Buy " +
-      (actuallamount ? item.amount : getBuyBatch(item))
-  }
-}
+
 function getBuyBatch(item) {
   return ((item.maxStackSize / item.amount) >> 0) * item.amount
 }
@@ -1490,7 +1481,7 @@ function sellHistorySlot() {
     "onmouseenter",
     " makePriceToolTip(steve.sellHistory[steve.sellHistory.length - 1].item,{ coins: steve.sellHistory[steve.sellHistory.length - 1].price },true)"
   )
-  tag.setAttribute("onmouseleave", "leaveElement()")
+  tag.onmouseleave=leaveElement
   tag.setAttribute("onclick", "buyItemFromSellHistory()")
 
   e["sellHistorySlot"] = tag
@@ -1599,7 +1590,7 @@ function leaveElement() {
   lastToolTip = "none"
   setTimeout(function () {
     cursor.hideOnLeave()
-  }, 200)
+  }, 100)
 }
 let randomNumber = (from, to) => from + Math.floor(Math.random() * (to - from))
 let randomPlusMinus = () => (Math.floor(Math.random() * 2) == 1 ? 1 : -1)
@@ -1737,6 +1728,7 @@ function onMapClick(evt, isOnMap = true, id) {
       }
     }
   } else {
+    if(evt.button == 0)
     breakblock(clickX, clickY)
   }
 }
@@ -1859,7 +1851,7 @@ function makeToolTip(value, addSelling = true) {
         (value.description ? value.description.color("#818181") + br : "") +
         //Burnvalue
         (value.burnvalue
-          ? ("Burn Time: " + value.burnvalue + " ticks").color("gray") + br
+          ? ("Burn Time: " + value.burnvalue + " seconds").color("gray") + br
           : "") +
         //Talisman Family
         (value.family
@@ -2042,7 +2034,7 @@ function getCollectionsToolTip() {
 }
 
 function formPriceString(priceObject) {
-  let str = "Price<br>".color("white")
+  let str = "Price<br>".color("orange")
   for (const key in priceObject) {
     str += "- ".color("lightgray") + priceObject[key].formateComas().color("white") + " " + getName(key) + br
   }
@@ -2097,4 +2089,23 @@ function buyItem(parent) {
     }
     removePriceFromPlayer()
   }
+}
+
+function canEnchantApply(item,enchantname,enchantLvL){
+//check for Tool
+if(item.name != "enchantingpaste")
+{
+  
+if(!item.type.match1word(Enchants[enchantname].tool)) return false
+console.log("Passed Tool Check");
+for(const key in item.enchants){
+  if(Enchants[enchantname].conflict != "")
+  if(key.match1word(Enchants[enchantname].conflict)) return false
+}
+console.log("Passed Conflict check")
+}
+
+if(item.enchants[enchantname]>> 0 < enchantLvL) return true
+if(item.enchants[enchantname] == enchantLvL && enchantLvL< Enchants[enchantname].maxlvl ) return true
+return false
 }

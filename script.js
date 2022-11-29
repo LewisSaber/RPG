@@ -1728,7 +1728,7 @@ function onMapClick(evt, isOnMap = true, id) {
       }
     }
   } else {
-    if(evt.button == 0)
+    if((evt.button>>0) == 0)
     breakblock(clickX, clickY)
   }
 }

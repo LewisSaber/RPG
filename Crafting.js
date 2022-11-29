@@ -417,7 +417,7 @@ function findUsageRecipes() {
   for (const key in furnacerecipes) {
     if (furnacerecipes[key].input == itemintooltip) {
       let furnace = new classes.furnace(1)
-      furnace.special = "Time: " + (furnacerecipes[key].time/2*1000).fixed(1) + " seconds"
+      furnace.special = "Time: " + (furnacerecipes[key].time).fixed(1) + " seconds"
 
       furnace.inventory.input.setVisualItem(new classes[key](furnacerecipes[key].inputAmount))
       furnace.inventory.output.setVisualItem(new classes[furnacerecipes[key].output](furnacerecipes[key].amount))
